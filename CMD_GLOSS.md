@@ -18,6 +18,9 @@ sudo systemctl enable nginx
 # Test Webserver
 sudo nginx -t
 # Invoke NginX executable
-
 nginx -s signal
+
+# Check NginX processes
+ps -ax | grep nginx
+
 ```

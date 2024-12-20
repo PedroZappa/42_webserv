@@ -10,6 +10,7 @@
   * [C++](#c)
   * [NGINX](#nginx)
   * [Webserv](#webserv)
+  * [FastCGI](#fastcgi)
 
 <!-- mtoc-end -->
 ___
@@ -76,3 +77,7 @@ ___
 
 - [damachad's Notion](https://spicy-dirigible-2b6.notion.site/Webserver-2b27a84f4c5841dd80fb25229912e953)
 - [cclaude42's webserv](https://github.com/cclaude42/webserv?tab=readme-ov-file)
+
+### FastCGI
+
+- [1 The Fast Common Gateway Interface](https://fastcgi-archives.github.io/fcgi2/doc/fastcgi-prog-guide/ch1intro.htm)

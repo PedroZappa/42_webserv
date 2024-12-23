@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:53:31 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:00:53 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,29 @@ void ConfParser::loadConf(void) {
 /// @brief Removes comments from the config file
 /// @param file The config file to remove comments from
 void ConfParser::removeComments(std::string &file) {
-	// TODO: Remove comments
+	if (file.empty())
+		return;
+	size_t comment = file.find('#');
+	while (comment != std::string::npos) {
+		size_t eol = file.find('\n', comment);
+		file.erase(comment, (eol - comment));
+		comment = file.find('#');
+	}
 }
 
 /// @brief Removes spaces from the config file
 /// @param file The config file to remove spaces from
 void ConfParser::removeSpaces(std::string &file) {
-	// TODO: Remove spaces
+	if (file.empty())
+		return;
+	// remove leading spaces
+	while (std::isspace(file[0]))
+		file.erase(file.begin());
+	if (file.empty())
+		return;
+	// remove trailing spaces
+	while (std::isspace(file[(file.length() -1)]))
+		file.erase(file.end() - 1);
 }
 
 /* ************************************************************************** */

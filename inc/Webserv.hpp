@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:44:40 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:22:11 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@
 #include <fstream>	// std::ifstream
 
 // STL
-#include <map>
-#include <set>
-#include <vector>
+#include <map>			// std::map
+#include <set>			// std::set
+#include <vector>		// std::vector
+#include <algorithm>	// std::transform
 
 /* ************************************************************************** */
 /*                                  Defines                                   */

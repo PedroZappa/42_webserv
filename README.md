@@ -72,6 +72,8 @@ ___
 
 - [NGINX Reference](https://nginx.org/en/docs/)
 - [NGINX Beginners Guide to Configuration Files](https://medium.com/adrixus/beginners-guide-to-nginx-configuration-files-527fcd6d5efd)
+- [NGINX Configuration File Structure](https://www.digitalocean.com/community/tutorials/understanding-the-nginx-configuration-file-structure-and-configuration-contexts)
+- [NGINX directives index](https://nginx.org/en/docs/dirindex.html)
 
 ### Webserv
 

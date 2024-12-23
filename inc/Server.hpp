@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:32:32 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 16:10:27 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,9 @@
 /// @brief Network Listening Endpoint
 struct Socket {
 	// Constructors
-	Socket(void);
+	Socket(void) {};
 	Socket(const std::string &ip, const std::string &port)
 		: ip(ip), port(port) {};
-	~Socket(void);
 
 	// Operators
 	bool operator<(const Socket &rhs) const {

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:53:03 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 16:08:35 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void ConfParser::loadConf(void) {
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = this->getServerBlocks(fileContent);
-	this->loadContext(serverBlocks);
+	// this->loadContext(serverBlocks);
 }
 
 /// @brief Removes comments from the config file
@@ -135,6 +135,22 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	}
 	return (servers);
 }
+
+size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
+	short depth = 0;
+	while (file[start])
+	{
+		char c = file[start];
+		if (c == '{')
+			++depth;
+		else if (c == '}')
+			if (!--depth)
+				return (start);
+		++start;
+	}
+	throw std::runtime_error("Invalid server block: no '}' at end");
+}
+
 
 /* ************************************************************************** */
 /*                                  Getters                                   */

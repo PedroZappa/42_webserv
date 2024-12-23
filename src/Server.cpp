@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:32:37 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:57:28 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Server::~Server(void) {
 
 Server &Server::operator=(const Server &copy) {
 	// TODO: Init same vars as Copy Constructor
+	(void)copy;
 	return (*this);
 }
 

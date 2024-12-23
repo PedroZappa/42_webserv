@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:41:42 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 16:02:19 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@
 // C++ Libraries
 #include <cstring>  // std::memset
 #include <fstream>  // std::ifstream
+#include <sstream>  // std::stringstream
 #include <iomanip>  // std::setw
+#include <typeinfo>	// typeid
 #include <iostream> // std::cout std::cerr std::endl
 
 // STL

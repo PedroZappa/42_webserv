@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:45:21 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 16:08:29 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define CONFPARSER_HPP
 
 #include "Webserv.hpp"
+#include "Server.hpp"
 
 class Server;
 
@@ -32,10 +33,11 @@ class ConfParser {
 	void loadConf(void);
 	void removeComments(std::string &file);
 	void removeSpaces(std::string &file);
+
 	std::vector<std::string> getServerBlocks(std::string &file);
-	void loadContext(std::vector<std::string> &serverBlocks);
 	size_t getBlockEnd(std::string &file, size_t start);
-	
+
+	void loadContext(std::vector<std::string> &serverBlocks);
 
 	// Getters
 	std::vector<Server> getServers(void) const;

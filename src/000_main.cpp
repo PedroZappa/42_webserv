@@ -6,12 +6,13 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:55:10 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 16:03:59 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Webserv.hpp"
 #include "../inc/ConfParser.hpp"
+#include "../inc/Server.hpp"
 
 int main(int argc, char **argv)
 {

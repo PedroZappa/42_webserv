@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:36:12 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:51:32 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,23 @@ class ConfParser {
 	ConfParser(const std::string &confFile);
 	ConfParser(const ConfParser &copy);
 	~ConfParser(void);
-	
+
 	// Operators
 	ConfParser &operator=(const ConfParser &src);
 
-	// Getters 
+	// Parsing
+	void loadConf(void);
+	void removeComments(std::string &file);
+	void removeSpaces(std::string &file);
+
+	// Getters
 	std::vector<Server> getServers(void) const;
 
 	// TODO: Add Parsing Helper functions
+
   private:
 	std::string _confFile;
-	// TODO: Add Servers Vector (?)
+	std::vector<Server> _servers;
 };
 
 #endif

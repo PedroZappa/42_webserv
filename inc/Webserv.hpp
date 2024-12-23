@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 14:27:02 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:44:40 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <iomanip>  // std::setw
 #include <iostream>	// std::cout std::cerr std::endl
 #include <cstring>	// std::memset
+#include <fstream>	// std::ifstream
 
 // STL
 #include <map>

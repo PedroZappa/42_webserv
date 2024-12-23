@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 10:52:56 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 11:11:09 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,38 @@ struct Listen {
 	std::string ip;
 	std::string port;
 };
+
+class Server {
+  public:
+	// Constructors
+	Server(void);
+	Server(const Server &copy);
+	~Server(void);
+
+	// Operators
+	Server &operator=(const Server &src);
+
+	// Server Setup
+	void setupServer(void);
+
+	// Directive Handlers
+	
+	// Getters
+	
+  private:
+	// Server Context
+	std::vector<Listen> _netAddr;
+	std::vector<std::string> _serverName;
+	std::vector<std::string> _serverIdx;
+	std::string _root; // Root Directive
+	// TODO: Add other Context Data
+
+	// Connection Data
+	std::vector<int> _listeningSockets;
+	std::vector<struct sockaddr_in> _sockAddrVec;
+};
+
+// Insertion Operator
+std::ostream &operator<<(std::ostream &os, const Server &ctx);
 
 #endif

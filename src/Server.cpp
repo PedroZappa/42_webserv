@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 11:52:11 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 13:14:49 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,6 @@ Server &Server::operator=(const Server &src) {
 /*                                  Getters                                   */
 /* ************************************************************************** */
 
-std::vector<Listen> Server::getNetAddr(void) const {
+std::vector<Socket> Server::getNetAddr(void) const {
 	return (this->_netAddr);
 };

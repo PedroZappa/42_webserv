@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 11:51:09 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 13:14:42 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,20 @@
 #include "Webserv.hpp"
 
 /// @brief Network Listening Endpoint
-struct Listen {
+struct Socket {
 	// Constructors
-	Listen(void);
-	Listen(const std::string &ip, const std::string &port)
+	Socket(void);
+	Socket(const std::string &ip, const std::string &port)
 		: ip(ip), port(port) {};
-	~Listen(void);
+	~Socket(void);
 
 	// Operators
-	bool operator<(const Listen &rhs) const {
+	bool operator<(const Socket &rhs) const {
 		if (this->ip != rhs.ip)
 			return (this->ip < rhs.ip);
 		return (this->port < rhs.port);
 	}
-	bool operator==(const Listen &rhs) const {
+	bool operator==(const Socket &rhs) const {
 		return ((this->ip == rhs.ip) && (this->port == rhs.port));
 	}
 
@@ -54,14 +54,14 @@ class Server {
 	// Directive Handlers
 
 	// Getters
-	std::vector<Listen> getNetAddr(void) const;
+	std::vector<Socket> getNetAddr(void) const;
 
 	// Public Data
 	std::set<Method> methods;
 
   private:
 	// Server Context
-	std::vector<Listen> _netAddr;
+	std::vector<Socket> _netAddr;
 	std::vector<std::string> _serverName;
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive

@@ -6,7 +6,7 @@
 #    By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/14 12:26:53 by passunca          #+#    #+#              #
-#    Updated: 2024/12/23 10:00:18 by passunca         ###   ########.fr        #
+#    Updated: 2024/12/23 10:08:02 by passunca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,7 +42,7 @@ BUILD_PATH	= .build
 TEMP_PATH		= .temp
 INC_PATH		= inc
 
-FILES			= main.cpp
+FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 09:59:16 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 10:22:49 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,10 @@
 class ConfParser {
   public:
 	// Constructors
-	ConfParser();
+	ConfParser(void);
 	ConfParser(const std::string &confFile);
 	ConfParser(const ConfParser &copy);
-	~ConfParser();
+	~ConfParser(void);
 	
 	// Operators
 	ConfParser &operator=(const ConfParser &src);

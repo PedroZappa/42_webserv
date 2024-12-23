@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 09:52:47 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 10:25:19 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@
 
 // C Libraries
 #include <limits.h>
+#include <stdlib.h> // EXIT_SUCCESS EXIT_FAILURE
 
 // C++ Libraries
-#include <iomanip>
+#include <iomanip> // std::setw
+#include <iostream> // std::cout std::cerr std::endl
 
 // STL
 #include <map>

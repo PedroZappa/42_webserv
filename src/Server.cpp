@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:34:45 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:27:08 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,12 @@ Server &Server::operator=(const Server &copy) {
 	// TODO: Init same vars as Copy Constructor
 	(void)copy;
 	return (*this);
+}
+
+std::ostream &operator<<(std::ostream &os, const Server &ctx) {
+	os <<  "Network Address:" << std::endl;
+	std::vector<Socket> netAddrs = ctx.getNetAddr();
+	return (os);
 }
 
 /* ************************************************************************** */

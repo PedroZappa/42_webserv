@@ -6,7 +6,7 @@
 #    By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/14 12:26:53 by passunca          #+#    #+#              #
-#    Updated: 2024/12/23 18:23:46 by passunca         ###   ########.fr        #
+#    Updated: 2024/12/23 19:08:40 by passunca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,6 +44,7 @@ INC_PATH		= inc
 
 FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
+FILES			+= Debug.cpp
 FILES			+= Server.cpp
 FILES			+= Utils.cpp
 FILES			+= Location.cpp

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:07:38 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:17:56 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:11:37 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ class Location {
   private:
 	std::string _root;
 	std::vector<std::string> _index;
-	State _autoIndex;
-	long _maxBodySize;
+	// State _autoIndex;
+	// long _maxBodySize;
 	std::set<Method> _validMethods;
 };
 

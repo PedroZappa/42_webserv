@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:08:12 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:45:21 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class ConfParser {
 	void removeSpaces(std::string &file);
 	std::vector<std::string> getServerBlocks(std::string &file);
 	void loadContext(std::vector<std::string> &serverBlocks);
+	size_t getBlockEnd(std::string &file, size_t start);
 	
 
 	// Getters

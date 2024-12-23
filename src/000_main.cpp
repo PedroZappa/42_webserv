@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 10:30:42 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:55:10 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,17 @@ int main(int argc, char **argv)
 	if (argc == 2)
 		parser = ConfParser(argv[1]);
 	
-	// TODO: Declare servers vector
-	// Try to parse config
+	// Declare servers vector
+	std::vector<Server> servers;
+
+	// Attempt to load Config
+	try {
+		parser.loadConf();
+		servers = parser.getServers();
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
+		return (EXIT_FAILURE);
+	}
 	
 	// TODO: Init Server Cluster
 	

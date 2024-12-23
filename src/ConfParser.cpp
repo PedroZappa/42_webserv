@@ -6,11 +6,12 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:17:51 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:53:03 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ConfParser.hpp"
+#include "../inc/Utils.hpp"
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -97,17 +98,42 @@ void ConfParser::removeSpaces(std::string &file) {
 		file.erase(file.end() - 1);
 }
 
+/// @brief Gets the server blocks from the config file
+/// @param file The config file to get the server blocks from
+/// @return A vector of server blocks
 std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	std::vector<std::string> servers;
 	std::string identifier;
 	size_t start = 0;
 	size_t endBlock = 0;
 	size_t end = 0;
-	
-	while (file[start] != '\0') {
-		identifier = (file.substr(start, 6));
-		if (toLower(identifier) != "server") 
+
+	while (file[start] != '\0') {             // Loop until end of file
+		identifier = (file.substr(start, 6)); // Get server block identifier
+		if (toLower(identifier) != "server")
+			throw std::runtime_error("Invalid server block: no 'server' at "
+									 "start");
+		start += 6; // skip "server"
+
+		while (std::isspace(file[start])) // Skip spaces
+			++start;
+		if (file[start] != '{')
+			throw std::runtime_error("Invalid server block: no '{' at start");
+
+		end = getBlockEnd(file, start);   // Get end of block
+		while (std::isspace(file[start])) // Skip leading spaces
+			++start;
+		endBlock = end;
+		while (std::isspace(file[endBlock])) // Skip trailing spaces
+			--endBlock;
+
+		// Add block to vector
+		servers.push_back(file.substr(start, (endBlock - start + 1)));
+		start = (endBlock + 1);                          // Skip '}'
+		while (file[start] && std::isspace(file[start])) // Skip spaces
+			++start;
 	}
+	return (servers);
 }
 
 /* ************************************************************************** */

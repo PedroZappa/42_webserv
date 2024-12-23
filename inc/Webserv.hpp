@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:25:43 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:41:42 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,20 @@
 #include <arpa/inet.h> // inet_aton()
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
-#include <unistd.h>     // close()
 #include <sys/socket.h> // SOMAXCONN
+#include <unistd.h>     // close()
 
 // C++ Libraries
+#include <cstring>  // std::memset
+#include <fstream>  // std::ifstream
 #include <iomanip>  // std::setw
-#include <iostream>	// std::cout std::cerr std::endl
-#include <cstring>	// std::memset
-#include <fstream>	// std::ifstream
+#include <iostream> // std::cout std::cerr std::endl
 
 // STL
-#include <map>			// std::map
-#include <set>			// std::set
-#include <vector>		// std::vector
-#include <algorithm>	// std::transform
+#include <algorithm> // std::transform
+#include <map>       // std::map
+#include <set>       // std::set
+#include <vector>    // std::vector
 
 /* ************************************************************************** */
 /*                                  Defines                                   */

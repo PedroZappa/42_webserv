@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:23:21 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 18:34:45 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,8 +137,8 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 		std::istringstream lineRead(line);
 		lineRead >> key;
 		locInfo.setDirective(line);
-		if (key != "root" && key != "autoindex" && key != "index")
-			throw std::runtime_error("Invalid location block: unknown directive");
+		// if (key != "root" && key != "autoindex" && key != "index")
+		// 	throw std::runtime_error("Invalid location block: unknown directive");
 		if (location.tellg() >= static_cast<std::streampos>(end))
 			break;
 	}

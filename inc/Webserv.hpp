@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 10:25:19 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 11:39:36 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 // C Libraries
 #include <limits.h>
 #include <stdlib.h> // EXIT_SUCCESS EXIT_FAILURE
+#include <sys/socket.h> // SOMAXCONN
 
 // C++ Libraries
 #include <iomanip> // std::setw
@@ -28,6 +29,7 @@
 // STL
 #include <map>
 #include <vector>
+#include <set>
 
 /* ************************************************************************** */
 /*                                  Defines                                   */

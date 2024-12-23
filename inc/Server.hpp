@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 11:11:09 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 11:51:09 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,15 +52,20 @@ class Server {
 	void setupServer(void);
 
 	// Directive Handlers
-	
+
 	// Getters
-	
+	std::vector<Listen> getNetAddr(void) const;
+
+	// Public Data
+	std::set<Method> methods;
+
   private:
 	// Server Context
 	std::vector<Listen> _netAddr;
 	std::vector<std::string> _serverName;
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive
+	std::set<Method> _validMethods;
 	// TODO: Add other Context Data
 
 	// Connection Data

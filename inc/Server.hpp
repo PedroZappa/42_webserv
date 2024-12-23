@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 16:10:27 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 18:16:35 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVER_HPP
 
 #include "Webserv.hpp"
+#include "Location.hpp"
 
 /// @brief Network Listening Endpoint
 struct Socket {
@@ -56,6 +57,8 @@ class Server {
 	std::vector<Socket> getNetAddr(void) const;
 
 	// Setters
+	void setLocation(std::string block, size_t start, size_t end);
+	void setDirective(std::string &directive);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
 	// Public Data
@@ -68,6 +71,7 @@ class Server {
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive
 	std::set<Method> _validMethods;
+	std::map<std::string, Location> _locations;
 	// TODO: Add other Context Data
 
 	// Connection Data (for debugging goodness)

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 16:08:29 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 18:02:49 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,16 +31,17 @@ class ConfParser {
 
 	// Parsing
 	void loadConf(void);
-	void removeComments(std::string &file);
-	void removeSpaces(std::string &file);
+	static void removeComments(std::string &file);
+	static void removeSpaces(std::string &file);
 
 	std::vector<std::string> getServerBlocks(std::string &file);
 	size_t getBlockEnd(std::string &file, size_t start);
 
-	void loadContext(std::vector<std::string> &serverBlocks);
-
 	// Getters
 	std::vector<Server> getServers(void) const;
+
+	// Setters
+	void loadContext(std::vector<std::string> &serverBlocks);
 
 	// TODO: Add Parsing Helper functions
 

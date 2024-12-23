@@ -6,11 +6,13 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:57:28 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 18:23:21 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
+#include "../inc/ConfParser.hpp"
+#include "../inc/Location.hpp"
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -110,6 +112,42 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
+
+void Server::setLocation(std::string block, size_t start, size_t end) {
+	std::istringstream location(block.substr(start, (end - start)));
+	std::vector<std::string> tokens;
+	std::string route;
+	std::string line;
+	std::string key;
+	Location locInfo;
+
+	location >> route; // Skip 'location'
+	location >> route; // Get route
+	if (route == "{")
+		throw std::runtime_error("Invalid location route");
+	location >> line; // Skip opening "{"
+	if (line != "{")
+		throw std::runtime_error("Invalid location block: no '{' at start");
+	while (std::getline(location, line, ';')) {
+		ConfParser::removeSpaces(line);
+		if (line.empty() && !location.eof())
+			throw std::runtime_error("Invalid location block: unparsable");
+		if (line.empty())
+			continue;
+		std::istringstream lineRead(line);
+		lineRead >> key;
+		locInfo.setDirective(line);
+		if (key != "root" && key != "autoindex" && key != "index")
+			throw std::runtime_error("Invalid location block: unknown directive");
+		if (location.tellg() >= static_cast<std::streampos>(end))
+			break;
+	}
+	_locations[route] = locInfo;
+}
+
+void Server::setDirective(std::string &directive) {
+	(void)directive;
+}
 
 /// @brief Sets the IP address for the server.
 /// @param ip The IP address to set.

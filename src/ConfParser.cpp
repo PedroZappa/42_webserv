@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 16:08:35 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 18:22:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ ConfParser &ConfParser::operator=(const ConfParser &src) {
 	if (this == &src)
 		return (*this);
 	this->_confFile = src._confFile;
-	// TODO: Copy servers vector
+	this->_servers = src._servers;
 	return (*this);
 }
 
@@ -67,7 +67,7 @@ void ConfParser::loadConf(void) {
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = this->getServerBlocks(fileContent);
-	// this->loadContext(serverBlocks);
+	this->loadContext(serverBlocks);
 }
 
 /// @brief Removes comments from the config file
@@ -110,7 +110,7 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 
 	while (file[start] != '\0') {             // Loop until end of file
 		identifier = (file.substr(start, 6)); // Get server block identifier
-		if (toLower(identifier) != "server")
+if (toLower(identifier) != "server")
 			throw std::runtime_error("Invalid server block: no 'server' at "
 									 "start");
 		start += 6; // skip "server"
@@ -136,10 +136,13 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	return (servers);
 }
 
+/// @brief Gets the end of a server block
+/// @param file The config file to get the end of the server block from
+/// @param start The start of the server block
+/// @return The end of the server block
 size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 	short depth = 0;
-	while (file[start])
-	{
+	while (file[start]) {
 		char c = file[start];
 		if (c == '{')
 			++depth;
@@ -151,6 +154,39 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 	throw std::runtime_error("Invalid server block: no '}' at end");
 }
 
+void ConfParser::loadContext(std::vector<std::string> &blocks) {
+	std::vector<std::string>::iterator it;
+	std::string line;
+	std::string key;
+
+	for (it = blocks.begin(); it != blocks.end(); it++)
+	{
+		std::istringstream block(*it); // Create stringstream
+		std::streampos startPos = block.tellg(); // Save start position
+		Server server;
+
+		while (std::getline(block, line, ';')) {
+			removeSpaces(line);
+			if (line.empty())
+				throw std::runtime_error("Invalid server block: empty");
+			
+			std::istringstream lineRead(line);
+			lineRead >> key;
+			if (toLower(key) == "location") {
+				// Process location block
+				size_t endPos = (*it).find('}', startPos);
+				server.setLocation((*it), startPos, endPos);
+				std::getline(block, line, '}');
+			} else
+				server.setDirective(line);
+			startPos = block.tellg();
+		}	
+		// TODO: Check for duplicates
+		// TODO: Check for empty server blocks
+		
+		this->_servers.push_back(server);
+	}
+}
 
 /* ************************************************************************** */
 /*                                  Getters                                   */

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 11:39:36 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:27:02 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,21 @@
 /* ************************************************************************** */
 
 // C Libraries
+#include <arpa/inet.h> // inet_aton()
 #include <limits.h>
-#include <stdlib.h> // EXIT_SUCCESS EXIT_FAILURE
+#include <netinet/in.h> // struct sockaddr_in INADDR_ANY
+#include <unistd.h>     // close()
 #include <sys/socket.h> // SOMAXCONN
 
 // C++ Libraries
-#include <iomanip> // std::setw
-#include <iostream> // std::cout std::cerr std::endl
+#include <iomanip>  // std::setw
+#include <iostream>	// std::cout std::cerr std::endl
+#include <cstring>	// std::memset
 
 // STL
 #include <map>
-#include <vector>
 #include <set>
+#include <vector>
 
 /* ************************************************************************** */
 /*                                  Defines                                   */
@@ -56,10 +59,6 @@ enum Method { // Keep only the methods that we want to implement
 	PATCH
 };
 
-enum State {
-	TRUE,
-	FALSE,
-	NIL
-};
+enum State { TRUE, FALSE, NIL };
 
 #endif

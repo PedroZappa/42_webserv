@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 13:14:42 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:32:32 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,15 @@ class Server {
 	Server &operator=(const Server &src);
 
 	// Server Setup
-	void setupServer(void);
+	void setupSockets(void);
 
 	// Directive Handlers
 
 	// Getters
 	std::vector<Socket> getNetAddr(void) const;
+
+	// Setters
+	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
 	// Public Data
 	std::set<Method> methods;
@@ -68,7 +71,7 @@ class Server {
 	std::set<Method> _validMethods;
 	// TODO: Add other Context Data
 
-	// Connection Data
+	// Connection Data (for debugging goodness)
 	std::vector<int> _listeningSockets;
 	std::vector<struct sockaddr_in> _sockAddrVec;
 };

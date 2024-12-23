@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 10:22:49 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:36:12 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define CONFPARSER_HPP
 
 #include "Webserv.hpp"
+
+class Server;
 
 class ConfParser {
   public:
@@ -26,7 +28,9 @@ class ConfParser {
 	// Operators
 	ConfParser &operator=(const ConfParser &src);
 
-	// Member Functions
+	// Getters 
+	std::vector<Server> getServers(void) const;
+
 	// TODO: Add Parsing Helper functions
   private:
 	std::string _confFile;

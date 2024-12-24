@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:23:51 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 17:36:38 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,14 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	os << "Network Addresses:" << std::endl;
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
 	std::vector<Socket>::const_iterator it;
-
 	for (it = netAddrs.begin(); it != netAddrs.end(); it++)
 		os << "=> IP: " << it->ip << " Port: " << it->port << std::endl;
+
+	os << "Server Name:" << std::endl;
+	std::vector<std::string> names = ctx.getServerName();
+	std::vector<std::string>::const_iterator it2;
+	for (it2 = names.begin(); it2 != names.end(); it2++)
+		os << "=> " << *it2 << std::endl;
 	return (os);
 }
 
@@ -112,6 +117,18 @@ void Server::setupSockets(void) {
 /* ************************************************************************** */
 /*                                  Getters                                   */
 /* ************************************************************************** */
+
+/// @brief Returns the server names.
+/// @return A vector of strings representing the server names.
+std::vector<std::string> Server::getServerName(void) const {
+	return (this->_serverName);
+}
+
+/// @brief Returns the server indexes.
+/// @return A vector of strings representing the server indexes.
+std::vector<std::string> Server::getServerIdx(void) const {
+	return (this->_serverIdx);
+}
 
 /// @brief Returns the network addresses of the server.
 /// @return A vector of Socket objects representing the network addresses of the server.

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:16:35 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 17:33:07 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ class Server {
 	// Directive Handlers
 
 	// Getters
+	std::vector<std::string> getServerName(void) const;
+	std::vector<std::string> getServerIdx(void) const;
 	std::vector<Socket> getNetAddr(void) const;
 
 	// Setters

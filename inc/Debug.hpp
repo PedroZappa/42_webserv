@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:46:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:38:18 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 17:54:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,6 @@ void showContainer(const std::string &functionName,
     debugLocus(functionName, SHOW_MSG, "Printing container: " + containerName);
     
     std::ostringstream output;
-    output << CYN << "[";  // Using CYN color for consistency with INFO messages
     
     for (typename C::const_iterator it = container.begin(); it != container.end(); ++it) {
         output << *it;
@@ -111,7 +110,6 @@ void showContainer(const std::string &functionName,
             output << ", ";
         }
     }
-    output << "]" << NC;  // Reset color at the end
     
     std::cerr << output.str() << std::endl;
 }

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 17:03:59 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 17:55:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,23 +66,20 @@ void ConfParser::loadConf(void) {
 	if (fileContent.empty()) // Handle empty file
 		throw std::runtime_error("Config file is empty");
 #ifdef DEBUG
-	debugLocus(__func__, SHOW_MSG, "cleaned config file: " + _confFile);
+	debugLocus(__func__, SHOW_MSG, "cleaned config file:\n" NC + fileContent);
 #endif
 
 	// TODO: Handle quotes?
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = this->getServerBlocks(fileContent);
-#ifdef DEBUG
-	std::ostringstream oss;
-	oss << "Got " << serverBlocks.size() << " server blocks";
-	debugLocus(__func__, SHOW_MSG, oss.str());
-#endif
 	this->loadContext(serverBlocks);
+
 #ifdef DEBUG
 	std::ostringstream ss;
 	ss << "Loaded " << serverBlocks.size() << " servers";
-	debugLocus(__func__, FEND, oss.str());
+	showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
+	debugLocus(__func__, FEND, ss.str());
 #endif
 }
 
@@ -91,7 +88,7 @@ void ConfParser::loadConf(void) {
 void ConfParser::removeComments(std::string &file) {
 #ifdef DEBUG
 	debugLocus(
-		__func__, FSTART, "removing comments from config file " YEL + file + NC);
+		__func__, FSTART, "removing comments from config file\n" YEL + file + NC);
 #endif
 	if (file.empty())
 		return;
@@ -108,7 +105,7 @@ void ConfParser::removeComments(std::string &file) {
 void ConfParser::removeSpaces(std::string &file) {
 #ifdef DEBUG
 	debugLocus(
-		__func__, FSTART, "removing spaces from config file " YEL + file + NC);
+		__func__, FSTART, "removing spaces from config file: " YEL + file + NC);
 #endif
 	std::istringstream stream(file);
 	std::string line;
@@ -235,6 +232,11 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 		// TODO: Check for empty server blocks
 
 		this->_servers.push_back(server);
+#ifdef DEBUG
+		debugLocus(
+			__func__, FEND, "loaded context from config file " + _confFile);
+		showContainer(__func__, "Servers", _servers);
+#endif
 	}
 }
 

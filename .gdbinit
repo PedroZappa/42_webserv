@@ -36,7 +36,6 @@ end
 
 define loadConf
   display _confFile
-  display fileContent
 end
 
 
@@ -50,8 +49,15 @@ end
 # rfr
 
 # STOP @ loadConf
-break loadConf
+# break loadConf
+# run "conf/default.conf"
+# loadConf
+# fs cmd
+# rfr
+
+# Stop @ getServer
+break getServers
 run "conf/default.conf"
-loadConf
 fs cmd
 rfr
+

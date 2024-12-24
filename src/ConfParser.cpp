@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 17:55:55 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 18:50:40 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,24 @@ void ConfParser::removeSpaces(std::string &file) {
 		file.erase(file.length() - 1);
 }
 
+/// @brief Tokenizes a string into a vector of strings
+/// @param line The string to tokenize
+/// @return A vector of strings
+std::vector<std::string> ConfParser::tokenizer(std::string &line) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "tokenizing line: " YEL + line + NC);
+#endif
+	std::vector<std::string> tks;
+	std::stringstream ss(line);
+	std::string val;
+
+	while (ss >> val) {
+		ConfParser::removeSpaces(val);
+		tks.push_back(val);
+	}
+	return (tks);
+}
+
 /// @brief Gets the server blocks from the config file
 /// @param file The config file to get the server blocks from
 /// @return A vector of server blocks
@@ -233,9 +251,9 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 
 		this->_servers.push_back(server);
 #ifdef DEBUG
+		showContainer(__func__, "Servers", _servers);
 		debugLocus(
 			__func__, FEND, "loaded context from config file " + _confFile);
-		showContainer(__func__, "Servers", _servers);
 #endif
 	}
 }

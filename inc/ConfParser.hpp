@@ -6,15 +6,15 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:53:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:02:49 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 18:35:21 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFPARSER_HPP
 #define CONFPARSER_HPP
 
-#include "Webserv.hpp"
 #include "Server.hpp"
+#include "Webserv.hpp"
 
 class Server;
 
@@ -33,6 +33,7 @@ class ConfParser {
 	void loadConf(void);
 	static void removeComments(std::string &file);
 	static void removeSpaces(std::string &file);
+	static std::vector<std::string> tokenizer(std::string &line);
 
 	std::vector<std::string> getServerBlocks(std::string &file);
 	size_t getBlockEnd(std::string &file, size_t start);

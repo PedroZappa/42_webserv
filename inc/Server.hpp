@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 18:26:03 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 19:06:19 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Server {
 	Server &operator=(const Server &src);
 
 	// Server Setup
-	void initDirectiveMap(void);
+	static void initDirectiveMap(void);
 
 	// Getters
 	std::vector<std::string> getServerName(void) const;
@@ -69,10 +69,12 @@ class Server {
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive
 	std::map<std::string, Location> _locations;
-	typedef void (Server::*DirHandler)(std::vector<std::string> &d);
-	std::map<std::string, DirHandler> _directiveMap;
 	std::set<Method> _validMethods;
 	// TODO: Add other Context Data
+
+	// Directive Map w/ Function Pointer
+	typedef void (Server::*DirHandler)(std::vector<std::string> &d);
+	std::map<std::string, DirHandler> _directiveMap;
 
 	// Connection Data (for debugging goodness)
 	std::vector<int> _listeningSockets;

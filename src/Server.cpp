@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 18:27:01 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 19:03:17 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,7 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /// @brief Sets the server name.
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
+	_serverName.clear();
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverName.push_back(*it);
@@ -148,7 +149,8 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 }
 
 void Server::setDirective(std::string &directive) {
-	(void)directive;
+	std::vector<std::string> tks;
+	tks = ConfParser::tokenizer(directive);
 }
 
 /// @brief Sets the IP address for the server.

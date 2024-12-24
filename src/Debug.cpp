@@ -14,9 +14,10 @@
 #include "../inc/Error.h"
 #include "../inc/Webserv.hpp"
 
-const t_debug_msg debug_msg[14] = {
-    {" INFO", SHOW_MSG, 5, "(ii) ", CYN},
+const t_debug_msg debug_msg[15] = {
+    {" INFO", SHOW_MSG, 5, "(ii) ", BGRN},
     {" START", FSTART, 6, "(>>) ", BLU},
+    {" END", FEND, 4, "(<<) ", MAG},
     {" ERROR", ERROR, 6, "(xx) ", RED},
     {" SUCCESS", SUCCESS, 8, "(xx) ", GRN},
     {" MALLOC", D_MALLOC, 7, "(**) ", RED},

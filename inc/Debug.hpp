@@ -44,23 +44,11 @@
 # ifndef _SHOW_KEY_
 #  define _SHOW_KEY_ 0
 # endif
-# ifndef MY_DEBUG
-#  define MY_DEBUG 0
-# endif
-# ifndef MY_DEBUG_COLOR
-#  define MY_DEBUG_COLOR 0
-# endif
 # ifndef FSTART
 #  define FSTART 255
 # endif
-# ifndef MY_DEBUGMALLOC_
-#  define MY_DEBUGMALLOC_ 0
-# endif
-# ifndef _MLX_TEST_
-#  define _MLX_TEST_ 1
-# endif
-# ifndef _MOUSE_TEST_
-#  define _MOUSE_TEST_ 1
+# ifndef FEND
+#  define FEND 254
 # endif
 # ifndef DEBUG_FREE
 #  define DEBUG_FREE 0

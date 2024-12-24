@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 16:54:38 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 17:03:59 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,13 +108,11 @@ void ConfParser::removeSpaces(std::string &file) {
 		size_t start = line.find_first_not_of(" \t");
 		size_t end = line.find_last_not_of(" \t");
 		if (start == std::string::npos)
-			continue; // Skip empty or whitespace-only lines
+			continue; // Skip empty lines
 		// Extract the trimmed line into result
 		result << line.substr(start, (end - start + 1)) << '\n';
 	}
-
-	// Replace the file content with the processed result
-	file = result.str();
+	file = result.str(); // Replace the file content with the processed result
 
 	// Remove any trailing newline character in the final result
 	if (!file.empty() && (file[file.length() - 1] == '\n'))
@@ -160,6 +158,11 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 		while (file[start] && std::isspace(file[start])) // Skip spaces
 			++start;
 	}
+#ifdef DEBUG
+	std::ostringstream oss;
+	oss << "got " << servers.size() << " blocks";
+	debugLocus(__func__, FEND, oss.str());
+#endif
 	return (servers);
 }
 

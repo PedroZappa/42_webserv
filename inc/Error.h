@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:04:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:05:14 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:19:02 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 /// Sauce taken from the great afmyhouse (antoda-s):
@@ -280,46 +280,6 @@
 #endif
 #ifndef EXEC_NOT_EXECUTED
 #define EXEC_NOT_EXECUTED 611
-#endif
-
-/* ************************************************************************** */
-///	CD ERROR CODES and STATUS
-/* ************************************************************************** */
-#ifndef CD_ERROR
-#define CD_ERROR 700
-#endif
-#ifndef CD_OPEN
-#define CD_OPEN 701
-#endif
-#ifndef CD_CLOSED
-#define CD_CLOSED 702
-#endif
-#ifndef CD_NOT_OPEN
-#define CD_NOT_OPEN 703
-#endif
-#ifndef CD_NOT_CLOSED
-#define CD_NOT_CLOSED 704
-#endif
-#ifndef CD_NOT_CREATED
-#define CD_NOT_CREATED 705
-#endif
-#ifndef CD_NOT_DELETED
-#define CD_NOT_DELETED 706
-#endif
-#ifndef CD_NOT_RENAMED
-#define CD_NOT_RENAMED 707
-#endif
-#ifndef CD_NOT_COPIED
-#define CD_NOT_COPIED 708
-#endif
-#ifndef CD_NOT_MOVED
-#define CD_NOT_MOVED 709
-#endif
-#ifndef CD_NOT_EXECUTABLE
-#define CD_NOT_EXECUTABLE 710
-#endif
-#ifndef CD_NOT_EXECUTED
-#define CD_NOT_EXECUTED 711
 #endif
 
 // # ifndef FILE_ERROR

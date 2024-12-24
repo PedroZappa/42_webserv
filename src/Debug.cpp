@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:46:43 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:17:20 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:19:04 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void debugLocus(const std::string &functionName,
                 int status,
                 const std::string &customMessage) {
     // Find the appropriate debug message entry
-    const t_debug_msg* msg_entry = NULL;
+    const t_debug_msg *msg_entry = NULL;
     for (int i = 0; debug_msg[i].msg != NULL; i++) {
         if (debug_msg[i].status == status) {
             msg_entry = &debug_msg[i];

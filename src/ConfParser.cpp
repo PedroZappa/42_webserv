@@ -65,12 +65,25 @@ void ConfParser::loadConf(void) {
 	this->removeSpaces(fileContent);
 	if (fileContent.empty()) // Handle empty file
 		throw std::runtime_error("Config file is empty");
+#ifdef DEBUG
+	debugLocus(__func__, SHOW_MSG, "cleaned config file: " + _confFile);
+#endif
 
 	// TODO: Handle quotes?
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = this->getServerBlocks(fileContent);
+#ifdef DEBUG
+	std::ostringstream oss;
+	oss << "Got " << serverBlocks.size() << " server blocks";
+	debugLocus(__func__, SHOW_MSG, oss.str());
+#endif
 	this->loadContext(serverBlocks);
+#ifdef DEBUG
+	std::ostringstream ss;
+	ss << "Loaded " << serverBlocks.size() << " servers";
+	debugLocus(__func__, FEND, oss.str());
+#endif
 }
 
 /// @brief Removes comments from the config file

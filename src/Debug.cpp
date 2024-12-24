@@ -32,9 +32,9 @@ const t_debug_msg debug_msg[15] = {
     {NULL, 0, 0, NULL, NULL}
 };
 
-void debugLocus(const std::string &functionName,
+void debugLocus(const std::string &funcName,
                 int status,
-                const std::string &customMessage) {
+                const std::string &customMsg) {
     // Find the appropriate debug message entry
     const t_debug_msg *msg_entry = NULL;
     for (int i = 0; debug_msg[i].msg != NULL; i++) {
@@ -54,11 +54,11 @@ void debugLocus(const std::string &functionName,
     std::ostringstream msg;
     msg << msg_entry->color                  // Color code
         << msg_entry->msg_header             // Header like "(ii) "
-        << functionName                      // Function name
+        << funcName                      // Function name
         << msg_entry->msg;                   // Status message
 
-    if (!customMessage.empty()) {
-        msg << " -> " << customMessage;
+    if (!customMsg.empty()) {
+        msg << " -> " << customMsg;
     }
 
     // Print to standard error and reset color

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 17:36:38 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 18:27:01 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,22 @@
 /* ************************************************************************** */
 
 Server::Server(void) {
-	// NginX Default server
-	// TODO: Push back index.html/index.htm to _index vewctor
-	// TODO: Initialize Directives Map
+	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
+	_serverIdx.push_back("index.html");
+	_serverIdx.push_back("index.htm");
+	this->initDirectiveMap();
 	// TODO: Init Set of HTTP request methods (Declare it in class?)
-	// TODO: Insert methods into _validMethods vector
+	std::set<Method> methods;
+	methods.insert(GET);
+	methods.insert(POST);
+	methods.insert(DELETE);
+	this->_validMethods = methods;
 	// TODO: set _return to Pair(-1, "") (empty)
 }
 
 Server::Server(const Server &copy)
-	: methods(copy.methods)
-// TODO: Use initialization list to get values to copy
+	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
+	  _serverIdx(copy.getServerIdx())
 {
 }
 
@@ -41,8 +46,9 @@ Server::~Server(void) {
 /* ************************************************************************** */
 
 Server &Server::operator=(const Server &copy) {
-	// TODO: Init same vars as Copy Constructor
-	(void)copy;
+	this->_netAddr = copy.getNetAddr();
+	this->_serverName = copy.getServerName();
+	this->_serverIdx = copy.getServerIdx();
 	return (*this);
 }
 
@@ -65,54 +71,10 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 /*                                Server Setup                                */
 /* ************************************************************************** */
 
-/// @brief Sets up the server by setting up the listening sockets.
-/// @throws std::runtime_error if the socket setup fails.
-/// @returns void
-void Server::setupSockets(void) {
-	const std::vector<Socket> netAddr = this->getNetAddr();
-
-	// Setup sockets
-	for (std::vector<Socket>::const_iterator sock = netAddr.begin();
-		 sock != netAddr.end();
-		 sock++) {
-		// Create IPv4/TCP socket
-		int sockFd = socket(AF_INET, SOCK_STREAM, 0);
-		if (sockFd < 0)
-			throw std::runtime_error("socket: Failed to create socket");
-
-		// Set socket options (for debugging)
-		int optval = 1;
-		if (setsockopt(
-				sockFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
-			throw std::runtime_error("setsockopt: Failed to set SO_REUSEADDR");
-
-		// Setup listening for conns on port ()
-		struct sockaddr_in sockAddr;
-		std::memset(&sockAddr, 0, sizeof(sockAddr)); // Clear sockAddr
-		sockAddr.sin_family = AF_INET; // Set family to AF_INET (IPv4)
-		this->setIPaddr(sock->ip, sockAddr);
-		// convert port number to network byte order
-		sockAddr.sin_port = htons(std::atoi(sock->port.c_str()));
-
-		// Bind socket to port
-		if (bind(sockFd, (struct sockaddr *)&sockAddr, sizeof(sockAddr)) < 0) {
-			close(sockFd);
-			throw std::runtime_error("bind: Failed to bind socket");
-		}
-		// Listen for conns
-		if (listen(sockFd, SOMAXCONN) < 0) {
-			close(sockFd);
-			throw std::runtime_error("listen: Failed to listen for conns");
-		}
-		// Store listening socket for debugging & data management
-		this->_listeningSockets.push_back(sockFd);
-		this->_sockAddrVec.push_back(sockAddr);
-	}
+///
+void Server::initDirectiveMap(void) {
+	_directiveMap["server_name"] = &Server::setServerName;
 }
-
-/* ************************************************************************** */
-/*                             Directive Handlers                             */
-/* ************************************************************************** */
 
 /* ************************************************************************** */
 /*                                  Getters                                   */
@@ -140,6 +102,19 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /*                                  Setters                                   */
 /* ************************************************************************** */
 
+/// @brief Sets the server name.
+/// @param name The name of the server.
+void Server::setServerName(std::vector<std::string> &tks) {
+	std::vector<std::string>::const_iterator it;
+	for (it = tks.begin(); it != tks.end(); it++)
+		_serverName.push_back(*it);
+}
+
+/// @brief Sets the location block.
+/// @param block The location block to set.
+/// @param start The start of the location block.
+/// @param end The end of the location block.
+/// @throw std::runtime_error if the location block is invalid.
 void Server::setLocation(std::string block, size_t start, size_t end) {
 	std::istringstream location(block.substr(start, (end - start)));
 	std::vector<std::string> tokens;

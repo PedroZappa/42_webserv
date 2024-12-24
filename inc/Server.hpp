@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 17:33:07 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 18:26:03 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,7 @@ class Server {
 	Server &operator=(const Server &src);
 
 	// Server Setup
-	void setupSockets(void);
-
-	// Directive Handlers
+	void initDirectiveMap(void);
 
 	// Getters
 	std::vector<std::string> getServerName(void) const;
@@ -59,12 +57,10 @@ class Server {
 	std::vector<Socket> getNetAddr(void) const;
 
 	// Setters
+	void setServerName(std::vector<std::string> &tks);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setDirective(std::string &directive);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
-
-	// Public Data
-	std::set<Method> methods;
 
   private:
 	// Server Context
@@ -72,8 +68,10 @@ class Server {
 	std::vector<std::string> _serverName;
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive
-	std::set<Method> _validMethods;
 	std::map<std::string, Location> _locations;
+	typedef void (Server::*DirHandler)(std::vector<std::string> &d);
+	std::map<std::string, DirHandler> _directiveMap;
+	std::set<Method> _validMethods;
 	// TODO: Add other Context Data
 
 	// Connection Data (for debugging goodness)

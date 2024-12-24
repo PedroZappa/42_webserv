@@ -6,71 +6,60 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:46:43 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 19:32:43 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:17:20 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Debug.hpp"
+#include "../inc/Error.h"
 #include "../inc/Webserv.hpp"
 
-const std::map<DebugStatus, std::string> createStatusMessages() {
-    std::map<DebugStatus, std::string> messages;
-    messages[INFO] = " INFO";
-    messages[START] = " START";
-    messages[ERROR] = " ERROR";
-    messages[SUCCESS] = " SUCCESS";
-    messages[MALLOC] = " MALLOC";
-    messages[FREE] = " FREE";
-    messages[MALLOC_ERROR] = " MALLOC_ERROR";
-    messages[MALLOC_NOT_ALLOCATED] = " MALLOC_NOT_ALLOCATED";
-    messages[FILE_ERROR] = " FILE_ERROR";
-    messages[CHILD_EXIT] = " CHILD_EXIT";
-    messages[EXIT_FAIL] = " EXIT_FAILURE";
-    messages[FILE_NOT_FOUND] = " FILE_NOT_FOUND";
-    messages[FILE_NOT_DELETED] = " FILE_NOT_DELETED";
-    return messages;
-}
-
-const std::map<DebugStatus, std::string> statusMessages = createStatusMessages();
-
-const std::map<DebugStatus, std::string> createStatusPrefixes() {
-    std::map<DebugStatus, std::string> prefixes;
-    prefixes[INFO] = "(ii)";
-    prefixes[START] = "(>>)";
-    prefixes[ERROR] = "(xx)";
-    prefixes[SUCCESS] = "(**)";
-    prefixes[MALLOC] = "(**)";
-    prefixes[FREE] = "(**)";
-    prefixes[MALLOC_ERROR] = "(xx)";
-    prefixes[MALLOC_NOT_ALLOCATED] = "(xx)";
-    prefixes[FILE_ERROR] = "(xx)";
-    prefixes[CHILD_EXIT] = "(xx)";
-    prefixes[EXIT_FAIL] = "(xx)";
-    prefixes[FILE_NOT_FOUND] = "(xx)";
-    prefixes[FILE_NOT_DELETED] = "(xx)";
-    return prefixes;
-}
-
-const std::map<DebugStatus, std::string> statusPrefixes = createStatusPrefixes();
-
+const t_debug_msg debug_msg[14] = {
+    {" INFO", SHOW_MSG, 5, "(ii) ", CYN},
+    {" START", FSTART, 6, "(>>) ", BLU},
+    {" ERROR", ERROR, 6, "(xx) ", RED},
+    {" SUCCESS", SUCCESS, 8, "(xx) ", GRN},
+    {" MALLOC", D_MALLOC, 7, "(**) ", RED},
+    {" FREE", D_FREE, 5, "(**) ", RED},
+    {" MALLOC_ERROR", MALLOC_ERROR, 13, "(xx) ", RED},
+    {" MALLOC_NOT_ALLOC", MALLOC_NOT_ALLOCATED, 18, "(xx) ", CYN},
+    {" FILE_ERROR", FILE_ERROR, 11, "(xx) ", RED},
+    {" CHILD_EXIT", CHILD_EXIT, 11, "(xx) ", YEL},
+    {" EXIT_FAILURE", EXIT_FAILURE, 14, "(xx) ", RED},
+    {" FILE_NOT_FOUND", FILE_NOT_FOUND, 16, "(xx) ", RED},
+    {" FILE_NOT_DELETED", FILE_NOT_DELETED, 17, "(xx) ", RED},
+    {NULL, 0, 0, NULL, NULL}
+};
 
 void debugLocus(const std::string &functionName,
-		   DebugStatus status,
-		   const std::string &customMessage) {
-	if (statusMessages.count(status) == 0) {
-		std::cerr << "Invalid status." << std::endl;
-		return;
-	}
+                int status,
+                const std::string &customMessage) {
+    // Find the appropriate debug message entry
+    const t_debug_msg* msg_entry = NULL;
+    for (int i = 0; debug_msg[i].msg != NULL; i++) {
+        if (debug_msg[i].status == status) {
+            msg_entry = &debug_msg[i];
+            break;
+        }
+    }
 
-	// Build the message
-	std::ostringstream msg;
-	msg << statusPrefixes.at(status) << " " << functionName << " "
-		<< statusMessages.at(status);
+    // Check if status is valid
+    if (!msg_entry) {
+        std::cerr << RED "Invalid status." NC << std::endl;
+        return;
+    }
 
-	if (!customMessage.empty()) {
-		msg << " -> " << customMessage;
-	}
+    // Build the message using ostringstream
+    std::ostringstream msg;
+    msg << msg_entry->color                  // Color code
+        << msg_entry->msg_header             // Header like "(ii) "
+        << functionName                      // Function name
+        << msg_entry->msg;                   // Status message
 
-	// Print to the standard error stream
-	std::cerr << msg.str() << std::endl;
+    if (!customMessage.empty()) {
+        msg << " -> " << customMessage;
+    }
+
+    // Print to standard error and reset color
+    std::cerr << msg.str() << NC << std::endl;
 }

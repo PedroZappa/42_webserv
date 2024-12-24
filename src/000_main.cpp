@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 19:27:58 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:17:50 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 int main(int argc, char **argv) {
 #ifdef DEBUG
-	debugLocus(__func__, START);
+	debugLocus(__func__, FSTART, "Starting Webserv");
 #endif
 	if (argc != 2) {
 		// TODO: Implement Better Failure Handlers

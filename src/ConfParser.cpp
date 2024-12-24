@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 18:22:55 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 16:54:38 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,9 @@ ConfParser &ConfParser::operator=(const ConfParser &src) {
 /// @brief Loads the config file and parses it into a vector of servers
 /// @throws std::runtime_error if the config file cannot be opened
 void ConfParser::loadConf(void) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "loading config file " + _confFile);
+#endif
 	std::ifstream confFile(this->_confFile.c_str()); // Open config file
 	if (!confFile.is_open())
 		throw std::runtime_error("Failed to open config file " + _confFile);
@@ -73,6 +76,10 @@ void ConfParser::loadConf(void) {
 /// @brief Removes comments from the config file
 /// @param file The config file to remove comments from
 void ConfParser::removeComments(std::string &file) {
+#ifdef DEBUG
+	debugLocus(
+		__func__, FSTART, "removing comments from config file " YEL + file + NC);
+#endif
 	if (file.empty())
 		return;
 	size_t comment = file.find('#');
@@ -86,22 +93,42 @@ void ConfParser::removeComments(std::string &file) {
 /// @brief Removes spaces from the config file
 /// @param file The config file to remove spaces from
 void ConfParser::removeSpaces(std::string &file) {
+#ifdef DEBUG
+	debugLocus(
+		__func__, FSTART, "removing spaces from config file " YEL + file + NC);
+#endif
+	std::istringstream stream(file);
+	std::string line;
+	std::ostringstream result;
+
 	if (file.empty())
 		return;
-	// remove leading spaces
-	while (std::isspace(file[0]))
-		file.erase(file.begin());
-	if (file.empty())
-		return;
-	// remove trailing spaces
-	while (std::isspace(file[(file.length() - 1)]))
-		file.erase(file.end() - 1);
+	while (std::getline(stream, line)) {
+		// Remove leading and trailing spaces from the line
+		size_t start = line.find_first_not_of(" \t");
+		size_t end = line.find_last_not_of(" \t");
+		if (start == std::string::npos)
+			continue; // Skip empty or whitespace-only lines
+		// Extract the trimmed line into result
+		result << line.substr(start, (end - start + 1)) << '\n';
+	}
+
+	// Replace the file content with the processed result
+	file = result.str();
+
+	// Remove any trailing newline character in the final result
+	if (!file.empty() && (file[file.length() - 1] == '\n'))
+		file.erase(file.length() - 1);
 }
 
 /// @brief Gets the server blocks from the config file
 /// @param file The config file to get the server blocks from
 /// @return A vector of server blocks
 std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
+#ifdef DEBUG
+	debugLocus(
+		__func__, FSTART, "getting server blocks from config file " + _confFile);
+#endif
 	std::vector<std::string> servers;
 	std::string identifier;
 	size_t start = 0;
@@ -110,7 +137,7 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 
 	while (file[start] != '\0') {             // Loop until end of file
 		identifier = (file.substr(start, 6)); // Get server block identifier
-if (toLower(identifier) != "server")
+		if (toLower(identifier) != "server")
 			throw std::runtime_error("Invalid server block: no 'server' at "
 									 "start");
 		start += 6; // skip "server"
@@ -141,6 +168,11 @@ if (toLower(identifier) != "server")
 /// @param start The start of the server block
 /// @return The end of the server block
 size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
+#ifdef DEBUG
+	debugLocus(__func__,
+			   FSTART,
+			   "getting end of server block from config file " + _confFile);
+#endif
 	short depth = 0;
 	while (file[start]) {
 		char c = file[start];
@@ -155,13 +187,15 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 }
 
 void ConfParser::loadContext(std::vector<std::string> &blocks) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "loading context from config file " + _confFile);
+#endif
 	std::vector<std::string>::iterator it;
 	std::string line;
 	std::string key;
 
-	for (it = blocks.begin(); it != blocks.end(); it++)
-	{
-		std::istringstream block(*it); // Create stringstream
+	for (it = blocks.begin(); it != blocks.end(); it++) {
+		std::istringstream block(*it);           // Create stringstream
 		std::streampos startPos = block.tellg(); // Save start position
 		Server server;
 
@@ -169,7 +203,7 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			removeSpaces(line);
 			if (line.empty())
 				throw std::runtime_error("Invalid server block: empty");
-			
+
 			std::istringstream lineRead(line);
 			lineRead >> key;
 			if (toLower(key) == "location") {
@@ -180,10 +214,10 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			} else
 				server.setDirective(line);
 			startPos = block.tellg();
-		}	
+		}
 		// TODO: Check for duplicates
 		// TODO: Check for empty server blocks
-		
+
 		this->_servers.push_back(server);
 	}
 }
@@ -193,5 +227,9 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 /* ************************************************************************** */
 
 std::vector<Server> ConfParser::getServers(void) const {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "getting servers from object");
+#endif
+
 	return (this->_servers);
 }

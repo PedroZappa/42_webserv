@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:46:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:16:04 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:38:18 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,30 +88,23 @@ typedef struct s_debug_msg
 	const char			*color;
 }				t_debug_msg;
 
+/* ************************************************************************** */
+/*                            Function Prototypes                             */
+/* ************************************************************************** */
 
 void debugLocus(const std::string &functionName,
 				int status,
 				const std::string &customMessage = "");
 
-// // Template to print any container
-// template <typename C>
-// void showContainer(const std::string &functionName,
-//                    const std::string &containerName,
-//                    const C &container) {
-//     debugLocus(functionName, INFO, "Printing container: " + containerName);
-//
-//     std::cerr << "[";
-//     for (typename C::const_iterator it = container.begin(); it != container.end(); ++it) {
-//         std::cerr << *it;
-//         typename C::const_iterator next = it;
-//         ++next;
-//         if (next != container.end()) {
-//             std::cerr << ", ";
-//         }
-//     }
-//     std::cerr << "]" << std::endl;
-// }
-// Template to print any container
+/* ************************************************************************** */
+/*                                 Templates                                  */
+/* ************************************************************************** */
+
+/// @brief Template to print containers
+/// @tparam C The container type
+/// @param functionName The name of the function
+/// @param containerName The name of the container
+/// @param container The container
 template <typename C>
 void showContainer(const std::string &functionName,
                   const std::string &containerName,

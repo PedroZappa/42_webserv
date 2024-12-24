@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 19:27:08 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:23:51 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,12 @@ Server &Server::operator=(const Server &copy) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Server &ctx) {
-	os <<  "Network Address:" << std::endl;
+	os << "Network Addresses:" << std::endl;
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
+	std::vector<Socket>::const_iterator it;
+
+	for (it = netAddrs.begin(); it != netAddrs.end(); it++)
+		os << "=> IP: " << it->ip << " Port: " << it->port << std::endl;
 	return (os);
 }
 

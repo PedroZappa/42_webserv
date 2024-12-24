@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 15:18:14 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 15:31:14 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 10:36:22 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include "Server.hpp"
 #include "Webserv.hpp"
+#include "Debug.hpp"
+#include "Error.h"
 
 class Server;
 

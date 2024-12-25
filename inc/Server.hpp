@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 10:53:47 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:42:51 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,11 @@ class Server {
 	bool isPortValid(const std::string &port) const;
 
 	// Getters
-	std::vector<std::string> getServerName(void) const;
-	std::vector<std::string> getServerIdx(void) const;
 	std::vector<Socket> getNetAddr(void) const;
+	std::vector<std::string> getServerName(void) const;
+	std::string getRoot(void) const;
+	std::string getRoot(const std::string &route) const;
+	std::vector<std::string> getServerIdx(void) const;
 
 	// Setters
 	void setListen(std::vector<std::string> &tks);

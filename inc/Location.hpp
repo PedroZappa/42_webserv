@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:07:38 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/23 19:11:37 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:47:51 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Location {
 	void setDirective(std::string &directive);
 
 	// Getters
+	std::string getRoot(void) const;
 
 	// Directive Handlers
 

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:29:52 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:49:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,17 +54,20 @@ Server &Server::operator=(const Server &copy) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Server &ctx) {
-	os << "Network Addresses:" << std::endl;
+	os << BYEL "Network Addresses:" NC << std::endl;
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
-	std::vector<Socket>::const_iterator it;
-	for (it = netAddrs.begin(); it != netAddrs.end(); it++)
-		os << "=> IP: " << it->ip << " Port: " << it->port << std::endl;
+	std::vector<Socket>::const_iterator sockit;
+	for (sockit = netAddrs.begin(); sockit != netAddrs.end(); sockit++)
+		os << "=> IP: " << sockit->ip << " Port: " << sockit->port << std::endl;
 
-	os << "Server Name:" << std::endl;
+	os << BYEL "Server Name:" NC << std::endl;
 	std::vector<std::string> names = ctx.getServerName();
-	std::vector<std::string>::const_iterator it2;
-	for (it2 = names.begin(); it2 != names.end(); it2++)
-		os << "=> " << *it2 << std::endl;
+	std::vector<std::string>::const_iterator strit;
+	for (strit = names.begin(); strit != names.end(); strit++)
+		os << "=> " << *strit << std::endl;
+
+	os << BYEL "Root: " NC << ctx.getRoot() << std::endl;
+
 	return (os);
 }
 
@@ -119,10 +122,36 @@ bool Server::isPortValid(const std::string &port) const {
 /*                                  Getters                                   */
 /* ************************************************************************** */
 
+/// @brief Returns the network addresses of the server.
+/// @return A vector of Socket objects representing the network addresses of the server.
+std::vector<Socket> Server::getNetAddr(void) const {
+	return (this->_netAddr);
+};
+
 /// @brief Returns the server names.
 /// @return A vector of strings representing the server names.
 std::vector<std::string> Server::getServerName(void) const {
 	return (this->_serverName);
+}
+
+/// @brief Returns the root of the server.
+/// @return The root of the server.
+std::string Server::getRoot(void) const {
+	return (this->_root);
+}
+
+/// @brief Returns the root of the server.
+/// @param route The route to append to the root
+/// @return The root of the server.
+std::string Server::getRoot(const std::string &route) const {
+	if (route.empty())
+		return (this->_root);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getRoot().empty()))
+		return (this->_root); // Return the root of the server
+	else
+		return (it->second.getRoot()); // Return the root of location
 }
 
 /// @brief Returns the server indexes.
@@ -131,55 +160,9 @@ std::vector<std::string> Server::getServerIdx(void) const {
 	return (this->_serverIdx);
 }
 
-/// @brief Returns the network addresses of the server.
-/// @return A vector of Socket objects representing the network addresses of the server.
-std::vector<Socket> Server::getNetAddr(void) const {
-	return (this->_netAddr);
-};
-
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
-
-// /// @brief Sets the listen directive
-// /// @param tks The tokens of the listen directive
-// /// @throw std::runtime_error if the listen directive is invalid
-// void Server::setListen(std::vector<std::string> &tks) {
-// #ifdef DEBUG
-// 	debugLocus(__func__, FSTART, "tokenizing line: " YEL + tks[0] + NC);
-// #endif
-// 	if (tks.size() > 2)
-// 		throw std::runtime_error("Invalid listen directive: " RED + tks[0] + NC);
-// 	std::vector<std::string>::const_iterator it;
-// 	for (it = tks.begin(); it != tks.end(); it++) {
-// 		Socket socket;
-// 		std::string val = (*it);
-// 		size_t sep = val.find(':');
-// 		if (sep != std::string::npos) { // If a colon is found
-// 			socket.ip = val.substr(0, sep);
-// 			socket.port = val.substr(sep + 1);
-// 			if (socket.ip.empty() || socket.port.empty())
-// 				throw std::runtime_error(
-// 					"Invalid listen directive: " + socket.ip + ":" + socket.port);
-// 		} else {
-// 			if ((*it).find_first_not_of("0123456789") == std::string::npos)
-// 				socket.port = val;
-// 			else
-// 				socket.ip = val;
-// 		}
-// 		if (socket.ip.empty())
-// 			socket.ip = "0.0.0.0";
-// 		if (socket.port.empty())
-// 			socket.port = "80";
-// 		if (!isIpValid(socket.ip) || !isPortValid(socket.port))
-// 			throw std::runtime_error("Invalid listen directive: " RED + socket.ip +
-// 									 ":" + socket.port + NC);
-// 		_netAddr.push_back(socket);
-// 	}
-// #ifdef DEBUG
-// 	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC);
-// #endif
-// }
 
 /// @brief Sets the listen directive
 /// @param tks The tokens of the listen directive
@@ -199,7 +182,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 		std::string val = *it;
 		Socket socket;
 
-		size_t sep = val.find(':'); // Check for 'IP:Port' format
+		size_t sep = val.find(':');     // Check for 'IP:Port' format
 		if (sep != std::string::npos) { // If ':' is present
 			socket.ip = val.substr(0, sep);
 			socket.port = val.substr(sep + 1);
@@ -214,6 +197,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 			else
 				socket.ip = val; // Contains non-numeric: assume it's an IP
 		}
+
 		// Apply defaults
 		if (socket.ip.empty())
 			socket.ip = "0.0.0.0";

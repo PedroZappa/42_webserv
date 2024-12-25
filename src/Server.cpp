@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:49:55 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:56:47 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 void Server::initDirectiveMap(void) {
 	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
+	_directiveMap["root"] = &Server::setRoot;
 }
 
 /// @brief Checks if the IP address is valid.
@@ -227,6 +228,17 @@ void Server::setServerName(std::vector<std::string> &tks) {
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverName.push_back(*it);
+}
+
+void Server::setRoot(std::vector<std::string> &root) {
+#ifdef DEBUG
+	debugLocus(
+		__func__, FSTART, "processing root directive: " YEL + root[0] + NC);
+#endif
+	_root = root[1];
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "processed root directive: " YEL + _root + NC);
+#endif
 }
 
 /// @brief Sets the location block.

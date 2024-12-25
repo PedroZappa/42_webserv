@@ -6,15 +6,15 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:42:51 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:52:18 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Webserv.hpp"
 #include "Location.hpp"
+#include "Webserv.hpp"
 
 /// @brief Network Listening Endpoint
 struct Socket {
@@ -63,6 +63,7 @@ class Server {
 	// Setters
 	void setListen(std::vector<std::string> &tks);
 	void setServerName(std::vector<std::string> &tks);
+	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setDirective(std::string &directive);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;

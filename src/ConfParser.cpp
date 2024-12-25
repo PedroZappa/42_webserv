@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 19:27:42 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:16:00 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,9 @@ void ConfParser::removeSpaces(std::string &file) {
 	debugLocus(
 		__func__, FSTART, "removing spaces from config file: " YEL + file + NC);
 #endif
-	std::istringstream stream(file);
 	std::string line;
 	std::ostringstream result;
+	std::istringstream stream(file);
 
 	if (file.empty())
 		return;
@@ -142,7 +142,8 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line) {
 
 	while (ss >> val) {
 		ConfParser::removeSpaces(val);
-		tks.push_back(val);
+		if (val != "{")
+			tks.push_back(val);
 	}
 	return (tks);
 }

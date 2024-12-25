@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:05:38 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:29:52 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,41 +141,98 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /*                                  Setters                                   */
 /* ************************************************************************** */
 
+// /// @brief Sets the listen directive
+// /// @param tks The tokens of the listen directive
+// /// @throw std::runtime_error if the listen directive is invalid
+// void Server::setListen(std::vector<std::string> &tks) {
+// #ifdef DEBUG
+// 	debugLocus(__func__, FSTART, "tokenizing line: " YEL + tks[0] + NC);
+// #endif
+// 	if (tks.size() > 2)
+// 		throw std::runtime_error("Invalid listen directive: " RED + tks[0] + NC);
+// 	std::vector<std::string>::const_iterator it;
+// 	for (it = tks.begin(); it != tks.end(); it++) {
+// 		Socket socket;
+// 		std::string val = (*it);
+// 		size_t sep = val.find(':');
+// 		if (sep != std::string::npos) { // If a colon is found
+// 			socket.ip = val.substr(0, sep);
+// 			socket.port = val.substr(sep + 1);
+// 			if (socket.ip.empty() || socket.port.empty())
+// 				throw std::runtime_error(
+// 					"Invalid listen directive: " + socket.ip + ":" + socket.port);
+// 		} else {
+// 			if ((*it).find_first_not_of("0123456789") == std::string::npos)
+// 				socket.port = val;
+// 			else
+// 				socket.ip = val;
+// 		}
+// 		if (socket.ip.empty())
+// 			socket.ip = "0.0.0.0";
+// 		if (socket.port.empty())
+// 			socket.port = "80";
+// 		if (!isIpValid(socket.ip) || !isPortValid(socket.port))
+// 			throw std::runtime_error("Invalid listen directive: " RED + socket.ip +
+// 									 ":" + socket.port + NC);
+// 		_netAddr.push_back(socket);
+// 	}
+// #ifdef DEBUG
+// 	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC);
+// #endif
+// }
+
 /// @brief Sets the listen directive
 /// @param tks The tokens of the listen directive
 /// @throw std::runtime_error if the listen directive is invalid
 void Server::setListen(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(__func__, FSTART, "tokenizing line: " YEL + tks[0] + NC);
+	debugLocus(
+		__func__, FSTART, "processing listen directive: " YEL + tks[0] + NC);
 #endif
-	if (tks.size() > 2)
-		throw std::runtime_error("Invalid listen directive");
+	if (tks.size() < 2)
+		throw std::runtime_error("Invalid listen directive: directive must "
+								 "include at least one IP/port");
+
+	// Process tokens from the second one onwards
 	std::vector<std::string>::const_iterator it;
-	for (it = tks.begin(); it != tks.end(); it++) {
+	for (it = tks.begin() + 1; it != tks.end(); ++it) {
+		std::string val = *it;
 		Socket socket;
-		std::string val = (*it);
-		size_t sep = val.find(';');
-		if (sep != std::string::npos) {
+
+		size_t sep = val.find(':'); // Check for 'IP:Port' format
+		if (sep != std::string::npos) { // If ':' is present
 			socket.ip = val.substr(0, sep);
 			socket.port = val.substr(sep + 1);
+
 			if (socket.ip.empty() || socket.port.empty())
-				throw std::runtime_error("Invalid listen directive");
-		} else {
-			if ((*it).find_first_not_of("0123456789") == std::string::npos)
-				socket.port = val;
+				throw std::runtime_error("Invalid listen directive: missing IP "
+										 "or port in '" +
+										 val + "'");
+		} else { // No ':' present; it could be just an IP or port
+			if (val.find_first_not_of("0123456789") == std::string::npos)
+				socket.port = val; // All numeric: assume it's a port
 			else
-				socket.ip = val;
+				socket.ip = val; // Contains non-numeric: assume it's an IP
 		}
+		// Apply defaults
 		if (socket.ip.empty())
 			socket.ip = "0.0.0.0";
 		if (socket.port.empty())
-			socket.ip = "80";
-		if (!isIpValid(socket.ip) || !isPortValid(socket.port))
-			throw std::runtime_error("Invalid listen directive");
+			socket.port = "80";
+		// Validate IP and Port
+		if (!isIpValid(socket.ip))
+			throw std::runtime_error("Invalid listen directive: invalid IP '" +
+									 socket.ip + "'");
+		if (!isPortValid(socket.port))
+			throw std::runtime_error("Invalid listen directive: invalid port "
+									 "'" +
+									 socket.port + "'");
+		// Add the socket to the list
 		_netAddr.push_back(socket);
 	}
+
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC);
+	debugLocus(__func__, FEND, "processed listen directive: " YEL + tks[0] + NC);
 #endif
 }
 

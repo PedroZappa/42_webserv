@@ -52,6 +52,13 @@ define setDirective
   display it
 end
 
+define setListen
+  display tks
+  display socket
+  display val
+  display sep
+end
+
 
 ### Go GDB Go! I Choose YOU! 
 

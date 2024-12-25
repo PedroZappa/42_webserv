@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 11:12:28 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 20:05:38 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,9 +174,9 @@ void Server::setListen(std::vector<std::string> &tks) {
 			throw std::runtime_error("Invalid listen directive");
 		_netAddr.push_back(socket);
 	}
-	#ifdef DEBUG
-	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC); 
-	#endif
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC);
+#endif
 }
 
 /// @brief Sets the server name.
@@ -237,12 +237,20 @@ void Server::setDirective(std::string &directive) {
 	if (tks.size() < 2)
 		throw std::runtime_error("Directive " + directive + " is invalid");
 
+#ifdef DEBUG
+	showContainer(__func__, "Directive Tokens", tks);
+#endif
+
 	std::map<std::string, DirHandler>::const_iterator it;
-	it = _directiveMap.find(tks[0]);
-	if (it != _directiveMap.end()) // If the directive is valid
-		(this->*(it->second))(tks);
-	else
-		throw std::runtime_error("Directive " + directive + " is unknown");
+	// iterate through tokens to find a valid directive
+	for (it = _directiveMap.begin(); it != _directiveMap.end(); it++) {
+		for (size_t tk = 0; tk < tks.size(); tk++) {
+			if (tks[tk] == it->first) {
+				(this->*(it->second))(tks);
+				return;
+			}
+		}
+	}
 #ifdef DEBUG
 	debugLocus(__func__, FEND, "directive: " GRN + directive);
 #endif

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 11:05:16 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 19:27:42 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,9 +115,9 @@ void ConfParser::removeSpaces(std::string &file) {
 		return;
 	while (std::getline(stream, line)) {
 		// Remove leading and trailing spaces from the line
-		size_t start = line.find_first_not_of(" \t");
-		size_t end = line.find_last_not_of(" \t");
-		if (start == std::string::npos)
+		size_t start = line.find_first_not_of(" \t\n");
+		size_t end = line.find_last_not_of(" \t\n");
+		if ((start == std::string::npos) || ((start == end) && (end == '\n')))
 			continue; // Skip empty lines
 		// Extract the trimmed line into result
 		result << line.substr(start, (end - start + 1)) << '\n';

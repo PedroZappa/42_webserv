@@ -38,6 +38,20 @@ define loadConf
   display _confFile
 end
 
+define tokenizer
+  display line
+  display tks
+  display ss
+  display val
+end
+
+### Server.cpp
+define setDirective
+  display directive
+  display tks
+  display it
+end
+
 
 ### Go GDB Go! I Choose YOU! 
 
@@ -56,7 +70,13 @@ end
 # rfr
 
 # Stop @ getServer
-break getServers
+# break getServers
+# run "conf/default.conf"
+# fs cmd
+# rfr
+
+# Stop @ setDirective
+break setDirective
 run "conf/default.conf"
 fs cmd
 rfr

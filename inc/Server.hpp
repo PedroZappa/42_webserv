@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 19:06:19 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/24 19:14:21 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Server {
 	Server &operator=(const Server &src);
 
 	// Server Setup
-	static void initDirectiveMap(void);
+	void initDirectiveMap(void);
 
 	// Getters
 	std::vector<std::string> getServerName(void) const;

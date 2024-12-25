@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 19:03:17 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 10:21:20 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 /*                                Server Setup                                */
 /* ************************************************************************** */
 
-///
 void Server::initDirectiveMap(void) {
 	_directiveMap["server_name"] = &Server::setServerName;
 }
@@ -150,7 +149,16 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 
 void Server::setDirective(std::string &directive) {
 	std::vector<std::string> tks;
-	tks = ConfParser::tokenizer(directive);
+	tks = ConfParser::tokenizer(directive); // Tokenize
+	if (tks.size() < 2)
+		throw std::runtime_error("Directive " + directive + " is invalid");
+
+	std::map<std::string, DirHandler>::const_iterator it;
+	it = _directiveMap.find(tks[0]);
+	if (it != _directiveMap.end()) // If the directive is valid
+		(this->*(it->second))(tks);
+	else
+		throw std::runtime_error("Directive " + directive + " is unknown");
 }
 
 /// @brief Sets the IP address for the server.

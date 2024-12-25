@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 19:19:18 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:10:38 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
 	debugLocus(__func__, FSTART, "Starting Webserv");
 #endif
 	if (argc != 2) {
-		// TODO: Implement Better Failure Handlers
 		std::cerr << "Usage: " << argv[0] << " config_file" << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -42,9 +41,6 @@ int main(int argc, char **argv) {
 		std::cerr << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
-#ifdef DEBUG
-	showContainer(__func__, "Servers", servers);
-#endif
 
 	// TODO: Init Server Cluster
 

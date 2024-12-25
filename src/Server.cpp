@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:56:47 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:09:24 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,10 +224,19 @@ void Server::setListen(std::vector<std::string> &tks) {
 /// @brief Sets the server name.
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
-	_serverName.clear();
+#ifdef DEBUG
+	debugLocus(
+		__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverName.push_back(*it);
+
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "processed directive: " YEL +
+			   _serverName[0] + NC);
+#endif
 }
 
 void Server::setRoot(std::vector<std::string> &root) {
@@ -235,6 +244,11 @@ void Server::setRoot(std::vector<std::string> &root) {
 	debugLocus(
 		__func__, FSTART, "processing root directive: " YEL + root[0] + NC);
 #endif
+	if (!_root.empty())
+		throw std::runtime_error("Root already set");
+	if (root.size() > 2)
+		throw std::runtime_error("Invalid root directive: directive must "
+								 "include only one root");
 	_root = root[1];
 #ifdef DEBUG
 	debugLocus(__func__, FEND, "processed root directive: " YEL + _root + NC);

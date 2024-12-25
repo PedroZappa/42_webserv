@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:46:43 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 10:19:04 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:33:24 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../inc/Error.h"
 #include "../inc/Webserv.hpp"
 
-const t_debug_msg debug_msg[15] = {
+const t_debug_msg debug_msg[13] = {
     {" INFO", SHOW_MSG, 5, "(ii) ", BGRN},
     {" START", FSTART, 6, "(>>) ", BLU},
     {" END", FEND, 4, "(<<) ", MAG},
@@ -24,11 +24,9 @@ const t_debug_msg debug_msg[15] = {
     {" FREE", D_FREE, 5, "(**) ", RED},
     {" MALLOC_ERROR", MALLOC_ERROR, 13, "(xx) ", RED},
     {" MALLOC_NOT_ALLOC", MALLOC_NOT_ALLOCATED, 18, "(xx) ", CYN},
-    {" FILE_ERROR", FILE_ERROR, 11, "(xx) ", RED},
     {" CHILD_EXIT", CHILD_EXIT, 11, "(xx) ", YEL},
     {" EXIT_FAILURE", EXIT_FAILURE, 14, "(xx) ", RED},
     {" FILE_NOT_FOUND", FILE_NOT_FOUND, 16, "(xx) ", RED},
-    {" FILE_NOT_DELETED", FILE_NOT_DELETED, 17, "(xx) ", RED},
     {NULL, 0, 0, NULL, NULL}
 };
 

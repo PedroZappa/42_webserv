@@ -6,12 +6,14 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 10:21:20 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 11:12:28 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include "../inc/ConfParser.hpp"
+#include "../inc/Debug.hpp"
+#include "../inc/Error.h"
 #include "../inc/Location.hpp"
 
 /* ************************************************************************** */
@@ -34,8 +36,7 @@ Server::Server(void) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _serverIdx(copy.getServerIdx())
-{
+	  _serverIdx(copy.getServerIdx()) {
 }
 
 Server::~Server(void) {
@@ -71,8 +72,47 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 /*                                Server Setup                                */
 /* ************************************************************************** */
 
+/// @brief Initializes the directive map.
 void Server::initDirectiveMap(void) {
+	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
+}
+
+/// @brief Checks if the IP address is valid.
+/// @param ip The ip to check.
+/// @return True if the IP address is valid, false otherwise.
+bool Server::isIpValid(const std::string &ip) const {
+	if (ip.empty() || ip == "0.0.0.0" || ip == "localhost")
+		return (true);
+	std::istringstream iss(ip);
+	std::string seg;
+	int nPeriods = 0;
+
+	while (std::getline(iss, seg, '.')) {
+		if (seg.empty() || (seg.size() > 3))
+			return (false);
+		std::string::size_type i;
+		for (i = 0; i < seg.size(); i++)
+			if (!std::isdigit(seg[i])) // Check if the string contains only digits
+				return (false);
+		int n = std::atoi(seg.c_str());
+		if ((n < 0) || (n > 255)) // Check if the number is in the range 0-255
+			return (false);
+		++nPeriods;
+	}
+	return (nPeriods == 4);
+}
+
+/// @brief Checks if the port number is valid.
+/// @param port The port number to check.
+/// @return True if the port number is valid, false otherwise.
+bool Server::isPortValid(const std::string &port) const {
+	std::string::size_type i;
+	for (i = 0; i < port.size(); ++i)
+		if (!std::isdigit(port[i])) // Check if the string contains only digits
+			return (false);
+	int portN = std::atoi(port.c_str());
+	return ((portN >= 0) && (portN <= MAX_PORTS));
 }
 
 /* ************************************************************************** */
@@ -100,6 +140,44 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
+
+/// @brief Sets the listen directive
+/// @param tks The tokens of the listen directive
+/// @throw std::runtime_error if the listen directive is invalid
+void Server::setListen(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "tokenizing line: " YEL + tks[0] + NC);
+#endif
+	if (tks.size() > 2)
+		throw std::runtime_error("Invalid listen directive");
+	std::vector<std::string>::const_iterator it;
+	for (it = tks.begin(); it != tks.end(); it++) {
+		Socket socket;
+		std::string val = (*it);
+		size_t sep = val.find(';');
+		if (sep != std::string::npos) {
+			socket.ip = val.substr(0, sep);
+			socket.port = val.substr(sep + 1);
+			if (socket.ip.empty() || socket.port.empty())
+				throw std::runtime_error("Invalid listen directive");
+		} else {
+			if ((*it).find_first_not_of("0123456789") == std::string::npos)
+				socket.port = val;
+			else
+				socket.ip = val;
+		}
+		if (socket.ip.empty())
+			socket.ip = "0.0.0.0";
+		if (socket.port.empty())
+			socket.ip = "80";
+		if (!isIpValid(socket.ip) || !isPortValid(socket.port))
+			throw std::runtime_error("Invalid listen directive");
+		_netAddr.push_back(socket);
+	}
+	#ifdef DEBUG
+	debugLocus(__func__, FEND, "after tokenizing line: " YEL + tks[0] + NC); 
+	#endif
+}
 
 /// @brief Sets the server name.
 /// @param name The name of the server.
@@ -147,7 +225,13 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 	_locations[route] = locInfo;
 }
 
+/// @brief Sets a directive.
+/// @param directive The directive to set.
+/// @throw std::runtime_error if the directive is invalid.
 void Server::setDirective(std::string &directive) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "directive: " GRN + directive);
+#endif
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
 	if (tks.size() < 2)
@@ -159,6 +243,9 @@ void Server::setDirective(std::string &directive) {
 		(this->*(it->second))(tks);
 	else
 		throw std::runtime_error("Directive " + directive + " is unknown");
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "directive: " GRN + directive);
+#endif
 }
 
 /// @brief Sets the IP address for the server.

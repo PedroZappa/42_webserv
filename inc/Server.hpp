@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 19:14:21 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 10:53:47 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ class Server {
 
 	// Server Setup
 	void initDirectiveMap(void);
+	bool isIpValid(const std::string &ip) const;
+	bool isPortValid(const std::string &port) const;
 
 	// Getters
 	std::vector<std::string> getServerName(void) const;
@@ -57,6 +59,7 @@ class Server {
 	std::vector<Socket> getNetAddr(void) const;
 
 	// Setters
+	void setListen(std::vector<std::string> &tks);
 	void setServerName(std::vector<std::string> &tks);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setDirective(std::string &directive);

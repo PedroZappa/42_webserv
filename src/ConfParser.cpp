@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 18:50:40 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 11:05:16 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,9 +239,10 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			lineRead >> key;
 			if (toLower(key) == "location") {
 				// Process location block
-				size_t endPos = (*it).find('}', startPos);
+				size_t endPos = (*it).find("}", startPos);
 				server.setLocation((*it), startPos, endPos);
 				std::getline(block, line, '}');
+			} else if (toLower(key) == "}") {
 			} else
 				server.setDirective(line);
 			startPos = block.tellg();

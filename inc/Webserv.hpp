@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/24 19:14:12 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 10:53:44 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@
 #define SERVER_NAME "webserv"
 #define SERVER_PORT 8080
 #define MAX_CLIENTS 100
+#define MAX_PORTS 65535
 #define TIMEOUT 5
 
 /* ************************************************************************** */

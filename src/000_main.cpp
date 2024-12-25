@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 21:10:38 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:11:45 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,9 @@ int main(int argc, char **argv) {
 		std::cerr << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
+#ifdef DEBUG
+	showContainer(__func__, "Servers", servers);
+#endif
 
 	// TODO: Init Server Cluster
 

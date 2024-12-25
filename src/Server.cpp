@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 21:09:24 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:23:58 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Server::Server(void) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _serverIdx(copy.getServerIdx()) {
+	  _serverIdx(copy.getServerIdx()), _root(copy.getRoot()) {
 }
 
 Server::~Server(void) {
@@ -58,15 +58,15 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
 	std::vector<Socket>::const_iterator sockit;
 	for (sockit = netAddrs.begin(); sockit != netAddrs.end(); sockit++)
-		os << "=> IP: " << sockit->ip << " Port: " << sockit->port << std::endl;
+		os << sockit->ip << ":" << sockit->port << std::endl;
 
 	os << BYEL "Server Name:" NC << std::endl;
 	std::vector<std::string> names = ctx.getServerName();
 	std::vector<std::string>::const_iterator strit;
 	for (strit = names.begin(); strit != names.end(); strit++)
-		os << "=> " << *strit << std::endl;
+		os << *strit << std::endl;
 
-	os << BYEL "Root: " NC << ctx.getRoot() << std::endl;
+	os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;
 
 	return (os);
 }
@@ -75,7 +75,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 /*                                Server Setup                                */
 /* ************************************************************************** */
 
-/// @brief Initializes the directive map.
+/// @brief Initializes the directive setters map.
 void Server::initDirectiveMap(void) {
 	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
@@ -189,9 +189,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 			socket.port = val.substr(sep + 1);
 
 			if (socket.ip.empty() || socket.port.empty())
-				throw std::runtime_error("Invalid listen directive: missing IP "
-										 "or port in '" +
-										 val + "'");
+				throw std::runtime_error("Invalid listen directive '" + val + "'");
 		} else { // No ':' present; it could be just an IP or port
 			if (val.find_first_not_of("0123456789") == std::string::npos)
 				socket.port = val; // All numeric: assume it's a port
@@ -225,8 +223,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(
-		__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
@@ -234,8 +231,7 @@ void Server::setServerName(std::vector<std::string> &tks) {
 		_serverName.push_back(*it);
 
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed directive: " YEL +
-			   _serverName[0] + NC);
+	debugLocus(__func__, FEND, "processed directive: " YEL + _serverName[0] + NC);
 #endif
 }
 

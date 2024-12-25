@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:16:00 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/25 21:13:02 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void ConfParser::loadConf(void) {
 #ifdef DEBUG
 	std::ostringstream ss;
 	ss << "Loaded " << serverBlocks.size() << " servers";
-	showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
+	// showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
 	debugLocus(__func__, FEND, ss.str());
 #endif
 }

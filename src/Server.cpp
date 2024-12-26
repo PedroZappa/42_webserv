@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:12:55 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:26:09 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,6 +245,9 @@ void Server::setServerName(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Sets the max_body_size directive
+/// @param tks Vector of tokens for the max_body_size directive
+/// @throw std::runtime_error if the max_body_size directive is invalid
 void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -291,6 +294,29 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 		default:
 			throw std::runtime_error("Invalid unit for max_body_size: " + tks[1]);
 		}
+	}
+
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "processed directive: " YEL + tks[0] + NC);
+#endif
+}
+
+void Server::setErrorPage(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
+	if (tks.size() < 3)
+		throw std::runtime_error("Invalid error_page directive: " + tks[0]);
+
+	std::string page = tks.back();
+	for (size_t i = 1; (i < (tks.size() - 1)); i++) {
+		char *end;
+		long code = std::strtol(tks[i].c_str(), &end, 10);
+		if ((*end != '\0') || (code < 300) || (code > 599) ||
+			code != static_cast<short>(code))
+			throw std::runtime_error("Invalid error_page directive: " + tks[i]);
+		_errorPage[static_cast<short>(code)] = page;
 	}
 
 #ifdef DEBUG

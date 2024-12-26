@@ -107,7 +107,7 @@ void showContainer(const std::string &functionName,
         typename C::const_iterator next = it;
         ++next;
         if (next != container.end()) {
-            output << ", ";
+            output << "\n";
         }
     }
     

@@ -58,6 +58,7 @@ Server &Server::operator=(const Server &copy) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Server &ctx) {
+	os << BRED "Server Configuration:" NC << std::endl;
 	os << BYEL "Network Addresses:" NC << std::endl;
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
 	std::vector<Socket>::const_iterator sockit;
@@ -72,6 +73,12 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 
 	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
 	   << std::endl;
+
+	os << BYEL "Error Pages:\n" NC;
+	std::map<short, std::string> errPages = ctx.getErrorPage();
+	std::map<short, std::string>::const_iterator errit;
+	for (errit = errPages.begin(); errit != errPages.end(); errit++)
+		os << errit->first << ": " << errit->second << std::endl;
 
 	os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;
 
@@ -333,7 +340,10 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed directive: " YEL + tks[0] + NC);
+	std::stringstream ss;
+	ss << _cliMaxBodySize;
+	std::string cliMaxBodyStr = ss.str();
+	debugLocus(__func__, FEND, "processed directive: " YEL + cliMaxBodyStr + NC);
 #endif
 }
 
@@ -356,7 +366,16 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed directive: " YEL + tks[0] + NC);
+	std::stringstream ss;
+	for (std::map<short, std::string>::const_iterator it = _errorPage.begin();
+		 it != _errorPage.end();
+		 ++it) {
+		if (it != _errorPage.begin())
+			ss << ", ";
+		ss << it->first << ": " << it->second;
+	}
+	std::string errorPageStr = ss.str();
+	debugLocus(__func__, FEND, "processed directive: " YEL + errorPageStr + NC);
 #endif
 }
 

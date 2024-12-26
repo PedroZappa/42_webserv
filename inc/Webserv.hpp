@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:07:31 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:29:29 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ enum Method { // Keep only the methods that we want to implement
 	PATCH
 };
 
-enum State { TRUE, FALSE, NIL };
+enum State { TRUE, FALSE, UNSET };
 
 enum ErrCodes {
 	CONTINUE = 100,

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:23:58 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:47:30 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:45:47 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ Location::~Location(void) {
 /*                                  Operators                                 */
 /* ************************************************************************** */
 
+/// @brief Copy Operator
+/// @param src The object to copy
 Location &Location::operator=(const Location &src) {
 	(void)src;
 	return (*this);
@@ -39,6 +41,18 @@ Location &Location::operator=(const Location &src) {
 /*                                  Getters                                   */
 /* ************************************************************************** */
 
+/// @brief Get the CliMaxBodySize value
+long Location::getCliMaxBodySize(void) const {
+	return (_cliMaxBodySize);
+}
+
+/// @brief Get the ErrorPage value
+std::map<short, std::string> Location::getErrorPage(void) const {
+	return (_errorPage);
+}
+
+
+/// @brief Get the Root value
 std::string Location::getRoot(void) const {
 	return (_root);
 }

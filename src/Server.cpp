@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:26:09 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:46:24 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ Server::Server(void) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
-	  _root(copy.getRoot()), _serverIdx(copy.getServerIdx()) {
+	  _cliMaxBodySize(copy.getCliMaxBodySize()),
+	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()) {
 }
 
 Server::~Server(void) {
@@ -83,6 +83,8 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 void Server::initDirectiveMap(void) {
 	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
+	_directiveMap["client_max_body_size"] = &Server::setCliMaxBodySize;
+	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 }
 
@@ -143,6 +145,37 @@ std::vector<std::string> Server::getServerName(void) const {
 /// @return The maximum body size.
 long Server::getCliMaxBodySize(void) const {
 	return (this->_cliMaxBodySize);
+}
+
+/// @brief Returns the maximum body size.
+/// @param route The route to append to the maximum body size
+/// @return The maximum body size.
+long Server::getCliMaxBodySize(const std::string &route) const {
+	if (route.empty())
+		return (this->_cliMaxBodySize);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getCliMaxBodySize() == -1))
+		return (this->_cliMaxBodySize);
+	else
+		return (it->second.getCliMaxBodySize());
+}
+
+/// @brief Returns the error page.
+/// @return The error page.
+std::map<short, std::string> Server::getErrorPage(void) const {
+	return (this->_errorPage);
+}
+
+std::map<short, std::string> Server::getErrorPage(const std::string &route) const {
+	if (route.empty())
+		return (this->_errorPage);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getErrorPage().empty()))
+		return (this->_errorPage);
+	else
+		return (it->second.getErrorPage());
 }
 
 /// @brief Returns the root of the server.

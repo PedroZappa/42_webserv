@@ -34,16 +34,16 @@ Location::~Location(void) {
 /* ************************************************************************** */
 
 const MethodMapping Location::methodMap[] = {
-    {"GET", GET},
-    {"HEAD", HEAD},
-    {"POST", POST},
-    {"PUT", PUT},
-    {"DELETE", DELETE},
-    {"CONNECT", CONNECT},
-    {"OPTIONS", OPTIONS},
-    {"TRACE", TRACE},
-    {"PATCH", PATCH},
-    {NULL, Method(0)}  // Sentinel value
+	{"GET", GET},
+	{"HEAD", HEAD},
+	{"POST", POST},
+	{"PUT", PUT},
+	{"DELETE", DELETE},
+	{"CONNECT", CONNECT},
+	{"OPTIONS", OPTIONS},
+	{"TRACE", TRACE},
+	{"PATCH", PATCH},
+	{NULL, Method(0)} // Sentinel value
 };
 
 /* ************************************************************************** */
@@ -158,27 +158,28 @@ void Location::setIndex(std::vector<std::string> &tks) {
 /// @brief Set the LimitExcept value
 /// @param tks The tokens of the limit_except directive
 /// @throw std::runtime_error if the method is invalid
-void Location::setLimitExcept(std::vector<std::string>& tks) {
-    if (!_validMethods.empty()) {
-        throw std::runtime_error("Limit_except already set bruh!");
-    }
-    
-    std::set<Method> methods;
-    // Start from tks.begin() + 1 to skip the directive name
-    for (std::vector<std::string>::const_iterator it = tks.begin() + 1; 
-         it != tks.end(); ++it) {
-        
-        // Search through methodMap for matching method
-        bool methodFound = false;
-        for (const MethodMapping* map = methodMap; map->str != NULL; ++map) {
-            if (*it == map->str) {
-                methods.insert(map->method);
-                methodFound = true;
-                break;
-            }
-        }
-        if (!methodFound)
-            throw std::runtime_error("Invalid method in limit_except directive: " + *it);
-    }
-    _validMethods = methods;
+void Location::setLimitExcept(std::vector<std::string> &tks) {
+	if (!_validMethods.empty()) {
+		throw std::runtime_error("Limit_except already set bruh!");
+	}
+
+	std::set<Method> methods;
+	std::vector<std::string>::const_iterator it;
+	// Start from tks.begin() + 1 to skip the directive name
+	for (it = tks.begin() + 1; it != tks.end(); ++it) {
+		// Search through methodMap for matching method
+		bool methodFound = false;
+		for (const MethodMapping *map = methodMap; map->str != NULL; ++map) {
+			if (*it == map->str) {
+				methods.insert(map->method);
+				methodFound = true;
+				break;
+			}
+		}
+		if (!methodFound)
+			throw std::runtime_error("Invalid method in limit_except "
+									 "directive: " +
+									 *it);
+	}
+	_validMethods = methods;
 }

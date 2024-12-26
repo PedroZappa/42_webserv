@@ -44,15 +44,15 @@
 /*                                  Defines                                   */
 /* ************************************************************************** */
 
-#define SERVER_NAME "webserv"
-#define SERVER_PORT 8080
-#define TIMEOUT 5
-#define MAX_CLIENTS 100
-#define MAX_PORTS 65535
-#define MAX_BODY_SIZE 1048576
-#define KB 1024
-#define MB 1048576
-#define GB 1073741824
+#define SERVER_NAME		"webserv"
+#define SERVER_PORT		8080
+#define TIMEOUT			5
+#define MAX_CLIENTS		100
+#define MAX_PORTS		65535
+#define MAX_BODY_SIZE	1048576
+#define KB				1024
+#define MB				1048576
+#define GB				1073741824
 
 /* ************************************************************************** */
 /*                                Enumerations                                */

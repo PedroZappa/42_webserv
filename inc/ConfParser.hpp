@@ -40,6 +40,7 @@ class ConfParser {
 
 	// Getters
 	std::vector<Server> getServers(void) const;
+	std::string getIdentifier(const std::string &str);
 
 	// Setters
 	void loadContext(std::vector<std::string> &serverBlocks);

@@ -142,7 +142,6 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line) {
 
 	while (ss >> val) {
 		ConfParser::removeSpaces(val);
-		// if (val != "{")
 		tks.push_back(val);
 	}
 	return (tks);
@@ -161,17 +160,14 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	size_t start = 0;
 	size_t endBlock = 0;
 	size_t end = 0;
-	bool serverFound = false;
 
-	while (file[start] != '\0') {          // Loop until end of file
-		identifier = (file.substr(start)); // Get server block identifier
-		if ((toLower(identifier) != "server") && !serverFound)
+	while (file[start]) { // Loop until end of file
+		// identifier = (file.substr(start)); // Get server block identifier
+		identifier = this->getIdentifier(file); // Get server block identifier
+		if (toLower(identifier) != "server")
 			throw std::runtime_error("Invalid server block: no 'server' at "
 									 "start");
-		if (!serverFound) {
-			start += 6; // skip "server"
-			serverFound = true;
-		}
+		start += std::strlen(identifier.c_str());
 
 		while (std::isspace(file[start])) // Skip spaces
 			++start;
@@ -187,8 +183,8 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 
 		// Add block to vector
 		servers.push_back(file.substr(start, (endBlock - start + 1)));
-		start = (endBlock + 1);                          // Skip '}'
-		while (file[start] && std::isspace(file[start])) // Skip spaces
+		start = (end + 1);                               // Skip '}'
+		while (file[start] && std::isspace(file[start])) // Skip trailing spaces
 			++start;
 	}
 #ifdef DEBUG
@@ -216,7 +212,8 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 			++depth;
 		else if (c == '}') {
 			--depth;
-			return (start);
+			if (depth == 0)
+				return (start);
 		}
 		++start;
 	}
@@ -270,6 +267,22 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 /*                                  Getters                                   */
 /* ************************************************************************** */
 
+/// @brief Returns the vector of servers
+/// @return A vector of Server objects
 std::vector<Server> ConfParser::getServers(void) const {
 	return (this->_servers);
+}
+
+/// @brief Returns the identifier of a server block
+/// @param str The string to get the identifier from
+/// @return The identifier of the server block
+std::string ConfParser::getIdentifier(const std::string &str) {
+	std::string token;
+	for (size_t i = 0; i < str.length(); i++) {
+		if (isalpha(str[i]))
+			token += str[i];
+		else
+			break;
+	}
+	return (token);
 }

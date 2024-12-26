@@ -13,7 +13,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/ConfParser.hpp"
 #include "../inc/Debug.hpp"
-#include "../inc/Error.h"
 #include "../inc/Location.hpp"
 
 /* ************************************************************************** */
@@ -84,6 +83,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	os << BYEL "Server Locations:\n" NC;
 	std::map<std::string, Location> loci = ctx.getLocations();
 	std::map<std::string, Location>::const_iterator locit;
+	os << "yo" << std::endl;
 	for (locit = loci.begin(); locit != loci.end(); locit++)
 		os << locit->first << ":" << locit->second << std::endl;
 	return (os);
@@ -460,7 +460,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 	std::vector<std::string> tokens;
 	std::string route;
 	std::string line;
-	std::string key;
+	std::string discard;
 	Location locInfo;
 
 	location >> route; // Skip 'location'
@@ -469,7 +469,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 		throw std::runtime_error("Invalid location route");
 	location >> line; // Skip opening "{"
 	if (line != "{")
-		throw std::runtime_error("Invalid location block: no '{' at start");
+		throw std::runtime_error("Only one route per location block supported.");
 	while (std::getline(location, line, ';')) {
 		ConfParser::removeSpaces(line);
 		if (line.empty() && !location.eof())
@@ -477,9 +477,9 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 		if (line.empty())
 			continue;
 		std::istringstream lineRead(line);
-		lineRead >> key;
+		lineRead >> discard;
 		locInfo.setDirective(line);
-		// if (key != "root" && key != "autoindex" && key != "index")
+		// if (discard != "root" && discard != "autoindex" && discard != "index")
 		// 	throw std::runtime_error("Invalid location block: unknown directive");
 		if (location.tellg() >= static_cast<std::streampos>(end))
 			break;

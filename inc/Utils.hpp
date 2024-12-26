@@ -16,9 +16,6 @@
 #include "Server.hpp"
 #include "Webserv.hpp"
 #include "Debug.hpp"
-#include "Error.h"
-
-class Server;
 
 /* ************************************************************************** */
 /*                                Convertions                                 */

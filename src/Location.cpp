@@ -12,6 +12,8 @@
 
 #include "../inc/Location.hpp"
 #include "../inc/ConfParser.hpp"
+#include "../inc/Webserv.hpp"
+#include "../inc/Debug.hpp"
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -123,10 +125,16 @@ std::map<short, std::string> Location::getErrorPage(void) const {
 /// @param directive The directive to set
 /// @throw std::runtime_error if the directive is invalid
 void Location::setDirective(std::string &directive) {
+#ifdef DEBUG
+	DEBUG_LOCUS(FSTART, "processing directive: " YEL + directive + NC);
+#endif
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
 	if (tks.size() < 2)
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
+#ifdef DEBUG
+	showContainer(__func__, "Directive Tokens", tks);
+#endif
 
 	std::map<std::string, DirHandler>::const_iterator it;
 	it = _directiveMap.find(tks[0]);
@@ -134,6 +142,9 @@ void Location::setDirective(std::string &directive) {
 		(this->*(it->second))(tks);
 	else
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processing directive: " YEL + it->first + NC);
+#endif
 }
 
 /// @brief Set the Root value

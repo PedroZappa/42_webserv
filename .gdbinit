@@ -78,6 +78,17 @@ define setCliMaxBodySize
   display maxSize
 end
 
+define setLocation
+  display location
+  display tokens
+  display route
+  display line
+  display lineRead
+  display discard
+  display locInfo
+  display _locations
+end
+
 
 ### Go GDB Go! I Choose YOU! 
 
@@ -108,7 +119,13 @@ end
 # rfr
 
 # STOP @ setListen
-break setListen
+# break setListen
+# run conf/default.conf
+# fs cmd
+# rfr
+
+# STOP @ setLocation
+break setLocation
 run conf/default.conf
 fs cmd
 rfr

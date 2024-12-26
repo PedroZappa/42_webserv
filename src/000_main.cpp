@@ -17,7 +17,6 @@
 
 int main(int argc, char **argv) {
 #ifdef DEBUG
-	// debugLocus(__func__, FSTART, "Starting Webserv");
 	debugLocus("webserv", __func__, FSTART, "Starting Webserv");
 #endif
 	if (argc != 2) {
@@ -43,7 +42,7 @@ int main(int argc, char **argv) {
 		return (EXIT_FAILURE);
 	}
 #ifdef DEBUG
-	showContainer(__func__, "Servers", servers);
+	showContainer(__func__, "Loaded Servers", servers);
 #endif
 
 	// TODO: Init Server Cluster

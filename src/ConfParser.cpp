@@ -12,6 +12,7 @@
 
 #include "../inc/ConfParser.hpp"
 #include "../inc/Utils.hpp"
+#include <sstream>
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -141,7 +142,8 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line) {
 
 	while (ss >> val) {
 		ConfParser::removeSpaces(val);
-		tks.push_back(val);
+		if (val != "{")
+			tks.push_back(val);
 	}
 	return (tks);
 }
@@ -151,10 +153,7 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line) {
 /// @return A vector of server blocks
 std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FSTART,
-			   "getting server blocks from config file " + _confFile);
+	DEBUG_LOCUS(FSTART, "getting server blocks from config file " + _confFile);
 #endif
 	std::vector<std::string> servers;
 	std::string identifier;
@@ -191,7 +190,7 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 #ifdef DEBUG
 	std::ostringstream oss;
 	oss << "got " << servers.size() << " blocks";
-	debugLocus(typeid(*this).name(), __func__, FEND, oss.str());
+	DEBUG_LOCUS(FEND, "got server blocks from config file " + oss.str());
 #endif
 	return (servers);
 }
@@ -202,10 +201,8 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 /// @return The end of the server block
 size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FSTART,
-			   "getting end of server block from config file " + _confFile);
+	DEBUG_LOCUS(FSTART,
+				"getting end of server block from config file " + _confFile);
 #endif
 	short depth = 0;
 	while (file[start]) {
@@ -214,8 +211,12 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 			++depth;
 		else if (c == '}') {
 			--depth;
-			if (depth == 0)
+			if (depth == 0) {
+#ifdef DEBUG
+				DEBUG_LOCUS(FEND, "end of server block found");
+#endif
 				return (start);
+			}
 		}
 		++start;
 	}
@@ -224,10 +225,7 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 
 void ConfParser::loadContext(std::vector<std::string> &blocks) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FSTART,
-			   "loading context from config file " + _confFile);
+	DEBUG_LOCUS(FSTART, "loaded context from config file " + _confFile);
 #endif
 	std::vector<std::string>::iterator it;
 	std::string line;
@@ -261,11 +259,8 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			throw std::runtime_error("Invalid server block: no root");
 		this->_servers.push_back(server);
 #ifdef DEBUG
-		showContainer(__func__, "Servers", _servers);
-		debugLocus(typeid(*this).name(),
-				   __func__,
-				   FEND,
-				   "loaded context from config file " + _confFile);
+		// showContainer(__func__, "Servers", _servers);
+		DEBUG_LOCUS(FEND, "loaded context from config file " + _confFile);
 #endif
 	}
 }
@@ -285,7 +280,7 @@ std::vector<Server> ConfParser::getServers(void) const {
 /// @return The identifier of the server block
 std::string ConfParser::getIdentifier(const std::string &str) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(), __func__, FSTART, "getting identifier");
+	DEBUG_LOCUS(FSTART, "got identifier:");
 #endif
 	std::string token;
 	for (size_t i = 0; i < str.length(); i++) {
@@ -294,8 +289,8 @@ std::string ConfParser::getIdentifier(const std::string &str) {
 		else
 			break;
 	}
-	#ifdef DEBUG
-	debugLocus(typeid(*this).name(), __func__, FEND, "got identifier: " GRN + token + NC);
-	#endif
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "got identifier: " GRN + token + NC);
+#endif
 	return (token);
 }

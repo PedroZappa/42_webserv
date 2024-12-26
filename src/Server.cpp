@@ -25,7 +25,6 @@ Server::Server(void) : _cliMaxBodySize(-1) {
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
 	this->initDirectiveMap();
-	// TODO: Init Set of HTTP request methods (Declare it in class?)
 	std::set<Method> methods;
 	methods.insert(GET);
 	methods.insert(POST);
@@ -238,7 +237,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 	// 		   "processing listen directive: " YEL + tks[0] + NC);
 	DEBUG_LOCUS(FSTART, "processing listen directive: " YEL + tks[0] + NC);
 #endif
-	if (tks.size() < 2)
+	if (tks.size() > 2)
 		throw std::runtime_error("Invalid listen directive: directive must "
 								 "include at least one IP/port");
 
@@ -280,10 +279,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FEND,
-			   "processed listen directive: " YEL + tks[0] + NC);
+	DEBUG_LOCUS(FEND, "processed listen directive: " YEL + tks[0] + NC);
 #endif
 }
 
@@ -291,7 +287,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(), __func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
@@ -299,7 +295,7 @@ void Server::setServerName(std::vector<std::string> &tks) {
 		_serverName.push_back(*it);
 
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(), __func__, FEND, "processed directive: " YEL + _serverName[0] + NC);
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + _serverName[0] + NC);
 #endif
 }
 
@@ -308,7 +304,7 @@ void Server::setServerName(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the max_body_size directive is invalid
 void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(), __func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);

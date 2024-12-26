@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 21:23:58 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 10:48:08 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ Server::Server(void) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _serverIdx(copy.getServerIdx()), _root(copy.getRoot()) {
+	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
+	  _root(copy.getRoot()), _serverIdx(copy.getServerIdx()) {
 }
 
 Server::~Server(void) {
@@ -133,6 +134,12 @@ std::vector<Socket> Server::getNetAddr(void) const {
 /// @return A vector of strings representing the server names.
 std::vector<std::string> Server::getServerName(void) const {
 	return (this->_serverName);
+}
+
+/// @brief Returns the maximum body size.
+/// @return The maximum body size.
+long Server::getCliMaxBodySize(void) const {
+	return (this->_cliMaxBodySize);
 }
 
 /// @brief Returns the root of the server.

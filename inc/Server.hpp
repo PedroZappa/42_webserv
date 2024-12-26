@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:45:52 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 20:52:18 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 10:48:47 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,10 @@ class Server {
 	// Getters
 	std::vector<Socket> getNetAddr(void) const;
 	std::vector<std::string> getServerName(void) const;
+	long getCliMaxBodySize(void) const;
+	long getCliMaxBodySize(const std::string &route) const;
+	std::map<short, std::string> getErrorPage(void) const;
+	std::map<short, std::string> getErrorPage(const std::string &route) const;
 	std::string getRoot(void) const;
 	std::string getRoot(const std::string &route) const;
 	std::vector<std::string> getServerIdx(void) const;
@@ -63,6 +67,8 @@ class Server {
 	// Setters
 	void setListen(std::vector<std::string> &tks);
 	void setServerName(std::vector<std::string> &tks);
+	void setCliMaxBodySize(std::vector<std::string> &tks);
+	void setErrorPage(std::vector<std::string> &tks);
 	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setDirective(std::string &directive);
@@ -72,6 +78,8 @@ class Server {
 	// Server Context
 	std::vector<Socket> _netAddr;
 	std::vector<std::string> _serverName;
+	long _cliMaxBodySize;
+	std::map<short, std::string> _errorPage;
 	std::vector<std::string> _serverIdx;
 	std::string _root; // Root Directive
 	std::map<std::string, Location> _locations;

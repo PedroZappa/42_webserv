@@ -45,6 +45,21 @@ define tokenizer
   display val
 end
 
+define loadContext
+  display 
+end
+
+define getServerBlocks
+  display file
+  display servers
+  display identifier
+  display start
+  display end
+  display endBlock
+  display file[start]
+  display file[endBlock]
+end
+
 ### Server.cpp
 define setDirective
   display directive
@@ -87,6 +102,12 @@ end
 # fs cmd
 # rfr
 
+# STOP @ getServerBlocks
+break getServerBlocks
+run "conf/default.conf"
+fs cmd
+rfr
+
 # Stop @ setDirective
 # break setDirective
 # run "conf/default.conf"
@@ -95,7 +116,7 @@ end
 
 
 # STOP @ setCliMaxBodysize
-break setCliMaxBodySize
-run "conf/default.conf"
-fs cmd
-rfr
+# break setCliMaxBodySize
+# run "conf/default.conf"
+# fs cmd
+# rfr

@@ -62,6 +62,7 @@ class Server {
 	std::map<short, std::string> getErrorPage(const std::string &route) const;
 	std::string getRoot(void) const;
 	std::string getRoot(const std::string &route) const;
+	std::map<std::string, Location> getLocations(void) const;
 	std::vector<std::string> getServerIdx(void) const;
 
 	// Setters

@@ -28,6 +28,8 @@
 
 # Debug
 gdb.txt
+.temp/
+.build/
 
 # Executables
 *.exe

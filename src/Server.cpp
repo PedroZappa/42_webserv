@@ -82,6 +82,11 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 
 	os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;
 
+	os << BYEL "Server Locations:\n" NC;
+	std::map<std::string, Location> loci = ctx.getLocations();
+	std::map<std::string, Location>::const_iterator locit;
+	for (locit = loci.begin(); locit != loci.end(); locit++)
+		os << locit->first << ": " << locit->second << std::endl;
 	return (os);
 }
 
@@ -206,6 +211,10 @@ std::string Server::getRoot(const std::string &route) const {
 		return (this->_root); // Return the root of the server
 	else
 		return (it->second.getRoot()); // Return the root of location
+}
+
+std::map<std::string, Location> Server::getLocations(void) const {
+	return (this->_locations);
 }
 
 /// @brief Returns the server indexes.

@@ -21,8 +21,8 @@ Location::Location(void) : _cliMaxBodySize(-1) {
 }
 
 Location::Location(const Location &copy)
-	: _root(copy._root), _cliMaxBodySize(copy._cliMaxBodySize),
-	  _errorPage(copy._errorPage) {
+	: _root(copy.getRoot()), _cliMaxBodySize(copy.getCliMaxBodySize()),
+	  _errorPage(copy.getErrorPage()) {
 }
 
 Location::~Location(void) {
@@ -41,14 +41,22 @@ Location &Location::operator=(const Location &src) {
 	return (*this);
 }
 
+std::ostream &operator<<(std::ostream &os, const Location &ctx) {
+	os << BRED "Location Configuration:" NC << std::endl;
+	os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;
+	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
+	   << std::endl;
+	return (os);
+}
+
 /* ************************************************************************** */
 /*                                Server Setup                                */
 /* ************************************************************************** */
 
 void Location::initDirectiveMap(void) {
+	_directiveMap["root"] = &Location::setRoot;
 	// _directiveMap["client_max_body_size"] = &Location::setCliMaxBodySize;
 	// _directiveMap["error_page"] = &Location::setErrorPage;
-	// _directiveMap["root"] = &Location::setRoot;
 }
 
 /* ************************************************************************** */
@@ -73,6 +81,16 @@ std::map<short, std::string> Location::getErrorPage(void) const {
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
+
+/// @brief Set the Root value
+/// @param tks The tokens of the root directive
+void Location::setRoot(std::vector<std::string> &tks) {
+	if (tks.size() > 2)
+		throw std::runtime_error("Invalid number of aargs in root directive");
+	if (!_root.empty())
+		throw std::runtime_error("Root already set");
+	_root = tks[1];
+}
 
 void Location::setDirective(std::string &directive) {
 	(void)directive;

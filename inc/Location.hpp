@@ -30,11 +30,15 @@ class Location {
 	void setDirective(std::string &directive);
 
 	// Getters
+	std::string getRoot(void) const;
 	long getCliMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
-	std::string getRoot(void) const;
 
-	// Directive Handlers
+	// Setters Handlers
+	void setRoot(std::vector<std::string> &tks);
+	void setIndex(std::vector<std::string> &tks);
+	void setCliMaxBodySize(std::vector<std::string> &tks);
+	void setErrorPage(std::vector<std::string> &tks);
 
   private:
 	std::string _root;

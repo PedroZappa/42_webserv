@@ -142,8 +142,8 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line) {
 
 	while (ss >> val) {
 		ConfParser::removeSpaces(val);
-		if (val != "{")
-			tks.push_back(val);
+		// if (val != "{")
+		tks.push_back(val);
 	}
 	return (tks);
 }
@@ -161,13 +161,17 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	size_t start = 0;
 	size_t endBlock = 0;
 	size_t end = 0;
+	bool serverFound = false;
 
-	while (file[start] != '\0') {             // Loop until end of file
-		identifier = (file.substr(start, 6)); // Get server block identifier
-		if (toLower(identifier) != "server")
+	while (file[start] != '\0') {          // Loop until end of file
+		identifier = (file.substr(start)); // Get server block identifier
+		if ((toLower(identifier) != "server") && !serverFound)
 			throw std::runtime_error("Invalid server block: no 'server' at "
 									 "start");
-		start += 6; // skip "server"
+		if (!serverFound) {
+			start += 6; // skip "server"
+			serverFound = true;
+		}
 
 		while (std::isspace(file[start])) // Skip spaces
 			++start;
@@ -210,9 +214,10 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 		char c = file[start];
 		if (c == '{')
 			++depth;
-		else if (c == '}')
-			if (!--depth)
-				return (start);
+		else if (c == '}') {
+			--depth;
+			return (start);
+		}
 		++start;
 	}
 	throw std::runtime_error("Invalid server block: no '}' at end");
@@ -244,13 +249,14 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 				server.setLocation((*it), startPos, endPos);
 				std::getline(block, line, '}');
 			} else if (toLower(key) == "}") {
+				break;
 			} else
 				server.setDirective(line);
 			startPos = block.tellg();
 		}
 		// TODO: Check for duplicates
-		// TODO: Check for empty server blocks
-
+		if (server.getRoot().empty())
+			throw std::runtime_error("Invalid server block: no root");
 		this->_servers.push_back(server);
 #ifdef DEBUG
 		showContainer(__func__, "Servers", _servers);
@@ -265,9 +271,5 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 /* ************************************************************************** */
 
 std::vector<Server> ConfParser::getServers(void) const {
-#ifdef DEBUG
-	debugLocus(__func__, FSTART, "getting servers from object");
-#endif
-
 	return (this->_servers);
 }

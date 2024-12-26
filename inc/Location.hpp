@@ -15,6 +15,11 @@
 
 #include "Webserv.hpp"
 
+struct MethodMapping {
+	const char *str;
+	Method method;
+};
+
 class Location {
   public:
 	// Constructors
@@ -32,12 +37,14 @@ class Location {
 	// Getters
 	std::string getRoot(void) const;
 	std::vector<std::string> getIndex(void) const;
+	std::set<Method> getLimitExcept(void) const;
 	long getCliMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
 
 	// Setters Handlers
 	void setRoot(std::vector<std::string> &tks);
 	void setIndex(std::vector<std::string> &tks);
+	void setLimitExcept(std::vector<std::string> &tks);
 	void setCliMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 
@@ -48,6 +55,7 @@ class Location {
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
+	static const MethodMapping methodMap[];
 
 	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
 	std::map<std::string, DirHandler> _directiveMap;

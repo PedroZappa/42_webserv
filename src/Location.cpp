@@ -30,6 +30,23 @@ Location::~Location(void) {
 }
 
 /* ************************************************************************** */
+/*                                 Local Data                                 */
+/* ************************************************************************** */
+
+const MethodMapping Location::methodMap[] = {
+    {"GET", GET},
+    {"HEAD", HEAD},
+    {"POST", POST},
+    {"PUT", PUT},
+    {"DELETE", DELETE},
+    {"CONNECT", CONNECT},
+    {"OPTIONS", OPTIONS},
+    {"TRACE", TRACE},
+    {"PATCH", PATCH},
+    {NULL, Method(0)}  // Sentinel value
+};
+
+/* ************************************************************************** */
 /*                                  Operators                                 */
 /* ************************************************************************** */
 
@@ -64,6 +81,7 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx) {
 void Location::initDirectiveMap(void) {
 	_directiveMap["root"] = &Location::setRoot;
 	_directiveMap["index"] = &Location::setIndex;
+	_directiveMap["limit_except"] = &Location::setLimitExcept;
 	// _directiveMap["client_max_body_size"] = &Location::setCliMaxBodySize;
 	// _directiveMap["error_page"] = &Location::setErrorPage;
 }
@@ -77,8 +95,14 @@ std::string Location::getRoot(void) const {
 	return (_root);
 }
 
+/// @brief Get the Index value
 std::vector<std::string> Location::getIndex(void) const {
 	return (_index);
+}
+
+/// @brief Get the LimitExcept value
+std::set<Method> Location::getLimitExcept(void) const {
+	return (_validMethods);
 }
 
 /// @brief Get the CliMaxBodySize value
@@ -110,7 +134,6 @@ void Location::setDirective(std::string &directive) {
 		(this->*(it->second))(tks);
 	else
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
-
 }
 
 /// @brief Set the Root value
@@ -126,8 +149,36 @@ void Location::setRoot(std::vector<std::string> &tks) {
 /// @brief Set the Index value
 /// @param tks The tokens of the index directive
 void Location::setIndex(std::vector<std::string> &tks) {
-tks.erase(tks.begin()); // Remove 'index'
+	tks.erase(tks.begin()); // Remove 'index'
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_index.push_back(*it);
+}
+
+/// @brief Set the LimitExcept value
+/// @param tks The tokens of the limit_except directive
+/// @throw std::runtime_error if the method is invalid
+void Location::setLimitExcept(std::vector<std::string>& tks) {
+    if (!_validMethods.empty()) {
+        throw std::runtime_error("Limit_except already set bruh!");
+    }
+    
+    std::set<Method> methods;
+    // Start from tks.begin() + 1 to skip the directive name
+    for (std::vector<std::string>::const_iterator it = tks.begin() + 1; 
+         it != tks.end(); ++it) {
+        
+        // Search through methodMap for matching method
+        bool methodFound = false;
+        for (const MethodMapping* map = methodMap; map->str != NULL; ++map) {
+            if (*it == map->str) {
+                methods.insert(map->method);
+                methodFound = true;
+                break;
+            }
+        }
+        if (!methodFound)
+            throw std::runtime_error("Invalid method in limit_except directive: " + *it);
+    }
+    _validMethods = methods;
 }

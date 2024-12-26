@@ -59,6 +59,11 @@ define setListen
   display sep
 end
 
+define setCliMaxBodySize
+  display tks
+  display maxSize
+end
+
 
 ### Go GDB Go! I Choose YOU! 
 
@@ -83,8 +88,14 @@ end
 # rfr
 
 # Stop @ setDirective
-break setDirective
+# break setDirective
+# run "conf/default.conf"
+# fs cmd
+# rfr
+
+
+# STOP @ setCliMaxBodysize
+break setCliMaxBodySize
 run "conf/default.conf"
 fs cmd
 rfr
-

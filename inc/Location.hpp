@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 18:07:38 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:45:03 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:56:40 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Location {
 	Location &operator=(const Location &src);
 
 	// Setup
+	void initDirectiveMap(void);
 	void setDirective(std::string &directive);
 
 	// Getters
@@ -42,6 +43,9 @@ class Location {
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
+
+	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
+	std::map<std::string, DirHandler> _directiveMap;
 };
 
 std::ostream &operator<<(std::ostream &os, const Location &ctx);

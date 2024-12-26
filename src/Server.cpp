@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:46:24 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 12:09:03 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Server::Server(void) {
+Server::Server(void) : _cliMaxBodySize(-1) {
 	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
@@ -69,6 +69,9 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	std::vector<std::string>::const_iterator strit;
 	for (strit = names.begin(); strit != names.end(); strit++)
 		os << *strit << std::endl;
+
+	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
+	   << std::endl;
 
 	os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;
 
@@ -287,7 +290,7 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 #endif
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
-	if (_cliMaxBodySize != MAX_BODY_SIZE) // Check if already set
+	if (_cliMaxBodySize != -1) // Check if already set
 		throw std::runtime_error("Max body size already set");
 
 	std::string maxSize = tks[1];

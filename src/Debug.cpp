@@ -17,7 +17,7 @@ const t_debug_msg debug_msg[6] = {
     {" START", FSTART, 6, "(>>) ", BLU},
     {" END", FEND, 4, "(<<) ", MAG},
     {" ERROR", ERROR, 6, "(xx) ", RED},
-    {" SUCCESS", SUCCESS, 8, "(xx) ", GRN},
+    {" SUCCESS", SUCCESS, 8, "(🖔🖔)", GRN},
     {NULL, 0, 0, NULL, NULL}
 };
 
@@ -33,24 +33,20 @@ void debugLocus(const std::string &className,
             break;
         }
     }
-
     // Check if status is valid
     if (!msg_entry) {
         std::cerr << RED "Invalid status." NC << std::endl;
         return;
     }
-
     // Build the message using ostringstream
     std::ostringstream msg;
     msg << msg_entry->color                  // Color code
         << msg_entry->msg_header             // Header like "(ii) "
         << "[" << className << "::" << funcName << "] " // Class and function name
         << msg_entry->msg;                   // Status message
-
     if (!customMsg.empty()) {
         msg << " -> " << customMsg;
     }
-
     // Print to standard error and reset color
     std::cerr << msg.str() << NC << std::endl;
 }

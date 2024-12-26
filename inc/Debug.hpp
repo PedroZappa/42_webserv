@@ -20,11 +20,11 @@
 /* ************************************************************************** */
 
 typedef enum e_debug {
-	SHOW_MSG = 0,
+	ERROR,
 	FSTART,
 	FEND,
-	ERROR,
-	SUCCESS
+	SUCCESS,
+	SHOW_MSG,
 } t_debug;
 
 /* ************************************************************************** */
@@ -70,7 +70,7 @@ void showContainer(const std::string &funcName,
 				   const C &cont) {
 	// Use constant SHOW_MSG (which should correspond to INFO status in debug_msg)
 	debugLocus(
-		typeid(cont).name(), funcName, 1, "Printing cont: " + contName);
+		typeid(cont).name(), funcName, SHOW_MSG, "Printing cont: " + contName);
 
 	std::ostringstream output;
 	typename C::const_iterator it; 

@@ -232,8 +232,7 @@ std::vector<std::string> Server::getServerIdx(void) const {
 /// @throw std::runtime_error if the directive is invalid.
 void Server::setDirective(std::string &directive) {
 #ifdef DEBUG
-	debugLocus(
-		typeid(*this).name(), __func__, FSTART, "directive: " GRN + directive);
+	DEBUG_LOCUS(FSTART, "directive: " GRN + directive);
 #endif
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
@@ -255,8 +254,7 @@ void Server::setDirective(std::string &directive) {
 		}
 	}
 #ifdef DEBUG
-	debugLocus(
-		typeid(*this).name(), __func__, FEND, "directive: " GRN + directive);
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + directive + NC);
 #endif
 }
 
@@ -384,10 +382,7 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 	std::stringstream ss;
 	ss << _cliMaxBodySize;
 	std::string cliMaxBodyStr = ss.str();
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FEND,
-			   "processed directive: " YEL + cliMaxBodyStr + NC);
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + tks[0] + NC);
 #endif
 }
 
@@ -396,10 +391,7 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the error_page directive is invalid
 void Server::setErrorPage(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FSTART,
-			   "processing directive: " YEL + tks[0] + NC);
+	DEBUG_LOCUS(FSTART, "processed directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() < 3)
@@ -417,18 +409,14 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 
 #ifdef DEBUG
 	std::stringstream ss;
-	for (std::map<short, std::string>::const_iterator it = _errorPage.begin();
-		 it != _errorPage.end();
-		 ++it) {
+	std::map<short, std::string>::const_iterator it;
+	for (it = _errorPage.begin(); it != _errorPage.end(); ++it) {
 		if (it != _errorPage.begin())
 			ss << ", ";
 		ss << it->first << ": " << it->second;
 	}
 	std::string errorPageStr = ss.str();
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FEND,
-			   "processed directive: " YEL + errorPageStr + NC);
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + errorPageStr + NC);
 #endif
 }
 
@@ -469,7 +457,8 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 		throw std::runtime_error("Invalid location route");
 	location >> line; // Skip opening "{"
 	if (line != "{")
-		throw std::runtime_error("Only one route per location block supported.");
+		throw std::runtime_error("Only one route per location block "
+								 "supported.");
 	while (std::getline(location, line, ';')) {
 		ConfParser::removeSpaces(line);
 		if (line.empty() && !location.eof())
@@ -493,7 +482,7 @@ void Server::setIndex(std::vector<std::string> &tks) {
 #endif
 	tks.erase(tks.begin()); // Remove 'index'
 	std::vector<std::string>::const_iterator it;
-	
+
 	for (it = tks.begin(); it != tks.end(); it++)
 		_index.push_back(*it);
 #ifdef DEBUG

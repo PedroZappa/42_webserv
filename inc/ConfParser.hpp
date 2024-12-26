@@ -45,7 +45,8 @@ class ConfParser {
 	// Setters
 	void loadContext(std::vector<std::string> &serverBlocks);
 
-	// TODO: Add Parsing Helper functions
+	// Debug
+	void debugServerLocations(size_t serverN, const std::string &route);
 
   private:
 	std::string _confFile;

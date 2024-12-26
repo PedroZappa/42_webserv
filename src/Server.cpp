@@ -444,6 +444,11 @@ void Server::setRoot(std::vector<std::string> &root) {
 /// @param end The end of the location block.
 /// @throw std::runtime_error if the location block is invalid.
 void Server::setLocation(std::string block, size_t start, size_t end) {
+#ifdef DEBUG
+	DEBUG_LOCUS(FSTART,
+				"processing location block: " YEL +
+					block.substr(start, (end - start)) + NC);
+#endif
 	std::istringstream location(block.substr(start, (end - start)));
 	std::vector<std::string> tokens;
 	std::string route;
@@ -474,6 +479,10 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 			break;
 	}
 	_locations[route] = locInfo;
+	std::cout << "processed location block:\n" << _locations[route] << std::endl;
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processed location block: " YEL + route + NC);
+#endif
 }
 
 void Server::setIndex(std::vector<std::string> &tks) {

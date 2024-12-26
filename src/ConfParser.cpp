@@ -259,7 +259,6 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			throw std::runtime_error("Invalid server block: no root");
 		this->_servers.push_back(server);
 #ifdef DEBUG
-		// showContainer(__func__, "Servers", _servers);
 		DEBUG_LOCUS(FEND, "loaded context from config file " NC + _confFile);
 #endif
 	}
@@ -293,4 +292,14 @@ std::string ConfParser::getIdentifier(const std::string &str) {
 	DEBUG_LOCUS(FEND, "got identifier: " GRN + token + NC);
 #endif
 	return (token);
+}
+
+/* ************************************************************************** */
+/*                                   Debug                                    */
+/* ************************************************************************** */
+
+void ConfParser::debugServerLocations(size_t serverN, const std::string &route) {
+	std::cout << "Server " << serverN << " location: " << route << std::endl;
+
+	std::cout << "Root: " << _servers[serverN].getRoot() << std::endl;
 }

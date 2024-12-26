@@ -13,6 +13,7 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
+#include "Server.hpp"
 #include "Webserv.hpp"
 
 /* ************************************************************************** */
@@ -73,13 +74,13 @@ void showContainer(const std::string &funcName,
 		typeid(cont).name(), funcName, SHOW_MSG, "Printing cont: " + contName);
 
 	std::ostringstream output;
-	typename C::const_iterator it; 
+	typename C::const_iterator it;
 
 	for (it = cont.begin(); it != cont.end(); ++it) {
 		output << *it;
 		typename C::const_iterator next = it;
 		++next;
-		if (next != cont.end()) 
+		if (next != cont.end())
 			output << "\n";
 	}
 

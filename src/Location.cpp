@@ -12,8 +12,8 @@
 
 #include "../inc/Location.hpp"
 #include "../inc/ConfParser.hpp"
-#include "../inc/Webserv.hpp"
 #include "../inc/Debug.hpp"
+#include "../inc/Webserv.hpp"
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -155,6 +155,9 @@ void Location::setRoot(std::vector<std::string> &tks) {
 	if (!_root.empty())
 		throw std::runtime_error("Root already set bruh!");
 	_root = tks[1];
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processed root directive: " YEL + _root + NC);
+#endif
 }
 
 /// @brief Set the Index value
@@ -164,6 +167,9 @@ void Location::setIndex(std::vector<std::string> &tks) {
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_index.push_back(*it);
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processed index directive: " YEL + _index[0] + NC);
+#endif
 }
 
 /// @brief Set the LimitExcept value
@@ -193,4 +199,9 @@ void Location::setLimitExcept(std::vector<std::string> &tks) {
 									 *it);
 	}
 	_validMethods = methods;
+	
+#ifdef DEBUG
+	showContainer(__func__, "Methods", _validMethods);
+	DEBUG_LOCUS(FEND, "processed limit_except directive: " YEL);
+#endif
 }

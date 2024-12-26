@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 11:33:13 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 10:48:08 by passunca         ###   ########.fr       */
+/*   Updated: 2024/12/26 11:12:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ Server::~Server(void) {
 Server &Server::operator=(const Server &copy) {
 	this->_netAddr = copy.getNetAddr();
 	this->_serverName = copy.getServerName();
+	this->_cliMaxBodySize = copy.getCliMaxBodySize();
+	this->_errorPage = copy.getErrorPage();
+	this->_root = copy.getRoot();
 	this->_serverIdx = copy.getServerIdx();
 	return (*this);
 }
@@ -242,6 +245,62 @@ void Server::setServerName(std::vector<std::string> &tks) {
 #endif
 }
 
+void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+	if (tks.size() != 2) // Check number of tokens
+		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
+	if (_cliMaxBodySize != MAX_BODY_SIZE) // Check if already set
+		throw std::runtime_error("Max body size already set");
+
+	std::string maxSize = tks[1];
+	char unit = maxSize[maxSize.size() - 1]; // Extract last character
+	if (!std::isdigit(unit))
+		maxSize.resize(maxSize.size() - 1); // Remove last character
+
+	// convert string to long
+	char *endPtr = NULL;
+	long size = std::strtol(maxSize.c_str(), &endPtr, 10);
+	if ((*endPtr != '\0') | (size < 0))
+		throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
+
+	// Applying unit checking for overflow
+	_cliMaxBodySize = size;
+	if (!std::isdigit(unit)) {
+		const long maxLim = LONG_MAX;
+		switch (unit) {
+		case 'k':
+		case 'K':
+			if (size > (maxLim / KB))
+				throw std::runtime_error("client_max_body_size overflows");
+			_cliMaxBodySize = (size * KB);
+			break;
+		case 'm':
+		case 'M':
+			if (size > (maxLim / MB))
+				throw std::runtime_error("client_max_body_size overflows");
+			_cliMaxBodySize = (size * MB);
+			break;
+		case 'g':
+		case 'G':
+			if (size > (maxLim / GB))
+				throw std::runtime_error("client_max_body_size overflows");
+			_cliMaxBodySize = (size * GB);
+			break;
+		default:
+			throw std::runtime_error("Invalid unit for max_body_size: " + tks[1]);
+		}
+	}
+
+#ifdef DEBUG
+	debugLocus(__func__, FEND, "processed directive: " YEL + tks[0] + NC);
+#endif
+}
+
+/// @brief Sets the root of the server.
+/// @param root The root to set.
+/// @throw std::runtime_error if the root is invalid.
 void Server::setRoot(std::vector<std::string> &root) {
 #ifdef DEBUG
 	debugLocus(

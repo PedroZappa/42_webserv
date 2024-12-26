@@ -232,8 +232,11 @@ std::vector<std::string> Server::getServerIdx(void) const {
 /// @throw std::runtime_error if the listen directive is invalid
 void Server::setListen(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(
-		__func__, FSTART, "processing listen directive: " YEL + tks[0] + NC);
+	// debugLocus(typeid(*this).name(),
+	// 		   __func__,
+	// 		   FSTART,
+	// 		   "processing listen directive: " YEL + tks[0] + NC);
+	DEBUG_LOCUS(FSTART, "processing listen directive: " YEL + tks[0] + NC);
 #endif
 	if (tks.size() < 2)
 		throw std::runtime_error("Invalid listen directive: directive must "
@@ -260,7 +263,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 		}
 
 		// Apply defaults
-		if (socket.ip.empty())
+		if (socket.ip.empty() || socket.ip == "listen")
 			socket.ip = "0.0.0.0";
 		if (socket.port.empty())
 			socket.port = "80";
@@ -277,7 +280,10 @@ void Server::setListen(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed listen directive: " YEL + tks[0] + NC);
+	debugLocus(typeid(*this).name(),
+			   __func__,
+			   FEND,
+			   "processed listen directive: " YEL + tks[0] + NC);
 #endif
 }
 
@@ -285,7 +291,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	debugLocus(typeid(*this).name(), __func__, FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
@@ -293,7 +299,7 @@ void Server::setServerName(std::vector<std::string> &tks) {
 		_serverName.push_back(*it);
 
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed directive: " YEL + _serverName[0] + NC);
+	debugLocus(typeid(*this).name(), __func__, FEND, "processed directive: " YEL + _serverName[0] + NC);
 #endif
 }
 
@@ -302,7 +308,7 @@ void Server::setServerName(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the max_body_size directive is invalid
 void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	debugLocus(typeid(*this).name(), __func__, FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
@@ -352,13 +358,13 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 	std::stringstream ss;
 	ss << _cliMaxBodySize;
 	std::string cliMaxBodyStr = ss.str();
-	debugLocus(__func__, FEND, "processed directive: " YEL + cliMaxBodyStr + NC);
+	debugLocus(typeid(*this).name(), __func__, FEND, "processed directive: " YEL + cliMaxBodyStr + NC);
 #endif
 }
 
 void Server::setErrorPage(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	debugLocus(__func__, FSTART, "processing directive: " YEL + tks[0] + NC);
+	debugLocus(typeid(*this).name(), __func__, FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() < 3)
@@ -384,7 +390,7 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 		ss << it->first << ": " << it->second;
 	}
 	std::string errorPageStr = ss.str();
-	debugLocus(__func__, FEND, "processed directive: " YEL + errorPageStr + NC);
+	debugLocus(typeid(*this).name(), __func__, FEND, "processed directive: " YEL + errorPageStr + NC);
 #endif
 }
 
@@ -393,7 +399,7 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the root is invalid.
 void Server::setRoot(std::vector<std::string> &root) {
 #ifdef DEBUG
-	debugLocus(
+	debugLocus(typeid(*this).name(),
 		__func__, FSTART, "processing root directive: " YEL + root[0] + NC);
 #endif
 	if (!_root.empty())
@@ -403,7 +409,7 @@ void Server::setRoot(std::vector<std::string> &root) {
 								 "include only one root");
 	_root = root[1];
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "processed root directive: " YEL + _root + NC);
+	 debugLocus(typeid(*this).name(), __func__, FEND, "processed root directive: " YEL + _root + NC);
 #endif
 }
 
@@ -449,7 +455,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 /// @throw std::runtime_error if the directive is invalid.
 void Server::setDirective(std::string &directive) {
 #ifdef DEBUG
-	debugLocus(__func__, FSTART, "directive: " GRN + directive);
+	debugLocus(typeid(*this).name(), __func__, FSTART, "directive: " GRN + directive);
 #endif
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
@@ -471,7 +477,7 @@ void Server::setDirective(std::string &directive) {
 		}
 	}
 #ifdef DEBUG
-	debugLocus(__func__, FEND, "directive: " GRN + directive);
+	debugLocus(typeid(*this).name(), __func__, FEND, "directive: " GRN + directive);
 #endif
 }
 

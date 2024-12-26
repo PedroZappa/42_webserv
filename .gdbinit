@@ -70,8 +70,7 @@ end
 define setListen
   display tks
   display socket
-  display val
-  display sep
+  display it
 end
 
 define setCliMaxBodySize
@@ -103,8 +102,14 @@ end
 # rfr
 
 # STOP @ getServerBlocks
-break getServerBlocks
-run "conf/default.conf"
+# break getServerBlocks
+# run "conf/default.conf"
+# fs cmd
+# rfr
+
+# STOP @ setListen
+break setListen
+run conf/default.conf
 fs cmd
 rfr
 

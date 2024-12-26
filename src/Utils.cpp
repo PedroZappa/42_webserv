@@ -21,9 +21,6 @@
 /// @param str The string to convert
 /// @return The lowercase string
 std::string toLower(const std::string &str) {
-#ifdef DEBUG
-	debugLocus(__func__, FSTART, "Converting " GRN + str + NC " to lowercase");
-#endif
 	std::string lower = str;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 	return (lower);
@@ -35,9 +32,9 @@ std::string toLower(const std::string &str) {
 /// @throws std::invalid_argument if the number cannot be converted
 template <typename T> std::string nToStr(T num) {
 #ifdef DEBUG
-	debugLocus(__func__,
-			   FSTART,
-			   "Converting " + std::string(typeid(T).name()) + " to string");
+	// debugLocus(__func__,
+	// 		   FSTART,
+	// 		   "Converting " + std::string(typeid(T).name()) + " to string");
 #endif
 	std::stringstream ss;
 	ss << num;
@@ -53,9 +50,9 @@ template <typename T> std::string nToStr(T num) {
 /// @throws std::invalid_argument if the string cannot be converted
 template <typename T> T strToN(const std::string &str) {
 #ifdef DEBUG
-	debugLocus(__func__,
-			   FSTART,
-			   "Converting string to " + std::string(typeid(T).name()));
+	// debugLocus(__func__,
+	// 		   FSTART,
+	// 		   "Converting string to " + std::string(typeid(T).name()));
 #endif
 	T num;
 	std::stringstream ss(str);

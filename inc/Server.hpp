@@ -66,13 +66,14 @@ class Server {
 	std::vector<std::string> getServerIdx(void) const;
 
 	// Setters
+	void setDirective(std::string &directive);
 	void setListen(std::vector<std::string> &tks);
 	void setServerName(std::vector<std::string> &tks);
 	void setCliMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
-	void setDirective(std::string &directive);
+	void setIndex(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
@@ -81,11 +82,11 @@ class Server {
 	std::vector<std::string> _serverName;
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
-	std::string _root; // Root Directive
+	std::string _root;
 	std::vector<std::string> _serverIdx;
 	std::map<std::string, Location> _locations;
+	std::vector<std::string> _index;
 	std::set<Method> _validMethods;
-	// TODO: Add other Context Data
 
 	// Directive Map w/ Function Pointer
 	typedef void (Server::*DirHandler)(std::vector<std::string> &d);

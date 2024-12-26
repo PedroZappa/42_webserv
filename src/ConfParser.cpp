@@ -260,7 +260,7 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 		this->_servers.push_back(server);
 #ifdef DEBUG
 		// showContainer(__func__, "Servers", _servers);
-		DEBUG_LOCUS(FEND, "loaded context from config file " + _confFile);
+		DEBUG_LOCUS(FEND, "loaded context from config file " NC + _confFile);
 #endif
 	}
 }

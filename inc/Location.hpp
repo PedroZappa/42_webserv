@@ -31,6 +31,7 @@ class Location {
 
 	// Getters
 	std::string getRoot(void) const;
+	std::vector<std::string> getIndex(void) const;
 	long getCliMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
 

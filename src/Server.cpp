@@ -19,7 +19,7 @@
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Server::Server(void) : _cliMaxBodySize(-1) {
+Server::Server(void) : _cliMaxBodySize(-1), _autoIdx(FALSE) {
 	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
@@ -35,7 +35,9 @@ Server::Server(void) : _cliMaxBodySize(-1) {
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
 	  _cliMaxBodySize(copy.getCliMaxBodySize()),
-	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()) {
+	  _errorPage(copy.getErrorPage()), _root(copy.getRoot())
+// _autoIdx(copy.getAutoIdx()
+{
 }
 
 Server::~Server(void) {
@@ -52,6 +54,7 @@ Server &Server::operator=(const Server &copy) {
 	this->_errorPage = copy.getErrorPage();
 	this->_root = copy.getRoot();
 	this->_serverIdx = copy.getServerIdx();
+	// this->_autoIdx = copy.getAutoIdx();
 	return (*this);
 }
 
@@ -101,6 +104,7 @@ void Server::initDirectiveMap(void) {
 	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 	_directiveMap["index"] = &Server::setIndex;
+	// _directiveMap["autoindex"] = &Server::setAutoIdx;
 }
 
 /// @brief Checks if the IP address is valid.
@@ -182,6 +186,9 @@ std::map<short, std::string> Server::getErrorPage(void) const {
 	return (this->_errorPage);
 }
 
+/// @brief Returns the error page.
+/// @param route The route to append to the error page
+/// @return The error page.
 std::map<short, std::string> Server::getErrorPage(const std::string &route) const {
 	if (route.empty())
 		return (this->_errorPage);
@@ -213,6 +220,8 @@ std::string Server::getRoot(const std::string &route) const {
 		return (it->second.getRoot()); // Return the root of location
 }
 
+/// @brief Returns the locations.
+/// @return The locations.
 std::map<std::string, Location> Server::getLocations(void) const {
 	return (this->_locations);
 }
@@ -221,6 +230,12 @@ std::map<std::string, Location> Server::getLocations(void) const {
 /// @return A vector of strings representing the server indexes.
 std::vector<std::string> Server::getServerIdx(void) const {
 	return (this->_serverIdx);
+}
+
+/// @brief Returns the auto index.
+/// @return The auto index.
+State Server::getAutoIdx(void) const {
+	return (this->_autoIdx);
 }
 
 /* ************************************************************************** */
@@ -479,12 +494,16 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 			break;
 	}
 	_locations[route] = locInfo;
-	std::cout << "processed location block:\n" << _locations[route] << std::endl;
+	std::cout << "processed location block:\n"
+			  << _locations[route] << std::endl;
 #ifdef DEBUG
 	DEBUG_LOCUS(FEND, "processed location block: " YEL + route + NC);
 #endif
 }
 
+/// @brief Sets the index of the server.
+/// @param tks The index to set.
+/// @throw std::runtime_error if the index is invalid.
 void Server::setIndex(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -493,9 +512,27 @@ void Server::setIndex(std::vector<std::string> &tks) {
 	std::vector<std::string>::const_iterator it;
 
 	for (it = tks.begin(); it != tks.end(); it++)
-		_index.push_back(*it);
+		_serverIdx.push_back(*it);
 #ifdef DEBUG
 	DEBUG_LOCUS(FEND, "processed directive: " YEL + *it + NC);
+#endif
+}
+
+void Server::setAutoIdx(std::vector<std::string> &tks) {
+	#ifdef DEBUG
+	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+	if (_autoIdx == TRUE || _autoIdx == FALSE)
+		throw std::runtime_error("Autoindex already set");
+	if (tks[1] == "on")
+		_autoIdx = TRUE;
+	else if (tks[1] == "off")
+		_autoIdx = FALSE;
+	else
+		throw std::runtime_error("Invalid autoindex directive");
+
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + _autoIdx);
 #endif
 }
 

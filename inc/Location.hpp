@@ -38,6 +38,7 @@ class Location {
 	std::string getRoot(void) const;
 	std::vector<std::string> getIndex(void) const;
 	std::set<Method> getLimitExcept(void) const;
+	State getAutoIndex(void) const;
 	long getCliMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
 
@@ -45,13 +46,14 @@ class Location {
 	void setRoot(std::vector<std::string> &tks);
 	void setIndex(std::vector<std::string> &tks);
 	void setLimitExcept(std::vector<std::string> &tks);
+	void setAutoIndex(std::vector<std::string> &tks);
 	void setCliMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 
   private:
 	std::string _root;
 	std::vector<std::string> _index;
-	// State _autoIndex;
+	State _autoIndex;
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;

@@ -46,7 +46,9 @@ define tokenizer
 end
 
 define loadContext
-  display 
+  display line
+  display key
+  display it
 end
 
 define getServerBlocks
@@ -83,7 +85,6 @@ define setLocation
   display tokens
   display route
   display line
-  display lineRead
   display discard
   display locInfo
   display _locations
@@ -106,6 +107,13 @@ end
 # fs cmd
 # rfr
 
+# STOP @ loadContext
+break loadContext
+run "conf/default.conf"
+loadContext
+fs cmd
+rfr
+
 # Stop @ getServer
 # break getServers
 # run "conf/default.conf"
@@ -126,9 +134,9 @@ end
 
 # STOP @ setLocation
 break setLocation
-run conf/default.conf
-fs cmd
-rfr
+# run conf/default.conf
+# fs cmd
+# rfr
 
 # Stop @ setDirective
 # break setDirective

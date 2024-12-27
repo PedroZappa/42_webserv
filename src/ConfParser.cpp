@@ -259,6 +259,11 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 			throw std::runtime_error("Invalid server block: no root");
 		this->_servers.push_back(server);
 #ifdef DEBUG
+		std::map<std::string, Location> locations = server.getLocations();
+		std::map<std::string, Location>::iterator it;
+		for (it = locations.begin(); it != locations.end(); it++) {
+			std::cout << it->first << std::endl;
+		}
 		DEBUG_LOCUS(FEND, "loaded context from config file " NC + _confFile);
 #endif
 	}

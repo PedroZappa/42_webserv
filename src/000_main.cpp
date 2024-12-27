@@ -43,6 +43,20 @@ int main(int argc, char **argv) {
 	}
 #ifdef DEBUG
 	showContainer(__func__, "Loaded Servers", servers);
+
+	// If you want to see locations for a specific server:
+	if (!servers.empty()) {
+		const std::map<std::string, Location> &locations =
+			servers[0].getLocations();
+		std::cerr << CYN "Locations for first server:" NC << std::endl;
+		for (std::map<std::string, Location>::const_iterator it =
+				 locations.begin();
+			 it != locations.end();
+			 ++it) {
+			std::cerr << "Location " << it->first << ": " << it->second
+					  << std::endl;
+		}
+	}
 #endif
 
 	// TODO: Init Server Cluster

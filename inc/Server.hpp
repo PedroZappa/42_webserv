@@ -64,6 +64,7 @@ class Server {
 	std::string getRoot(const std::string &route) const;
 	std::map<std::string, Location> getLocations(void) const;
 	std::vector<std::string> getServerIdx(void) const;
+	State getAutoIdx(void) const;
 
 	// Setters
 	void setDirective(std::string &directive);
@@ -74,6 +75,7 @@ class Server {
 	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setIndex(std::vector<std::string> &tks);
+	void setAutoIdx(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
@@ -83,9 +85,9 @@ class Server {
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::string _root;
-	std::vector<std::string> _serverIdx;
 	std::map<std::string, Location> _locations;
-	std::vector<std::string> _index;
+	std::vector<std::string> _serverIdx;
+	State _autoIdx;
 	std::set<Method> _validMethods;
 
 	// Directive Map w/ Function Pointer

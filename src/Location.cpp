@@ -153,7 +153,7 @@ void Location::setDirective(std::string &directive) {
 	else
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processing directive: " YEL + it->first + NC);
+	DEBUG_LOCUS(FEND, "set directive: " YEL + directive + " " NC);
 #endif
 }
 

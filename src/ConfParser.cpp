@@ -223,6 +223,9 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 	throw std::runtime_error("Invalid server block: no '}' at end");
 }
 
+/// @brief Loads the context from the config file
+/// @param blocks The server blocks to load the context from
+///
 void ConfParser::loadContext(std::vector<std::string> &blocks) {
 #ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "loaded context from config file " + _confFile);

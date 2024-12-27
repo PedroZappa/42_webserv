@@ -13,11 +13,11 @@
 #include "../inc/Debug.hpp"
 
 const t_debug_msg debug_msg[6] = {
-    {" INFO", SHOW_MSG, 5, "(ii) ", BGRN},
-    {" START", FSTART, 6, "(>>) ", BLU},
+    {" INFO", SHOW_MSG, 5, "(ii) ", BBLU},
+    {" START", FSTART, 6, "(>>) ", GRN},
     {" END", FEND, 4, "(<<) ", MAG},
     {" ERROR", ERROR, 6, "(xx) ", RED},
-    {" SUCCESS", SUCCESS, 8, "(🖔🖔)", GRN},
+    {" SUCCESS", SUCCESS, 8, "(🖔🖔)", BGRN},
     {NULL, 0, 0, NULL, NULL}
 };
 

@@ -86,9 +86,8 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	os << BYEL "Server Locations:\n" NC;
 	std::map<std::string, Location> loci = ctx.getLocations();
 	std::map<std::string, Location>::const_iterator locit;
-	os << "yo" << std::endl;
 	for (locit = loci.begin(); locit != loci.end(); locit++)
-		os << locit->first << ":" << locit->second << std::endl;
+		os << locit->first << ":" << locit->second.getRoot() << std::endl;
 	return (os);
 }
 
@@ -264,13 +263,15 @@ void Server::setDirective(std::string &directive) {
 		for (size_t tk = 0; tk < tks.size(); tk++) {
 			if (tks[tk] == it->first) {
 				(this->*(it->second))(tks);
+#ifdef DEBUG
+				DEBUG_LOCUS(
+					FEND,
+					"set directive: " BWHT + directive + NC);
+#endif
 				return;
 			}
 		}
 	}
-#ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + directive + NC);
-#endif
 }
 
 /// @brief Sets the listen directive
@@ -481,12 +482,10 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 								 "supported.");
 	while (std::getline(location, line, ';')) {
 		ConfParser::removeSpaces(line);
-		if (line.empty() && !location.eof())
+		if (!location.eof() && line.empty())
 			throw std::runtime_error("Invalid location block: unparsable");
 		if (line.empty())
 			continue;
-		std::istringstream lineRead(line);
-		lineRead >> discard;
 		locInfo.setDirective(line);
 		// if (discard != "root" && discard != "autoindex" && discard != "index")
 		// 	throw std::runtime_error("Invalid location block: unknown directive");
@@ -494,10 +493,9 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 			break;
 	}
 	_locations[route] = locInfo;
+#ifdef DEBUG
 	std::cout << "processed location block:\n"
 			  << _locations[route] << std::endl;
-#ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed location block: " YEL + route + NC);
 #endif
 }
 
@@ -519,7 +517,7 @@ void Server::setIndex(std::vector<std::string> &tks) {
 }
 
 void Server::setAutoIdx(std::vector<std::string> &tks) {
-	#ifdef DEBUG
+#ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (_autoIdx == TRUE || _autoIdx == FALSE)

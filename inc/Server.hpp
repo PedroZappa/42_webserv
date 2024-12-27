@@ -75,7 +75,7 @@ class Server {
 	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setIndex(std::vector<std::string> &tks);
-	void setAutoIdx(std::vector<std::string> &tks);
+	void setAutoIndex(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
@@ -87,16 +87,12 @@ class Server {
 	std::string _root;
 	std::map<std::string, Location> _locations;
 	std::vector<std::string> _serverIdx;
-	State _autoIdx;
+	State _autoIndex;
 	std::set<Method> _validMethods;
 
 	// Directive Map w/ Function Pointer
 	typedef void (Server::*DirHandler)(std::vector<std::string> &d);
 	std::map<std::string, DirHandler> _directiveMap;
-
-	// Connection Data (for debugging goodness)
-	std::vector<int> _listeningSockets;
-	std::vector<struct sockaddr_in> _sockAddrVec;
 };
 
 // Insertion Operator

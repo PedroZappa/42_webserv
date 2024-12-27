@@ -43,12 +43,15 @@ class Location {
 	std::map<short, std::string> getErrorPage(void) const;
 
 	// Setters Handlers
+	void setRoot(std::string &root);
 	void setRoot(std::vector<std::string> &tks);
 	void setIndex(std::vector<std::string> &tks);
 	void setLimitExcept(std::vector<std::string> &tks);
 	void setAutoIndex(std::vector<std::string> &tks);
 	void setCliMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
+
+	static const MethodMapping methodMap[];
 
   private:
 	std::string _root;
@@ -57,7 +60,6 @@ class Location {
 	long _cliMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
-	static const MethodMapping methodMap[];
 
 	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
 	std::map<std::string, DirHandler> _directiveMap;

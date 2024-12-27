@@ -19,7 +19,7 @@
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Server::Server(void) : _cliMaxBodySize(-1), _autoIdx(FALSE) {
+Server::Server(void) : _cliMaxBodySize(-1), _autoIndex(FALSE) {
 	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
@@ -34,10 +34,8 @@ Server::Server(void) : _cliMaxBodySize(-1), _autoIdx(FALSE) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _cliMaxBodySize(copy.getCliMaxBodySize()),
-	  _errorPage(copy.getErrorPage()), _root(copy.getRoot())
-// _autoIdx(copy.getAutoIdx()
-{
+	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
+	  _root(copy.getRoot()), _autoIndex(copy.getAutoIdx()) {
 }
 
 Server::~Server(void) {
@@ -53,8 +51,9 @@ Server &Server::operator=(const Server &copy) {
 	this->_cliMaxBodySize = copy.getCliMaxBodySize();
 	this->_errorPage = copy.getErrorPage();
 	this->_root = copy.getRoot();
+	this->_locations = copy.getLocations();
 	this->_serverIdx = copy.getServerIdx();
-	// this->_autoIdx = copy.getAutoIdx();
+	this->_autoIndex = copy.getAutoIdx();
 	return (*this);
 }
 
@@ -87,7 +86,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	std::map<std::string, Location> loci = ctx.getLocations();
 	std::map<std::string, Location>::const_iterator locit;
 	for (locit = loci.begin(); locit != loci.end(); locit++)
-		os << locit->first << ":" << locit->second.getRoot() << std::endl;
+		os << locit->first << ":" << std::endl;
 	return (os);
 }
 
@@ -234,7 +233,7 @@ std::vector<std::string> Server::getServerIdx(void) const {
 /// @brief Returns the auto index.
 /// @return The auto index.
 State Server::getAutoIdx(void) const {
-	return (this->_autoIdx);
+	return (this->_autoIndex);
 }
 
 /* ************************************************************************** */
@@ -264,9 +263,7 @@ void Server::setDirective(std::string &directive) {
 			if (tks[tk] == it->first) {
 				(this->*(it->second))(tks);
 #ifdef DEBUG
-				DEBUG_LOCUS(
-					FEND,
-					"set directive: " BWHT + directive + NC);
+				DEBUG_LOCUS(FEND, "set directive: " BWHT + directive + NC);
 #endif
 				return;
 			}
@@ -474,6 +471,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 
 	location >> route; // Skip 'location'
 	location >> route; // Get route
+	locInfo.setRoot(route);
 	if (route == "{")
 		throw std::runtime_error("Invalid location route");
 	location >> line; // Skip opening "{"
@@ -486,6 +484,9 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 			throw std::runtime_error("Invalid location block: unparsable");
 		if (line.empty())
 			continue;
+#ifdef DEBUG
+		std::cout << "about to set directive: " << line << std::endl;
+#endif
 		locInfo.setDirective(line);
 		// if (discard != "root" && discard != "autoindex" && discard != "index")
 		// 	throw std::runtime_error("Invalid location block: unknown directive");
@@ -516,21 +517,21 @@ void Server::setIndex(std::vector<std::string> &tks) {
 #endif
 }
 
-void Server::setAutoIdx(std::vector<std::string> &tks) {
+void Server::setAutoIndex(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
-	if (_autoIdx == TRUE || _autoIdx == FALSE)
+	if (_autoIndex == TRUE || _autoIndex == FALSE)
 		throw std::runtime_error("Autoindex already set");
 	if (tks[1] == "on")
-		_autoIdx = TRUE;
+		_autoIndex = TRUE;
 	else if (tks[1] == "off")
-		_autoIdx = FALSE;
+		_autoIndex = FALSE;
 	else
 		throw std::runtime_error("Invalid autoindex directive");
 
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + _autoIdx);
+	DEBUG_LOCUS(FEND, "processed directive: " YEL + _autoIndex);
 #endif
 }
 

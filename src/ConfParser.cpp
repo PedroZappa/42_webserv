@@ -50,10 +50,7 @@ ConfParser &ConfParser::operator=(const ConfParser &src) {
 /// @throws std::runtime_error if the config file cannot be opened
 void ConfParser::loadConf(void) {
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   FSTART,
-			   "loading config file " + _confFile);
+	DEBUG_LOCUS(FEND, "loaded config file " + _confFile);
 #endif
 	std::ifstream confFile(this->_confFile.c_str()); // Open config file
 	if (!confFile.is_open())
@@ -70,23 +67,22 @@ void ConfParser::loadConf(void) {
 	if (fileContent.empty()) // Handle empty file
 		throw std::runtime_error("Config file is empty");
 #ifdef DEBUG
-	debugLocus(typeid(*this).name(),
-			   __func__,
-			   SHOW_MSG,
-			   "cleaned config file:\n" NC + fileContent);
+	DEBUG_LOCUS(FEND, "cleaned config file");
 #endif
 
 	// TODO: Handle quotes?
 
 	// Get Server Blocks & load them
-	std::vector<std::string> serverBlocks = this->getServerBlocks(fileContent);
+	std::vector<std::string> serverBlocks;
+	serverBlocks = this->getServerBlocks(fileContent);
 	this->loadContext(serverBlocks);
 
 #ifdef DEBUG
 	std::ostringstream ss;
 	ss << "Loaded " << serverBlocks.size() << " servers";
 	// showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
-	debugLocus(typeid(*this).name(), __func__, FEND, ss.str());
+	// debugLocus(typeid(*this).name(), __func__, FEND, ss.str());
+	// DEBUG_LOCUS(FEND, "parsed config file " + ss.str());
 #endif
 }
 
@@ -162,7 +158,6 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file) {
 	size_t end = 0;
 
 	while (file[start]) { // Loop until end of file
-		// identifier = (file.substr(start)); // Get server block identifier
 		identifier = this->getIdentifier(file); // Get server block identifier
 		if (toLower(identifier) != "server")
 			throw std::runtime_error("Invalid server block: no 'server' at "
@@ -225,14 +220,13 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start) {
 
 /// @brief Loads the context from the config file
 /// @param blocks The server blocks to load the context from
-///
 void ConfParser::loadContext(std::vector<std::string> &blocks) {
 #ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "loaded context from config file " + _confFile);
 #endif
 	std::vector<std::string>::iterator it;
 	std::string line;
-	std::string key;
+	std::string brace;
 
 	for (it = blocks.begin(); it != blocks.end(); it++) {
 		std::istringstream block(*it);           // Create stringstream
@@ -245,16 +239,16 @@ void ConfParser::loadContext(std::vector<std::string> &blocks) {
 				throw std::runtime_error("Invalid server block: empty");
 
 			std::istringstream lineRead(line);
-			lineRead >> key;
-			if (toLower(key) == "location") {
+			lineRead >> brace; // Skip closing braces
+			if (toLower(brace) == "location") { // Get location block
 				// Process location block
-				size_t endPos = (*it).find("}", startPos);
-				server.setLocation((*it), startPos, endPos);
+				size_t locationEnd = (*it).find("}", startPos);
+				server.setLocation((*it), startPos, locationEnd);
 				std::getline(block, line, '}');
-			} else if (toLower(key) == "}") {
+			} else if (toLower(brace) == "}") {
 				break;
 			} else
-				server.setDirective(line);
+				server.setDirective(line); // Get server directive
 			startPos = block.tellg();
 		}
 		// TODO: Check for duplicates

@@ -48,15 +48,15 @@ int main(int argc, char **argv) {
 	if (!servers.empty()) {
 		const std::map<std::string, Location> &locations =
 			servers[0].getLocations();
+
 		std::cerr << CYN "Locations for first server:" NC << std::endl;
-		for (std::map<std::string, Location>::const_iterator it =
-				 locations.begin();
-			 it != locations.end();
-			 ++it) {
+		std::map<std::string, Location>::const_iterator it;
+		for (it = locations.begin(); it != locations.end(); ++it) {
 			std::cerr << "Location " << it->first << ": " << it->second
 					  << std::endl;
 		}
 	}
+	
 #endif
 
 	// TODO: Init Server Cluster

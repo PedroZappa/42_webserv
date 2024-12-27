@@ -75,6 +75,29 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx) {
 	for (it = index.begin(); it != index.end(); it++)
 		os << *it << std::endl;
 
+	os << BYEL "AutoIndex:\n" NC
+	   << ((ctx.getAutoIndex() == TRUE          ? "TRUE"
+				: (ctx.getAutoIndex() == FALSE) ? "FALSE"
+												: "UNSET"))
+	   << std::endl;
+
+	os << BYEL "Allowed Methods:\n" NC;
+	std::set<Method> methods = ctx.getLimitExcept();
+	std::set<Method>::const_iterator mit;
+	for (mit = methods.begin(); mit != methods.end(); ++mit) {
+		bool found = false;
+		for (int i = 0; Location::methodMap[i].str != NULL; ++i) {
+			if (Location::methodMap[i].method == *mit) {
+				os << Location::methodMap[i].str << " ";
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			os << "UNKNOWN ";
+	}
+	os << "\n";
+
 	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
 	   << std::endl;
 	return (os);
@@ -158,6 +181,20 @@ void Location::setDirective(std::string &directive) {
 }
 
 /// @brief Set the Root value
+/// @param root The root to set
+void Location::setRoot(std::string &root) {
+#ifdef DEBUG
+	DEBUG_LOCUS(FSTART, "processing root directive: " YEL + root + NC);
+#endif
+	if (!_root.empty())
+		throw std::runtime_error("Root already set");
+	_root = root;
+#ifdef DEBUG
+	DEBUG_LOCUS(FEND, "processed root directive: " YEL + _root + NC);
+#endif
+}
+
+/// @brief Set the Root value
 /// @param tks The tokens of the root directive
 void Location::setRoot(std::vector<std::string> &tks) {
 	if (tks.size() > 2)
@@ -219,7 +256,7 @@ void Location::setLimitExcept(std::vector<std::string> &tks) {
 /// @brief Set the AutoIndex value
 /// @param tks The tokens of the autoindex directive
 void Location::setAutoIndex(std::vector<std::string> &tks) {
-	#ifdef DEBUG
+#ifdef DEBUG
 	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (_autoIndex == TRUE || _autoIndex == FALSE)

@@ -34,9 +34,15 @@ Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
+<<<<<<< HEAD
 	  _clientMaxBodySize(copy.getCliMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
 	  _autoIndex(copy.getAutoIdx()) {
+=======
+	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
+	  _root(copy.getRoot()), _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx())
+{
+>>>>>>> refs/remotes/origin/main
 }
 
 Server::~Server(void) {
@@ -87,7 +93,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	std::map<std::string, Location> loci = ctx.getLocations();
 	std::map<std::string, Location>::const_iterator locit;
 	for (locit = loci.begin(); locit != loci.end(); locit++)
-		os << locit->first << ":" << std::endl;
+		os << locit->first << std::endl;
 	return (os);
 }
 

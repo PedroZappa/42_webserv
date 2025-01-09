@@ -63,11 +63,6 @@ CXXFLAGS	  += #-Wshadow
 DEBUG_FLAGS	= -g
 INC					= -I $(INC_PATH)
 
-# ifeq ($(MODE), debug)
-#     CXXFLAGS += -D DEBUG
-# endif
-
-
 #==============================================================================#
 #                                COMMANDS                                      #
 #==============================================================================#
@@ -122,7 +117,6 @@ $(TEMP_PATH):
 
 test_all:						## Run All tests
 	echo "Test!"
-
 
 ##@ Debug Rules 
 
@@ -220,7 +214,7 @@ help: 			## Display this help page
 #
 # Run the following command to get list of available colors
 # bash -c 'for c in {0..255}; do tput setaf $c; tput setaf $c | cat -v; echo =$c; done'
-#
+
 B  		= $(shell tput bold)
 BLA		= $(shell tput setaf 0)
 RED		= $(shell tput setaf 1)

@@ -65,29 +65,32 @@ class Server {
 	std::map<std::string, Location> getLocations(void) const;
 	std::vector<std::string> getServerIdx(void) const;
 	State getAutoIdx(void) const;
+	std::string getUploadStore(std::string &route) const;
 
 	// Setters
 	void setDirective(std::string &directive);
 	void setListen(std::vector<std::string> &tks);
 	void setServerName(std::vector<std::string> &tks);
-	void setCliMaxBodySize(std::vector<std::string> &tks);
+	void setClientMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 	void setRoot(std::vector<std::string> &root);
 	void setLocation(std::string block, size_t start, size_t end);
 	void setIndex(std::vector<std::string> &tks);
 	void setAutoIndex(std::vector<std::string> &tks);
+	void setUploadStore(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
 	// Server Context
 	std::vector<Socket> _netAddr;
 	std::vector<std::string> _serverName;
-	long _cliMaxBodySize;
+	long _clientMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::string _root;
 	std::map<std::string, Location> _locations;
 	std::vector<std::string> _serverIdx;
 	State _autoIndex;
+	std::string _uploadStore;
 	std::set<Method> _validMethods;
 
 	// Directive Map w/ Function Pointer

@@ -44,14 +44,14 @@ typedef struct s_debug_msg {
 /*                                   Macros                                   */
 /* ************************************************************************** */
 
-#define DEBUG_LOCUS(status, msg) \
-	debugLocus(typeid(*this).name(), __func__, status, msg)
+#define _DEBUG(status, msg) \
+	debug(typeid(*this).name(), __func__, status, msg)
 
 /* ************************************************************************** */
 /*                            Function Prototypes                             */
 /* ************************************************************************** */
 
-void debugLocus(const std::string &className,
+void debug(const std::string &className,
 				const std::string &funcName,
 				int status,
 				const std::string &customMsg);
@@ -70,7 +70,7 @@ void showContainer(const std::string &funcName,
 				   const std::string &contName,
 				   const C &cont) {
 	// Use constant SHOW_MSG (which should correspond to INFO status in debug_msg)
-	debugLocus(
+	debug(
 		typeid(cont).name(), funcName, SHOW_MSG, "Printing cont: " + contName);
 
 	std::ostringstream output;

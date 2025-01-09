@@ -19,7 +19,7 @@
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Server::Server(void) : _cliMaxBodySize(-1), _autoIndex(FALSE) {
+Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
 	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
@@ -34,8 +34,9 @@ Server::Server(void) : _cliMaxBodySize(-1), _autoIndex(FALSE) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
-	  _root(copy.getRoot()), _autoIndex(copy.getAutoIdx()) {
+	  _clientMaxBodySize(copy.getCliMaxBodySize()),
+	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
+	  _autoIndex(copy.getAutoIdx()) {
 }
 
 Server::~Server(void) {
@@ -48,7 +49,7 @@ Server::~Server(void) {
 Server &Server::operator=(const Server &copy) {
 	this->_netAddr = copy.getNetAddr();
 	this->_serverName = copy.getServerName();
-	this->_cliMaxBodySize = copy.getCliMaxBodySize();
+	this->_clientMaxBodySize = copy.getCliMaxBodySize();
 	this->_errorPage = copy.getErrorPage();
 	this->_root = copy.getRoot();
 	this->_locations = copy.getLocations();
@@ -98,7 +99,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 void Server::initDirectiveMap(void) {
 	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
-	_directiveMap["client_max_body_size"] = &Server::setCliMaxBodySize;
+	_directiveMap["client_max_body_size"] = &Server::setClientMaxBodySize;
 	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 	_directiveMap["index"] = &Server::setIndex;
@@ -161,7 +162,7 @@ std::vector<std::string> Server::getServerName(void) const {
 /// @brief Returns the maximum body size.
 /// @return The maximum body size.
 long Server::getCliMaxBodySize(void) const {
-	return (this->_cliMaxBodySize);
+	return (this->_clientMaxBodySize);
 }
 
 /// @brief Returns the maximum body size.
@@ -169,11 +170,11 @@ long Server::getCliMaxBodySize(void) const {
 /// @return The maximum body size.
 long Server::getCliMaxBodySize(const std::string &route) const {
 	if (route.empty())
-		return (this->_cliMaxBodySize);
+		return (this->_clientMaxBodySize);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getCliMaxBodySize() == -1))
-		return (this->_cliMaxBodySize);
+		return (this->_clientMaxBodySize);
 	else
 		return (it->second.getCliMaxBodySize());
 }
@@ -236,6 +237,28 @@ State Server::getAutoIdx(void) const {
 	return (this->_autoIndex);
 }
 
+/// @brief Returns the upload store.
+/// @param route The route to append to the upload store
+/// @return The upload store.
+std::string Server::getUploadStore(std::string &route) const {
+#ifdef DEBUG
+	_DEBUG(FSTART, "route: " + route);
+#endif
+
+	if (route.empty())
+		return (this->_uploadStore);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getUploadStore().empty()))
+		return (this->_uploadStore);
+	else
+		return (it->second.getUploadStore());
+
+#ifdef DEBUG
+	_DEBUG(FEND, "upload store: " + this->_uploadStore);
+#endif
+}
+
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
@@ -245,7 +268,7 @@ State Server::getAutoIdx(void) const {
 /// @throw std::runtime_error if the directive is invalid.
 void Server::setDirective(std::string &directive) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "directive: " GRN + directive);
+	_DEBUG(FSTART, "directive: " GRN + directive);
 #endif
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
@@ -263,7 +286,7 @@ void Server::setDirective(std::string &directive) {
 			if (tks[tk] == it->first) {
 				(this->*(it->second))(tks);
 #ifdef DEBUG
-				DEBUG_LOCUS(FEND, "set directive: " BWHT + directive + NC);
+				_DEBUG(FEND, "set directive: " BWHT + directive + NC);
 #endif
 				return;
 			}
@@ -276,7 +299,7 @@ void Server::setDirective(std::string &directive) {
 /// @throw std::runtime_error if the listen directive is invalid
 void Server::setListen(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing listen directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processing listen directive: " YEL + tks[0] + NC);
 #endif
 	if (tks.size() > 2)
 		throw std::runtime_error("Invalid listen directive: directive must "
@@ -320,7 +343,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed listen directive: " YEL + tks[0] + NC);
+	_DEBUG(FEND, "processed listen directive: " YEL + tks[0] + NC);
 #endif
 }
 
@@ -328,7 +351,7 @@ void Server::setListen(std::vector<std::string> &tks) {
 /// @param name The name of the server.
 void Server::setServerName(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
@@ -336,20 +359,20 @@ void Server::setServerName(std::vector<std::string> &tks) {
 		_serverName.push_back(*it);
 
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + _serverName[0] + NC);
+	_DEBUG(FEND, "processed directive: " YEL + _serverName[0] + NC);
 #endif
 }
 
 /// @brief Sets the max_body_size directive
 /// @param tks Vector of tokens for the max_body_size directive
 /// @throw std::runtime_error if the max_body_size directive is invalid
-void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
+void Server::setClientMaxBodySize(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
-	if (_cliMaxBodySize != -1) // Check if already set
+	if (_clientMaxBodySize != -1) // Check if already set
 		throw std::runtime_error("Max body size already set");
 
 	std::string maxSize = tks[1];
@@ -364,7 +387,7 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
 
 	// Applying unit checking for overflow
-	_cliMaxBodySize = size;
+	_clientMaxBodySize = size;
 	if (!std::isdigit(unit)) {
 		const long maxLim = LONG_MAX;
 		switch (unit) {
@@ -372,19 +395,19 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 		case 'K':
 			if (size > (maxLim / KB))
 				throw std::runtime_error("client_max_body_size overflows");
-			_cliMaxBodySize = (size * KB);
+			_clientMaxBodySize = (size * KB);
 			break;
 		case 'm':
 		case 'M':
 			if (size > (maxLim / MB))
 				throw std::runtime_error("client_max_body_size overflows");
-			_cliMaxBodySize = (size * MB);
+			_clientMaxBodySize = (size * MB);
 			break;
 		case 'g':
 		case 'G':
 			if (size > (maxLim / GB))
 				throw std::runtime_error("client_max_body_size overflows");
-			_cliMaxBodySize = (size * GB);
+			_clientMaxBodySize = (size * GB);
 			break;
 		default:
 			throw std::runtime_error("Invalid unit for max_body_size: " + tks[1]);
@@ -393,9 +416,9 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 
 #ifdef DEBUG
 	std::stringstream ss;
-	ss << _cliMaxBodySize;
+	ss << _clientMaxBodySize;
 	std::string cliMaxBodyStr = ss.str();
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + tks[0] + NC);
+	_DEBUG(FEND, "processed directive: " YEL + tks[0] + NC);
 #endif
 }
 
@@ -404,7 +427,7 @@ void Server::setCliMaxBodySize(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the error_page directive is invalid
 void Server::setErrorPage(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processed directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processed directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() < 3)
@@ -429,7 +452,7 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 		ss << it->first << ": " << it->second;
 	}
 	std::string errorPageStr = ss.str();
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + errorPageStr + NC);
+	_DEBUG(FEND, "processed directive: " YEL + errorPageStr + NC);
 #endif
 }
 
@@ -438,7 +461,7 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 /// @throw std::runtime_error if the root is invalid.
 void Server::setRoot(std::vector<std::string> &root) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing root directive: " YEL + root[0] + NC);
+	_DEBUG(FSTART, "processing root directive: " YEL + root[0] + NC);
 #endif
 	if (!_root.empty())
 		throw std::runtime_error("Root already set");
@@ -447,7 +470,7 @@ void Server::setRoot(std::vector<std::string> &root) {
 								 "include only one root");
 	_root = root[1];
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed root directive: " YEL + _root + NC);
+	_DEBUG(FEND, "processed root directive: " YEL + _root + NC);
 #endif
 }
 
@@ -458,9 +481,9 @@ void Server::setRoot(std::vector<std::string> &root) {
 /// @throw std::runtime_error if the location block is invalid.
 void Server::setLocation(std::string block, size_t start, size_t end) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART,
-				"processing location block: " YEL +
-					block.substr(start, (end - start)) + NC);
+	_DEBUG(FSTART,
+		  "processing location block: " YEL +
+			  block.substr(start, (end - start)) + NC);
 #endif
 	std::istringstream location(block.substr(start, (end - start)));
 	std::vector<std::string> tokens;
@@ -505,7 +528,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 /// @throw std::runtime_error if the index is invalid.
 void Server::setIndex(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'index'
 	std::vector<std::string>::const_iterator it;
@@ -513,13 +536,13 @@ void Server::setIndex(std::vector<std::string> &tks) {
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverIdx.push_back(*it);
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + *it + NC);
+	_DEBUG(FEND, "processed directive: " YEL + *it + NC);
 #endif
 }
 
 void Server::setAutoIndex(std::vector<std::string> &tks) {
 #ifdef DEBUG
-	DEBUG_LOCUS(FSTART, "processing directive: " YEL + tks[0] + NC);
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
 #endif
 	if (_autoIndex == TRUE || _autoIndex == FALSE)
 		throw std::runtime_error("Autoindex already set");
@@ -531,7 +554,23 @@ void Server::setAutoIndex(std::vector<std::string> &tks) {
 		throw std::runtime_error("Invalid autoindex directive");
 
 #ifdef DEBUG
-	DEBUG_LOCUS(FEND, "processed directive: " YEL + _autoIndex);
+	_DEBUG(FEND, "processed directive: " YEL + _autoIndex);
+#endif
+}
+
+void Server::setUploadStore(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
+	if (tks.size() != 2)
+		throw std::runtime_error("Invalid upload_store directive");
+	if (!_uploadStore.empty())
+		throw std::runtime_error("Upload_store already set");
+	_uploadStore = tks[1];
+
+#ifdef DEBUG
+	_DEBUG(FEND, "processed directive: " YEL + _uploadStore);
 #endif
 }
 

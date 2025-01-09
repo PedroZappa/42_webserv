@@ -21,7 +21,7 @@ const t_debug_msg debug_msg[6] = {
     {NULL, 0, 0, NULL, NULL}
 };
 
-void debugLocus(const std::string &className,
+void debug(const std::string &className,
                 const std::string &funcName,
                 int status,
                 const std::string &customMsg) {

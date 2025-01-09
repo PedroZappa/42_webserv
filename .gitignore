@@ -30,6 +30,7 @@
 gdb.txt
 .temp/
 .build/
+.vscode/
 
 # Executables
 *.exe

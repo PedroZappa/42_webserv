@@ -21,12 +21,14 @@
 
 Location::Location(void) : _autoIndex(UNSET), _cliMaxBodySize(-1) {
 	initDirectiveMap();
+	_return = std::make_pair(-1, "");
 }
 
 Location::Location(const Location &copy)
 	: _root(copy.getRoot()), _index(copy.getIndex()),
 	  _autoIndex(copy.getAutoIndex()), _cliMaxBodySize(copy.getCliMaxBodySize()),
-	  _errorPage(copy.getErrorPage()) {
+	  _errorPage(copy.getErrorPage()), _uploadStore(copy.getUploadStore()),
+	  _return(copy.getReturn()) {
 }
 
 Location::~Location(void) {
@@ -62,6 +64,7 @@ Location &Location::operator=(const Location &src) {
 	_cliMaxBodySize = src.getCliMaxBodySize();
 	_errorPage = src.getErrorPage();
 	_uploadStore = src.getUploadStore();
+	_return = src.getReturn();
 	return (*this);
 }
 
@@ -108,6 +111,13 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx) {
 	}
 	os << "\n";
 
+	os << BYEL "Upload Store:\n" NC << ctx.getUploadStore() << std::endl;
+
+	os << BYEL "Return:\n" NC;
+	std::pair<short, std::string> ret = ctx.getReturn();
+	if (ret.first != -1)
+		os << ret.first << ": " << ret.second << std::endl;
+
 	return (os);
 }
 
@@ -121,6 +131,7 @@ void Location::initDirectiveMap(void) {
 	_directiveMap["limit_except"] = &Location::setLimitExcept;
 	_directiveMap["autoindex"] = &Location::setAutoIndex;
 	_directiveMap["upload_store"] = &Location::setUploadStore;
+	_directiveMap["return"] = &Location::setReturn;
 	// _directiveMap["client_max_body_size"] = &Location::setCliMaxBodySize;
 	// _directiveMap["error_page"] = &Location::setErrorPage;
 }
@@ -162,6 +173,11 @@ std::map<short, std::string> Location::getErrorPage(void) const {
 /// @brief Get the UploadStore value
 std::string Location::getUploadStore(void) const {
 	return (_uploadStore);
+}
+
+/// @brief Get the Return value
+std::pair<short, std::string> Location::getReturn(void) const {
+	return (_return);
 }
 
 /* ************************************************************************** */
@@ -290,9 +306,41 @@ void Location::setAutoIndex(std::vector<std::string> &tks) {
 /// @brief Set the UploadStore value
 /// @param tks The tokens of the upload_store directive
 void Location::setUploadStore(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
 	if (tks.size() != 2)
 		throw std::runtime_error("Invalid upload_store directive");
 	if (!_uploadStore.empty())
 		throw std::runtime_error("Upload_store already set");
 	_uploadStore = tks[1];
+
+#ifdef DEBUG
+	_DEBUG(FEND, "processed directive: " YEL + _uploadStore);
+#endif
+}
+
+void Location::setReturn(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
+	if (tks.size() != 3)
+		throw std::runtime_error("Invalid return directive");
+	if (!_return.second.empty())
+		throw std::runtime_error("Return already set");
+	// Protect against overflow & conforming to Nginx values
+	char *end = NULL;
+	long errCode = std::strtol(tks[1].c_str(), &end, 10);
+	if ((*end != '\0') || (errCode < 0) || (errCode > 999) ||
+		errCode != static_cast<short>(errCode))
+		throw std::runtime_error("Invalid return directive");
+
+	_return.first = static_cast<short>(errCode);
+	_return.second = tks[2];
+
+#ifdef DEBUG
+	_DEBUG(FEND, "processed directive: " YEL + tks[1]);
+#endif
 }

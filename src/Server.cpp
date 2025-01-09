@@ -29,14 +29,15 @@ Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
 	methods.insert(POST);
 	methods.insert(DELETE);
 	this->_validMethods = methods;
-	// TODO: set _return to Pair(-1, "") (empty)
+	this->_return = std::make_pair(-1, "");
 }
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
 	  _clientMaxBodySize(copy.getCliMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
-	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()) {
+	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()),
+	  _return(copy.getReturn()) {
 }
 
 Server::~Server(void) {
@@ -55,6 +56,7 @@ Server &Server::operator=(const Server &copy) {
 	this->_locations = copy.getLocations();
 	this->_serverIdx = copy.getServerIdx();
 	this->_autoIndex = copy.getAutoIdx();
+	this->_return = copy.getReturn();
 	return (*this);
 }
 
@@ -88,6 +90,12 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	std::map<std::string, Location>::const_iterator locit;
 	for (locit = loci.begin(); locit != loci.end(); locit++)
 		os << locit->first << std::endl;
+
+	os << BYEL "Return:\n" NC;
+	std::pair<short, std::string> ret = ctx.getReturn();
+	if (ret.first != -1)
+		os << ret.first << ": " << ret.second << std::endl;
+
 	return (os);
 }
 
@@ -103,6 +111,7 @@ void Server::initDirectiveMap(void) {
 	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 	_directiveMap["index"] = &Server::setIndex;
+	_directiveMap["return"] = &Server::setReturn;
 	// _directiveMap["autoindex"] = &Server::setAutoIdx;
 }
 
@@ -259,6 +268,31 @@ std::string Server::getUploadStore(std::string &route) const {
 #endif
 }
 
+/// @brief Returns the upload store.
+/// @return The upload store.
+std::string Server::getUploadStore(void) const {
+	return (this->_uploadStore);
+}
+
+/// @brief Returns the return.
+/// @param route The route to get
+/// @return The return.
+std::pair<short, std::string> Server::getReturn(const std::string &route) const {
+	if (route.empty())
+		return (_return);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getReturn().first == -1))
+		return (_return);
+	else
+		return (it->second.getReturn());
+}
+
+/// @brief Returns the return.
+/// @return The return.
+std::pair<short, std::string> Server::getReturn(void) const {
+	return (_return);
+}
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */
@@ -571,6 +605,30 @@ void Server::setUploadStore(std::vector<std::string> &tks) {
 
 #ifdef DEBUG
 	_DEBUG(FEND, "processed directive: " YEL + _uploadStore);
+#endif
+}
+
+void Server::setReturn(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
+	if (tks.size() != 3)
+		throw std::runtime_error("Invalid return directive");
+	if (!_return.second.empty())
+		throw std::runtime_error("Return already set");
+	// Protect against overflow & conforming to Nginx values
+	char *end = NULL;
+	long errCode = std::strtol(tks[1].c_str(), &end, 10);
+	if ((*end != '\0') || (errCode < 0) || (errCode > 999) ||
+		errCode != static_cast<short>(errCode))
+		throw std::runtime_error("Invalid return directive");
+
+	_return.first = static_cast<short>(errCode);
+	_return.second = tks[2];
+
+#ifdef DEBUG
+	_DEBUG(FEND, "processed directive: " YEL + _return.second);
 #endif
 }
 

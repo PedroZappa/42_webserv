@@ -42,6 +42,7 @@ class Location {
 	long getCliMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
 	std::string getUploadStore(void) const;
+	std::pair<short, std::string> getReturn() const;
 
 	// Setters Handlers
 	void setRoot(std::string &root);
@@ -52,6 +53,7 @@ class Location {
 	void setCliMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 	void setUploadStore(std::vector<std::string> &tks);
+	void setReturn(std::vector<std::string> &tks);
 
 	static const MethodMapping methodMap[];
 
@@ -63,6 +65,7 @@ class Location {
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
 	std::string _uploadStore;
+	std::pair<short, std::string> _return;
 
 	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
 	std::map<std::string, DirHandler> _directiveMap;

@@ -66,6 +66,9 @@ class Server {
 	std::vector<std::string> getServerIdx(void) const;
 	State getAutoIdx(void) const;
 	std::string getUploadStore(std::string &route) const;
+	std::string getUploadStore(void) const;
+	std::pair<short, std::string> getReturn(const std::string &route) const;
+	std::pair<short, std::string> getReturn(void) const;
 
 	// Setters
 	void setDirective(std::string &directive);
@@ -78,6 +81,7 @@ class Server {
 	void setIndex(std::vector<std::string> &tks);
 	void setAutoIndex(std::vector<std::string> &tks);
 	void setUploadStore(std::vector<std::string> &tks);
+	void setReturn(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
@@ -92,6 +96,7 @@ class Server {
 	State _autoIndex;
 	std::string _uploadStore;
 	std::set<Method> _validMethods;
+	std::pair<short, std::string> _return;
 
 	// Directive Map w/ Function Pointer
 	typedef void (Server::*DirHandler)(std::vector<std::string> &d);

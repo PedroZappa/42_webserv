@@ -34,15 +34,9 @@ Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-<<<<<<< HEAD
 	  _clientMaxBodySize(copy.getCliMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
-	  _autoIndex(copy.getAutoIdx()) {
-=======
-	  _cliMaxBodySize(copy.getCliMaxBodySize()), _errorPage(copy.getErrorPage()),
-	  _root(copy.getRoot()), _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx())
-{
->>>>>>> refs/remotes/origin/main
+	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()) {
 }
 
 Server::~Server(void) {
@@ -488,8 +482,8 @@ void Server::setRoot(std::vector<std::string> &root) {
 void Server::setLocation(std::string block, size_t start, size_t end) {
 #ifdef DEBUG
 	_DEBUG(FSTART,
-		  "processing location block: " YEL +
-			  block.substr(start, (end - start)) + NC);
+		   "processing location block: " YEL +
+			   block.substr(start, (end - start)) + NC);
 #endif
 	std::istringstream location(block.substr(start, (end - start)));
 	std::vector<std::string> tokens;

@@ -34,7 +34,7 @@ Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
 
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
-	  _clientMaxBodySize(copy.getCliMaxBodySize()),
+	  _clientMaxBodySize(copy.getClientMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
 	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()),
 	  _return(copy.getReturn()) {
@@ -50,7 +50,7 @@ Server::~Server(void) {
 Server &Server::operator=(const Server &copy) {
 	this->_netAddr = copy.getNetAddr();
 	this->_serverName = copy.getServerName();
-	this->_clientMaxBodySize = copy.getCliMaxBodySize();
+	this->_clientMaxBodySize = copy.getClientMaxBodySize();
 	this->_errorPage = copy.getErrorPage();
 	this->_root = copy.getRoot();
 	this->_locations = copy.getLocations();
@@ -74,7 +74,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 	for (strit = names.begin(); strit != names.end(); strit++)
 		os << *strit << std::endl;
 
-	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
+	os << BYEL "Client Max Body Size:\n" NC << ctx.getClientMaxBodySize()
 	   << std::endl;
 
 	os << BYEL "Error Pages:\n" NC;
@@ -170,22 +170,22 @@ std::vector<std::string> Server::getServerName(void) const {
 
 /// @brief Returns the maximum body size.
 /// @return The maximum body size.
-long Server::getCliMaxBodySize(void) const {
+long Server::getClientMaxBodySize(void) const {
 	return (this->_clientMaxBodySize);
 }
 
 /// @brief Returns the maximum body size.
 /// @param route The route to append to the maximum body size
 /// @return The maximum body size.
-long Server::getCliMaxBodySize(const std::string &route) const {
+long Server::getClientMaxBodySize(const std::string &route) const {
 	if (route.empty())
 		return (this->_clientMaxBodySize);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
-	if ((it == _locations.end()) || (it->second.getCliMaxBodySize() == -1))
+	if ((it == _locations.end()) || (it->second.getClientMaxBodySize() == -1))
 		return (this->_clientMaxBodySize);
 	else
-		return (it->second.getCliMaxBodySize());
+		return (it->second.getClientMaxBodySize());
 }
 
 /// @brief Returns the error page.
@@ -293,6 +293,21 @@ std::pair<short, std::string> Server::getReturn(const std::string &route) const 
 std::pair<short, std::string> Server::getReturn(void) const {
 	return (_return);
 }
+
+/// @brief Returns the cgi extension.
+/// @param route The route to get
+/// @return The cgi extension.
+std::string Server::getCgiExt(const std::string &route) const {
+	if (route.empty())
+		return (_cgiExt);
+	std::map<std::string, Location>::const_iterator it;
+	it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getCgiExt().empty()))
+		return (_cgiExt);
+	else
+		return (it->second.getCgiExt());
+}
+
 /* ************************************************************************** */
 /*                                  Setters                                   */
 /* ************************************************************************** */

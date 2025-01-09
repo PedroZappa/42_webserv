@@ -19,16 +19,16 @@
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Location::Location(void) : _autoIndex(UNSET), _cliMaxBodySize(-1) {
+Location::Location(void) : _autoIndex(UNSET), _clientMaxBodySize(-1) {
 	initDirectiveMap();
 	_return = std::make_pair(-1, "");
 }
 
 Location::Location(const Location &copy)
 	: _root(copy.getRoot()), _index(copy.getIndex()),
-	  _autoIndex(copy.getAutoIndex()), _cliMaxBodySize(copy.getCliMaxBodySize()),
+	  _autoIndex(copy.getAutoIndex()), _clientMaxBodySize(copy.getClientMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _uploadStore(copy.getUploadStore()),
-	  _return(copy.getReturn()) {
+	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt()) {
 }
 
 Location::~Location(void) {
@@ -61,10 +61,11 @@ Location &Location::operator=(const Location &src) {
 	_root = src.getRoot();
 	_index = src.getIndex();
 	_autoIndex = src.getAutoIndex();
-	_cliMaxBodySize = src.getCliMaxBodySize();
+	_clientMaxBodySize = src.getClientMaxBodySize();
 	_errorPage = src.getErrorPage();
 	_uploadStore = src.getUploadStore();
 	_return = src.getReturn();
+	_cgiExt = src.getCgiExt();
 	return (*this);
 }
 
@@ -85,7 +86,7 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx) {
 												: "UNSET"))
 	   << std::endl;
 
-	os << BYEL "Client Max Body Size:\n" NC << ctx.getCliMaxBodySize()
+	os << BYEL "Client Max Body Size:\n" NC << ctx.getClientMaxBodySize()
 	   << std::endl;
 
 	os << BYEL "Error Pages:\n" NC;
@@ -118,6 +119,8 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx) {
 	if (ret.first != -1)
 		os << ret.first << ": " << ret.second << std::endl;
 
+	os << BYEL "Cgi Extension:\n" NC << ctx.getCgiExt() << std::endl;
+
 	return (os);
 }
 
@@ -130,9 +133,10 @@ void Location::initDirectiveMap(void) {
 	_directiveMap["index"] = &Location::setIndex;
 	_directiveMap["limit_except"] = &Location::setLimitExcept;
 	_directiveMap["autoindex"] = &Location::setAutoIndex;
+	_directiveMap["client_max_body_size"] = &Location::setClientMaxBodySize;
 	_directiveMap["upload_store"] = &Location::setUploadStore;
 	_directiveMap["return"] = &Location::setReturn;
-	// _directiveMap["client_max_body_size"] = &Location::setCliMaxBodySize;
+	_directiveMap["cgi_ext"] = &Location::setCgiExt;
 	// _directiveMap["error_page"] = &Location::setErrorPage;
 }
 
@@ -161,8 +165,8 @@ State Location::getAutoIndex(void) const {
 }
 
 /// @brief Get the CliMaxBodySize value
-long Location::getCliMaxBodySize(void) const {
-	return (_cliMaxBodySize);
+long Location::getClientMaxBodySize(void) const {
+	return (_clientMaxBodySize);
 }
 
 /// @brief Get the ErrorPage value
@@ -178,6 +182,10 @@ std::string Location::getUploadStore(void) const {
 /// @brief Get the Return value
 std::pair<short, std::string> Location::getReturn(void) const {
 	return (_return);
+}
+
+std::string Location::getCgiExt(void) const {
+	return (_cgiExt);
 }
 
 /* ************************************************************************** */
@@ -303,6 +311,62 @@ void Location::setAutoIndex(std::vector<std::string> &tks) {
 #endif
 }
 
+void Location::setClientMaxBodySize(std::vector<std::string> &tks) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+#endif
+
+	if (tks.size() != 2) // Check number of tokens
+		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
+	if (_clientMaxBodySize != -1) // Check if already set
+		throw std::runtime_error("Max body size already set");
+
+	std::string maxSize = tks[1];
+	char unit = maxSize[maxSize.size() - 1]; // Extract last character
+	if (!std::isdigit(unit))
+		maxSize.resize(maxSize.size() - 1); // Remove last character
+
+	// Overflow checking
+	char *endPtr = NULL;
+	long size = std::strtol(maxSize.c_str(), &endPtr, 10);
+	if ((*endPtr != '\0') | (size < 0))
+		throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
+
+	// Applying unit checking for overflow
+	_clientMaxBodySize = size;
+	if (!std::isdigit(unit)) {
+		switch (unit) {
+		case 'k':
+		case 'K':
+			if (size > (LONG_MAX / KB))
+				throw std::runtime_error("Invalid max_body_size value: " +
+										 tks[1] + RED " : overflow" NC);
+			_clientMaxBodySize = (size * KB);
+			break;
+		case 'm':
+		case 'M':
+			if (size > (LONG_MAX / MB))
+				throw std::runtime_error("Invalid max_body_size value: " +
+										 tks[1] + RED " : overflow" NC);
+			_clientMaxBodySize = (size * MB);
+			break;
+		case 'g':
+		case 'G':
+			if (size > (LONG_MAX / GB))
+				throw std::runtime_error("Invalid max_body_size value: " +
+										 tks[1] + RED " : overflow" NC);
+			_clientMaxBodySize = (size * GB);
+			break;
+		default:
+			throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
+
+#ifdef DEBUG
+			_DEBUG(FEND, "processed directive: " YEL + tks[0] + " " + tks[1]);
+#endif
+		}
+	}
+}
+
 /// @brief Set the UploadStore value
 /// @param tks The tokens of the upload_store directive
 void Location::setUploadStore(std::vector<std::string> &tks) {
@@ -321,6 +385,8 @@ void Location::setUploadStore(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Set the Return value
+/// @param tks The tokens of the return directive
 void Location::setReturn(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -343,4 +409,14 @@ void Location::setReturn(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FEND, "processed directive: " YEL + tks[1]);
 #endif
+}
+
+/// @brief Set the CgiExt value
+/// @param tks The tokens of the cgi_ext directive
+void Location::setCgiExt(std::vector<std::string> &tks) {
+	if (tks.size() != 2)
+		throw std::runtime_error("Invalid cgi_ext directive");
+	if (!_cgiExt.empty())
+		throw std::runtime_error("Cgi_ext already set");
+	this->_cgiExt = tks[1];
 }

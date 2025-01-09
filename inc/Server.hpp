@@ -56,8 +56,8 @@ class Server {
 	// Getters
 	std::vector<Socket> getNetAddr(void) const;
 	std::vector<std::string> getServerName(void) const;
-	long getCliMaxBodySize(void) const;
-	long getCliMaxBodySize(const std::string &route) const;
+	long getClientMaxBodySize(void) const;
+	long getClientMaxBodySize(const std::string &route) const;
 	std::map<short, std::string> getErrorPage(void) const;
 	std::map<short, std::string> getErrorPage(const std::string &route) const;
 	std::string getRoot(void) const;
@@ -69,6 +69,8 @@ class Server {
 	std::string getUploadStore(void) const;
 	std::pair<short, std::string> getReturn(const std::string &route) const;
 	std::pair<short, std::string> getReturn(void) const;
+	std::string getCgiExt(const std::string &route) const;
+	std::string getCgiExt(void) const;
 
 	// Setters
 	void setDirective(std::string &directive);
@@ -82,6 +84,7 @@ class Server {
 	void setAutoIndex(std::vector<std::string> &tks);
 	void setUploadStore(std::vector<std::string> &tks);
 	void setReturn(std::vector<std::string> &tks);
+	void setCgiExt(std::vector<std::string> &tks);
 	void setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const;
 
   private:
@@ -97,6 +100,7 @@ class Server {
 	std::string _uploadStore;
 	std::set<Method> _validMethods;
 	std::pair<short, std::string> _return;
+	std::string _cgiExt;
 
 	// Directive Map w/ Function Pointer
 	typedef void (Server::*DirHandler)(std::vector<std::string> &d);

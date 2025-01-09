@@ -39,10 +39,11 @@ class Location {
 	std::vector<std::string> getIndex(void) const;
 	std::set<Method> getLimitExcept(void) const;
 	State getAutoIndex(void) const;
-	long getCliMaxBodySize(void) const;
+	long getClientMaxBodySize(void) const;
 	std::map<short, std::string> getErrorPage(void) const;
 	std::string getUploadStore(void) const;
 	std::pair<short, std::string> getReturn() const;
+	std::string getCgiExt() const;
 
 	// Setters Handlers
 	void setRoot(std::string &root);
@@ -50,10 +51,11 @@ class Location {
 	void setIndex(std::vector<std::string> &tks);
 	void setLimitExcept(std::vector<std::string> &tks);
 	void setAutoIndex(std::vector<std::string> &tks);
-	void setCliMaxBodySize(std::vector<std::string> &tks);
+	void setClientMaxBodySize(std::vector<std::string> &tks);
 	void setErrorPage(std::vector<std::string> &tks);
 	void setUploadStore(std::vector<std::string> &tks);
 	void setReturn(std::vector<std::string> &tks);
+	void setCgiExt(std::vector<std::string> &tks);
 
 	static const MethodMapping methodMap[];
 
@@ -61,11 +63,12 @@ class Location {
 	std::string _root;
 	std::vector<std::string> _index;
 	State _autoIndex;
-	long _cliMaxBodySize;
+	long _clientMaxBodySize;
 	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
 	std::string _uploadStore;
 	std::pair<short, std::string> _return;
+	std::string _cgiExt;
 
 	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
 	std::map<std::string, DirHandler> _directiveMap;

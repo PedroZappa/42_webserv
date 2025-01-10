@@ -37,7 +37,7 @@ Server::Server(const Server &copy)
 	  _clientMaxBodySize(copy.getClientMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
 	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()),
-	  _return(copy.getReturn()) {
+	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt()) {
 }
 
 Server::~Server(void) {
@@ -57,6 +57,7 @@ Server &Server::operator=(const Server &copy) {
 	this->_serverIdx = copy.getServerIdx();
 	this->_autoIndex = copy.getAutoIdx();
 	this->_return = copy.getReturn();
+	this->_cgiExt = copy.getCgiExt();
 	return (*this);
 }
 
@@ -111,8 +112,9 @@ void Server::initDirectiveMap(void) {
 	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 	_directiveMap["index"] = &Server::setIndex;
-	_directiveMap["return"] = &Server::setReturn;
 	// _directiveMap["autoindex"] = &Server::setAutoIdx;
+	_directiveMap["return"] = &Server::setReturn;
+	_directiveMap["cgi_ext"] = &Server::setCgiExt;
 }
 
 /// @brief Checks if the IP address is valid.
@@ -306,6 +308,12 @@ std::string Server::getCgiExt(const std::string &route) const {
 		return (_cgiExt);
 	else
 		return (it->second.getCgiExt());
+}
+
+/// @brief Returns the cgi extension.
+/// @return The cgi extension.
+std::string Server::getCgiExt(void) const {
+	return (_cgiExt);
 }
 
 /* ************************************************************************** */
@@ -589,6 +597,9 @@ void Server::setIndex(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Sets the autoindex of the server.
+/// @param tks The autoindex to set.
+/// @throw std::runtime_error if the autoindex is invalid.
 void Server::setAutoIndex(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -607,6 +618,9 @@ void Server::setAutoIndex(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Sets the upload_store of the server.
+/// @param tks The upload_store to set.
+/// @throw std::runtime_error if the upload_store is invalid.
 void Server::setUploadStore(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -623,6 +637,9 @@ void Server::setUploadStore(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Sets the return of the server.
+/// @param tks The return to set.
+/// @throw std::runtime_error if the return is invalid.
 void Server::setReturn(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -645,6 +662,17 @@ void Server::setReturn(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FEND, "processed directive: " YEL + _return.second);
 #endif
+}
+
+/// @brief Sets the cgi_ext of the server.
+/// @param tks The cgi_ext to set.
+/// @throw std::runtime_error if the cgi_ext is invalid.
+void Server::setCgiExt(std::vector<std::string> &tks) {
+	if (tks.size() != 2)
+		throw std::runtime_error("Invalid cgi_ext directive");
+	if (!_cgiExt.empty())
+		throw std::runtime_error("Cgi_ext already set");
+	this->_cgiExt = tks[1];
 }
 
 /// @brief Sets the IP address for the server.

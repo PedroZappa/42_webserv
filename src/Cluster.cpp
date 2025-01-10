@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:12 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 12:40:05 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 14:13:54 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ Cluster::~Cluster() {
 
 /// @brief Index operator
 /// @param idx The index to get
+/// @throw std::out_of_range if the index is out of range
 /// @details Returns the server at the specified index
 const Server &Cluster::operator[](size_t idx) const {
 	if (idx >= _servers.size())

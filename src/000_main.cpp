@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/25 21:11:45 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:16:39 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 
 int main(int argc, char **argv) {
 #ifdef DEBUG
-	// debug("webserv", __func__, FSTART, "Starting Webserv");
+	debug("webserv", __func__, FSTART, "Starting Webserv");
+	std::cout << "MAX_CLIENTS: " << getMaxClients() << "" << std::endl;
 #endif
 	if (argc != 2) {
 		std::cerr << "Usage: " << argv[0] << " config_file" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2024/12/26 11:29:29 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:16:01 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,15 +42,31 @@
 #include <vector>    // std::vector
 
 /* ************************************************************************** */
-/*                                  Defines                                   */
+/*                                  Constants                                   */
 /* ************************************************************************** */
+
+/// @brief Get the maximum number of open fds for epoll
+static int getMaxClients() {
+	// Get the maximum number of open fds for epoll
+	std::ifstream maxClients("/proc/sys/fs/epoll/max_user_watches");
+	int val = 666; // Default value
+
+	if (maxClients.is_open()) // if file opened successfully
+		maxClients >> val;
+	else
+		std::cerr << "Failed to open /proc/sys/fs/epoll/max_user_watches" << std::endl;
+
+	return (val);
+}
 
 #define SERVER_NAME "webserv"
 #define SERVER_PORT 8080
 #define TIMEOUT 5
-#define MAX_CLIENTS 100
 #define MAX_PORTS 65535
 #define MAX_BODY_SIZE 1048576
+const int MAX_CLIENTS = getMaxClients();
+
+// Unit constants
 #define KB 1024
 #define MB 1048576
 #define GB 1073741824

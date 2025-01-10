@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:24 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 12:26:27 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 14:15:34 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Cluster {
 
 	// Private Methods
 
-	// Unnused Constructors
+	// Unnused Constructors & Operators
 	Cluster(void);
 	Cluster(const Cluster &src);
 	const Cluster &operator=(const Cluster &src);

@@ -6,7 +6,7 @@
 #    By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/14 12:26:53 by passunca          #+#    #+#              #
-#    Updated: 2024/12/23 19:08:40 by passunca         ###   ########.fr        #
+#    Updated: 2025/01/10 17:10:33 by passunca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,6 +48,7 @@ FILES			+= Debug.cpp
 FILES			+= Server.cpp
 FILES			+= Utils.cpp
 FILES			+= Location.cpp
+FILES			+= Cluster.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))
 OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)

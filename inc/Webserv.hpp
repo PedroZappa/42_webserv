@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 15:47:14 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:30:48 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <arpa/inet.h> // inet_aton()
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
-#include <sys/epoll.h>	// epoll_create()
+#include <sys/epoll.h>  // epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <unistd.h>     // close()
 
@@ -46,17 +46,18 @@
 /*                                  Constants */
 /* ************************************************************************** */
 
+#define MAX_EPOLL_FD_PATH "/proc/sys/fs/epoll/max_user_watches"
+
 /// @brief Get the maximum number of open fds for epoll
 static int getMaxClients() {
 	// Get the maximum number of open fds for epoll
-	std::ifstream maxClients("/proc/sys/fs/epoll/max_user_watches");
+	std::ifstream maxClients(MAX_EPOLL_FD_PATH);
 	int val = 666; // Default value
 
 	if (maxClients.is_open()) // if file opened successfully
-		maxClients >> val;
+		maxClients >> val;    // Assign first int in file stream to val
 	else
-		std::cerr << "Failed to open /proc/sys/fs/epoll/max_user_watches"
-				  << std::endl;
+		std::cerr << "Failed to open " << MAX_EPOLL_FD_PATH << std::endl;
 
 	return (val);
 }

@@ -6,24 +6,55 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:12 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 16:45:38 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:32:07 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Cluster.hpp"
 #include "../inc/Utils.hpp"
+#include <sys/socket.h>
 
 /* ************************************************************************** */
 /*                          Constructor & Destructor                          */
 /* ************************************************************************** */
 
 /// @brief Default constructor
+/// @param servers Vector of servers to add to the cluster
 /// @details Creates a parameterized cluster
-Cluster::Cluster(const std::vector<Server> &servers) {
-	(void)servers;
+Cluster::Cluster(const std::vector<Server> &servers)
+	: _servers(), _epollFd(-1) {
+	std::vector<Server>::const_iterator it;
+	for (it = servers.begin(); it != servers.end(); ++it) {
+		_servers.push_back(&(*it)); // Add server to cluster
+		std::vector<Socket> netAddrs = (*it).getNetAddr();
+		std::vector<std::string> names = (*it).getServerName();
+
+		std::vector<Socket>::const_iterator sockIt; // Add virtual servers
+		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt) {
+			if (names.empty()) { // Add nameless virtual server
+				struct VirtualServer vs;
+				vs.ip = sockIt->ip;
+				vs.port = sockIt->port;
+				vs.name = "";
+				vs.server = &(*it);
+				_virtualServers.push_back(vs);
+			} else { // Add named virtual servers
+				std::vector<std::string>::const_iterator nameIt;
+				for (nameIt = names.begin(); nameIt != names.end(); ++nameIt) {
+					struct VirtualServer vs;
+					vs.ip = sockIt->ip;
+					vs.port = sockIt->port;
+					vs.name = *nameIt;
+					vs.server = &(*it);
+					_virtualServers.push_back(vs);
+				}
+			}
+		}
+	}
 }
 
 Cluster::~Cluster() {
+	/// TODO: Close epoll fds
 }
 
 /* ************************************************************************** */
@@ -43,6 +74,13 @@ const Server &Cluster::operator[](size_t idx) const {
 /* ************************************************************************** */
 /*                                   Setup                                    */
 /* ************************************************************************** */
+
+/// @brief Checks if the cluster has duplicate virtual servers
+/// @return True if the cluster has duplicate virtual servers, false otherwise
+bool Cluster::hasDuplicates(void) const {
+	std::set<const Server *> servers(_servers.begin(), _servers.end());
+	return (servers.size() != _servers.size());
+}
 
 /// @brief Sets up the cluster's listening sockets
 void Cluster::setup(void) {
@@ -75,15 +113,17 @@ std::set<Socket> Cluster::getVirtualServerSockets(void) {
 		if (vsit->ip.empty())
 			portsToDelete.insert(vsit->port);
 
-	for (vsit = virtualServers.begin(); vsit != virtualServers.end();)
-		if (portsToDelete.find(vsit->port) != portsToDelete.end())
-			vsit = virtualServers.erase(vsit);
+	std::vector<VirtualServer>::iterator vsit2;
+	for (vsit2 = virtualServers.begin(); vsit2 != virtualServers.end(); ++vsit2)
+		if ((portsToDelete.count(vsit2->port) > 0) && !(vsit2->ip.empty()))
+			vsit2 = virtualServers.erase(vsit2);
 		else
-			++vsit;
+			++vsit2;
 
 	std::set<Socket> serversInterestList;
-	for (vsit = virtualServers.begin(); vsit != virtualServers.end(); ++vsit) {
-		Socket addr(vsit->ip, vsit->port);
+	std::vector<VirtualServer>::const_iterator vsit3;
+	for (vsit3 = virtualServers.begin(); vsit3 != virtualServers.end(); ++vsit3) {
+		Socket addr(vsit3->ip, vsit3->port);
 		serversInterestList.insert(addr);
 	}
 	return (serversInterestList);
@@ -128,6 +168,15 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 	return (fd);
 }
 
+/// @brief Listens on a socket
+/// @param socket The socket to listen on
+/// @throw std::runtime_error if the socket could not be listened on
+void Cluster::startListen(int socket) {
+	if (listen(socket, SOMAXCONN) == -1) {
+		close(socket);
+		throw std::runtime_error("Failed to listen on socket");
+	}
+}
 /// @brief Sets a socket in the epoll instance
 /// @param socket The socket to set
 /// @throw std::runtime_error if the socket could not be added to the epoll instance
@@ -142,5 +191,17 @@ void Cluster::setEpollSocket(int socket) {
 }
 
 /* ************************************************************************** */
+/*                                    Run                                     */
+/* ************************************************************************** */
+
+
+
+/* ************************************************************************** */
 /*                                  Getters */
 /* ************************************************************************** */
+
+/// @brief Gets the virtual servers
+/// @return A vector of virtual servers
+std::vector<Cluster::VirtualServer> Cluster::getVirtualServers(void) const {
+	return (_virtualServers);
+}

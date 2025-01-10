@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:24 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 16:28:59 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:25:43 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,18 @@ class Cluster {
 	const Server &operator[](size_t idx) const;
 
 	// Setup
+	bool hasDuplicates(void) const;
 	void setup(void); // Sets up the cluster listening sockets
 	void run(void);   // Runs the cluster listening loop
 
 	// Getters
-	const std::vector<VirtualServer> &getVirtualServers(void) const;
+	std::vector<VirtualServer> getVirtualServers(void) const;
 	const std::vector<const Server *> &getServers() const;
 	const std::vector<int> &getListeningSockets() const;
 	int getEpollFd(void) const;
 
   private:
-	std::vector<Server *> _servers;
+	std::vector<const Server *> _servers;
 	std::vector<VirtualServer> _virtualServers;
 	std::vector<int> _listenSockets;
 	int _epollFd;

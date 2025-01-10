@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:12 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:32:07 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 18:49:08 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,15 @@ Cluster::Cluster(const std::vector<Server> &servers)
 	}
 }
 
+///@brief Default destructor
 Cluster::~Cluster() {
-	/// TODO: Close epoll fds
+	// Close epoll instance
+	if (_epollFd != -1)
+		close(_epollFd);
+	// Close listening sockets
+	std::vector<int>::iterator it;
+	for (it = _listenSockets.begin(); it != _listenSockets.end(); ++it)
+		close(*it);
 }
 
 /* ************************************************************************** */
@@ -193,8 +200,6 @@ void Cluster::setEpollSocket(int socket) {
 /* ************************************************************************** */
 /*                                    Run                                     */
 /* ************************************************************************** */
-
-
 
 /* ************************************************************************** */
 /*                                  Getters */

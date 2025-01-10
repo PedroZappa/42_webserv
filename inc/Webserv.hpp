@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 15:16:01 by passunca         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:47:14 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <arpa/inet.h> // inet_aton()
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
+#include <sys/epoll.h>	// epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <unistd.h>     // close()
 
@@ -42,7 +43,7 @@
 #include <vector>    // std::vector
 
 /* ************************************************************************** */
-/*                                  Constants                                   */
+/*                                  Constants */
 /* ************************************************************************** */
 
 /// @brief Get the maximum number of open fds for epoll
@@ -54,7 +55,8 @@ static int getMaxClients() {
 	if (maxClients.is_open()) // if file opened successfully
 		maxClients >> val;
 	else
-		std::cerr << "Failed to open /proc/sys/fs/epoll/max_user_watches" << std::endl;
+		std::cerr << "Failed to open /proc/sys/fs/epoll/max_user_watches"
+				  << std::endl;
 
 	return (val);
 }

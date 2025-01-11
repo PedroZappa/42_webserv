@@ -105,7 +105,8 @@ define getVirtualServerSockets
 end
 
 define setSocket
-display _listenSockets
+  display _epollFd
+  display _listenSockets
   display ip
   display port
   display fd

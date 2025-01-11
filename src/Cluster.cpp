@@ -109,9 +109,19 @@ void Cluster::setup(void) {
 
 /// @brief Creates an epoll instance
 void Cluster::setEpollFd(void) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "creating epoll instance");
+#endif
+
 	_epollFd = epoll_create(1);
 	if (_epollFd == -1)
 		throw std::runtime_error("Failed to create epoll instance");
+
+#ifdef DEBUG
+	std::cout << "epoll instance created with fd: " BLU << _epollFd << NC
+			  << std::endl;
+	_DEBUG(FEND, "epoll instance created");
+#endif
 }
 
 /// @brief Gets the virtual server sockets
@@ -158,8 +168,8 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 	_listenSockets.push_back(fd);
 
 	// Set socket options
-	int opt = 1;
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	int optval = 1;
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
 		throw std::runtime_error("Failed to set socket options");
 
 	// Setup socket configuration
@@ -182,11 +192,13 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to bind socket to address: " + reason);
 	}
-	return (fd);
 
 #ifdef DEBUG
+	std::cout << "socket created with fd: " BLU << fd << NC << std::endl;
 	_DEBUG(FEND, "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
+
+	return (fd);
 }
 
 /// @brief Listens on a socket
@@ -202,6 +214,10 @@ void Cluster::startListen(int socket) {
 /// @param socket The socket to set
 /// @throw std::runtime_error if the socket could not be added to the epoll instance
 void Cluster::setEpollSocket(int socket) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "adding socket (epoll_event) to epoll instance");
+#endif
+
 	epoll_event ee;
 	std::memset(&ee, '\0', sizeof(ee));
 	ee.events = EPOLLIN;
@@ -212,6 +228,11 @@ void Cluster::setEpollSocket(int socket) {
 		throw std::runtime_error("Failed to add socket to epoll instance: " +
 								 reason);
 	}
+
+#ifdef DEBUG
+	std::cout << "epoll_event added with fd: " BLU << socket << NC << std::endl;
+	_DEBUG(FEND, "adding socket (epoll_event) to epoll instance");
+#endif
 }
 
 /* ************************************************************************** */

@@ -77,6 +77,7 @@ MKDIR_P	= mkdir -p
 # VAL_SUP 	= --suppressions=
 VAL_LEAK	= --leak-check=full --show-leak-kinds=all --trace-children=yes
 VAL_FD		= --track-fds=yes --track-origins=yes
+VAL_ARGS	= $(VAL_LEAK) $(VAL_FD)
 VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 #==============================================================================#
@@ -137,7 +138,7 @@ vgdb: debug $(NAME) $(TEMP_PATH)			## Debug w/ valgrind (memcheck) & gdb
 
 valgrind: debug $(NAME) $(TEMP_PATH)			## Debug w/ valgrind (memcheck)
 	tmux set-option remain-on-exit on
-	tmux split-window -h "valgrind $(VAL_ARGS) $(VAL_LEAK) ./$(NAME) $(ARG)"
+	tmux split-window -h "valgrind $(VAL_ARGS) ./$(NAME) $(ARG)"
 
 massif: all $(TEMP_PATH)		## Run Valgrind w/ Massif (gather profiling information)
 	@TIMESTAMP=$(shell date +%Y%m%d%H%M%S); \

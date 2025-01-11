@@ -121,7 +121,7 @@ std::set<Socket> Cluster::getVirtualServerSockets(void) {
 			portsToDelete.insert(vsit->port);
 
 	std::vector<VirtualServer>::iterator vsit2;
-	for (vsit2 = virtualServers.begin(); vsit2 != virtualServers.end(); ++vsit2)
+	for (vsit2 = virtualServers.begin(); vsit2 != virtualServers.end();)
 		if ((portsToDelete.count(vsit2->port) > 0) && !(vsit2->ip.empty()))
 			vsit2 = virtualServers.erase(vsit2);
 		else

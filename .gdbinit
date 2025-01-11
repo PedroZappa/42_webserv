@@ -47,7 +47,7 @@ end
 
 define loadContext
   display line
-  display key
+  display brace
   display it
 end
 
@@ -90,6 +90,16 @@ define setLocation
   display _locations
 end
 
+### Cluster.cpp 
+define setup
+  display sockets
+end
+
+define getVirtualServerSockets
+  display vistualServers
+  display portsToDelete
+  display vsit
+end
 
 ### Go GDB Go! I Choose YOU! 
 
@@ -108,11 +118,11 @@ end
 # rfr
 
 # STOP @ loadContext
-break loadContext
-run "conf/default.conf"
-loadContext
-fs cmd
-rfr
+# break loadContext
+# run "conf/default.conf"
+# loadContext
+# fs cmd
+# rfr
 
 # Stop @ getServer
 # break getServers
@@ -133,7 +143,7 @@ rfr
 # rfr
 
 # STOP @ setLocation
-break setLocation
+# break setLocation
 # run conf/default.conf
 # fs cmd
 # rfr
@@ -150,3 +160,17 @@ break setLocation
 # run "conf/default.conf"
 # fs cmd
 # rfr
+
+# STOP @ Cluster::setup()
+# break Cluster::setup
+# run "conf/default.conf"
+# setup
+# fs cmd
+# rfr
+
+# STOP @ Cluster::getVirtualServers()
+break Cluster::getVirtualServers
+run "conf/default.conf"
+getVirtualServers
+fs cmd
+rfr

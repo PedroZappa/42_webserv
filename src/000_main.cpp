@@ -57,6 +57,10 @@ int main(int argc, char **argv) {
 		return (EXIT_FAILURE);
 	}
 
+#ifdef DEBUG
+	showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
+#endif
+
 	// Attemp tp Setup Cluster
 	try {
 		cluster.setup();
@@ -66,6 +70,10 @@ int main(int argc, char **argv) {
 	}
 
 	// TODO: Run Cluster
+
+#ifdef DEBUG
+	debug("webserv finished", __func__, FEND, "Webserv process has ended");
+#endif
 
 	return (EXIT_SUCCESS);
 }

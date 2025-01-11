@@ -542,6 +542,7 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 		   "processing location block: " YEL +
 			   block.substr(start, (end - start)) + NC);
 #endif
+
 	std::istringstream location(block.substr(start, (end - start)));
 	std::vector<std::string> tokens;
 	std::string route;
@@ -564,16 +565,20 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 			throw std::runtime_error("Invalid location block: unparsable");
 		if (line.empty())
 			continue;
+
 #ifdef DEBUG
 		std::cout << "about to set directive: " << line << std::endl;
 #endif
+
 		locInfo.setDirective(line);
 		// if (discard != "root" && discard != "autoindex" && discard != "index")
 		// 	throw std::runtime_error("Invalid location block: unknown directive");
 		if (location.tellg() >= static_cast<std::streampos>(end))
 			break;
 	}
+	locInfo.getClientMaxBodySize();
 	_locations[route] = locInfo;
+
 #ifdef DEBUG
 	std::cout << "processed location block:\n"
 			  << _locations[route] << std::endl;

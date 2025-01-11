@@ -78,6 +78,41 @@ const Server &Cluster::operator[](size_t idx) const {
 	return (*_servers[idx]);
 }
 
+std::ostream &operator<<(std::ostream &os, const Cluster &cluster) {
+	// Print basic cluster information
+	os << "Cluster Info:\n";
+
+	// Print all Virtual Servers
+	os << "Virtual Servers:\n";
+	const std::vector<Cluster::VirtualServer> &virtualServers =
+		cluster.getVirtualServers();
+	for (size_t i = 0; i < virtualServers.size(); ++i) {
+		os << "  [" << i << "] " << virtualServers[i] << "\n";
+	}
+
+	// Print Listening Sockets
+	os << "Listening Sockets:\n";
+	const std::vector<int> &listeningSockets = cluster.getListeningSockets();
+	for (size_t i = 0; i < listeningSockets.size(); ++i) {
+		os << "  [" << i << "] " << listeningSockets[i] << "\n";
+	}
+
+	// Print Epoll FD
+	os << "Epoll FD: " << cluster.getEpollFd() << "\n";
+
+	return (os);
+}
+
+/// @brief Overload the << operator for the Cluster::VirtualServer class
+/// @param os The output stream
+/// @param server The VirtualServer object
+/// @return The output stream
+std::ostream &operator<<(std::ostream &os, const Cluster::VirtualServer &server) {
+	os << "VirtualServer(Name: " << server.name << ", IP: " << server.ip
+	   << ", Port: " << server.port << ")";
+	return (os);
+}
+
 /* ************************************************************************** */
 /*                                  Checkers                                  */
 /* ************************************************************************** */
@@ -95,6 +130,10 @@ bool Cluster::hasDuplicates(void) const {
 
 /// @brief Sets up the cluster's listening sockets
 void Cluster::setup(void) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "Starting Cluster Setup");
+#endif
+
 	setEpollFd(); // Create epoll instance
 	std::set<Socket> sockets = getVirtualServerSockets();
 	std::set<Socket>::const_iterator it; // To iterate through sockets
@@ -105,6 +144,10 @@ void Cluster::setup(void) {
 		startListen(fd);
 		setEpollSocket(fd);
 	}
+
+#ifdef DEBUG
+	_DEBUG(FEND, "Cluster Setup Done");
+#endif
 }
 
 /// @brief Creates an epoll instance
@@ -247,4 +290,22 @@ void Cluster::setEpollSocket(int socket) {
 /// @return A vector of virtual servers
 std::vector<Cluster::VirtualServer> Cluster::getVirtualServers(void) const {
 	return (_virtualServers);
+}
+
+/// @brief Gets the servers
+/// @return A vector of servers
+const std::vector<const Server *> &Cluster::getServers(void) const {
+	return (_servers);
+}
+
+/// @brief Gets the listen sockets
+/// @return A vector of listen sockets
+const std::vector<int> &Cluster::getListeningSockets(void) const {
+	return (_listenSockets);
+}
+
+/// @brief Gets epoll instance fd 
+/// @return epoll instance fd
+int Cluster::getEpollFd(void) const {
+	return (_epollFd);
 }

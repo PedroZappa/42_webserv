@@ -49,8 +49,8 @@ class Cluster {
 
 	// Getters
 	std::vector<VirtualServer> getVirtualServers(void) const;
-	const std::vector<const Server *> &getServers() const;
-	const std::vector<int> &getListeningSockets() const;
+	const std::vector<const Server *> &getServers(void) const;
+	const std::vector<int> &getListeningSockets(void) const;
 	int getEpollFd(void) const;
 
   private:
@@ -75,5 +75,8 @@ class Cluster {
 	Cluster(const Cluster &src);
 	const Cluster &operator=(const Cluster &src);
 };
+
+std::ostream &operator<<(std::ostream &os, const Cluster &cluster);
+std::ostream &operator<<(std::ostream &os, const Cluster::VirtualServer &server);
 
 #endif

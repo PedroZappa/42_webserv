@@ -79,7 +79,7 @@ const Server &Cluster::operator[](size_t idx) const {
 }
 
 /* ************************************************************************** */
-/*                                   Setup                                    */
+/*                                  Checkers                                  */
 /* ************************************************************************** */
 
 /// @brief Checks if the cluster has duplicate virtual servers
@@ -89,11 +89,15 @@ bool Cluster::hasDuplicates(void) const {
 	return (servers.size() != _servers.size());
 }
 
+/* ************************************************************************** */
+/*                                   Setup                                    */
+/* ************************************************************************** */
+
 /// @brief Sets up the cluster's listening sockets
 void Cluster::setup(void) {
 	setEpollFd(); // Create epoll instance
 	std::set<Socket> sockets = getVirtualServerSockets();
-	std::set<Socket>::const_iterator it;
+	std::set<Socket>::const_iterator it; // To iterate through sockets
 
 	for ((it = sockets.begin()); (it != sockets.end()); ++it) {
 		Socket addr(it->ip, it->port);
@@ -142,6 +146,9 @@ std::set<Socket> Cluster::getVirtualServerSockets(void) {
 /// @throw std::runtime_error if the socket could not be created
 /// @return The socket file descriptor
 int Cluster::setSocket(const std::string &ip, const std::string &port) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "setting up socket: " YEL + ip + ":" + port + NC);
+#endif
 	// Setup Socket
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
@@ -173,6 +180,9 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 		throw std::runtime_error("Failed to bind socket");
 	}
 	return (fd);
+#ifdef DEBUG
+	_DEBUG(FEND, "setting up socket: " YEL + ip + ":" + port + NC);
+#endif
 }
 
 /// @brief Listens on a socket

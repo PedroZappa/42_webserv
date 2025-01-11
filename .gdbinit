@@ -93,12 +93,24 @@ end
 ### Cluster.cpp 
 define setup
   display sockets
+  display it
+  display addr
+  display fd
 end
 
 define getVirtualServerSockets
   display vistualServers
   display portsToDelete
   display vsit
+end
+
+define setSocket
+display _listenSockets
+  display ip
+  display port
+  display fd
+  display opt
+  display addr
 end
 
 ### Go GDB Go! I Choose YOU! 
@@ -169,8 +181,15 @@ end
 # rfr
 
 # STOP @ Cluster::getVirtualServers()
-break Cluster::getVirtualServers
+# break Cluster::getVirtualServers
+# run "conf/default.conf"
+# getVirtualServers
+# fs cmd
+# rfr
+
+# STOP @ Cluster::setSocket()
+break Cluster::setSocket
 run "conf/default.conf"
-getVirtualServers
+setSocket
 fs cmd
 rfr

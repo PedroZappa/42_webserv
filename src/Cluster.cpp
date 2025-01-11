@@ -14,6 +14,8 @@
 #include "../inc/Utils.hpp"
 #include <sys/socket.h>
 
+bool isRunning = true; // Is server running?
+
 /* ************************************************************************** */
 /*                          Constructor & Destructor                          */
 /* ************************************************************************** */
@@ -282,6 +284,193 @@ void Cluster::setEpollSocket(int socket) {
 /*                                    Run                                     */
 /* ************************************************************************** */
 
+/// @brief Start the cluster
+void Cluster::run(void) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "running cluster");
+#endif
+
+	std::vector<struct epoll_event> events(MAX_CLIENTS);
+	while (isRunning) {
+		try {
+			int nEvents = epoll_wait(_epollFd, &events[0], MAX_CLIENTS, -1);
+			if ((nEvents == -1) && (errno == EINTR)) // Loop exit condition
+				continue;
+			else if (nEvents == -1) {
+				std::string reason = std::strerror(errno);
+				throw std::runtime_error("epoll_wait failed: " + reason);
+			}
+
+			for (long i = 0; i < nEvents; ++i) {
+				int socket = events[i].data.fd;
+				if (events[i].events & EPOLLERR) {
+					// TODO: close socket and remove it from epoll
+					continue;
+				}
+				if (isSocketListening(socket))
+					setupConnection(socket);
+				else if (events[i].events & EPOLLIN)
+					handleRequest(socket);
+			}
+		} catch (const std::exception &e) {
+			std::cerr << e.what() << std::endl;
+		}
+	}
+
+#ifdef DEBUG
+	_DEBUG(FEND, "cluster on the run");
+#endif
+}
+
+/// @brief Checks if a socket is listening
+/// @param socket The socket to check
+/// @return true if the socket is listening, false otherwise
+bool Cluster::isSocketListening(int socket) const {
+	return (std::find(_listenSockets.begin(), _listenSockets.end(), socket) !=
+			_listenSockets.end());
+}
+
+/// @brief Sets up a new connection
+/// @param socket The socket to set up
+/// @throw std::runtime_error if the connection could not be set up
+void Cluster::setupConnection(int socket) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "setting up connection");
+#endif
+
+	int clientFd = accept(socket, NULL, NULL);
+	if (clientFd == -1) {
+		std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to accept connection: " + reason);
+	}
+	setSocketToNonBlocking(clientFd);
+
+	// Add client socket to epoll instance
+	struct epoll_event ee;
+	std::memset(&ee, '\0', sizeof(ee));
+	ee.events = (EPOLLIN | EPOLLOUT | EPOLLET);
+	ee.data.fd = clientFd;
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, clientFd, &ee) == -1) {
+		std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to add client socket to epoll "
+								 "instance: " +
+								 reason);
+	}
+
+#ifdef DEBUG
+	std::cout << "epoll_event added with fd: " BLU << clientFd << NC << std::endl;
+	_DEBUG(FEND, "new connection setup");
+#endif
+}
+
+/// @brief Sets a socket to non-blocking
+/// @param socket The socket to set
+/// @throw std::runtime_error if the socket could not be set to non-blocking
+void Cluster::setSocketToNonBlocking(int socket) {
+	int flags = fcntl(socket, F_GETFL, 0);
+	if ((flags == -1) || fcntl(socket, F_SETFL, flags | O_NONBLOCK) == -1) {
+		std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to set socket to non-blocking: " +
+								 reason);
+	}
+}
+
+/// @brief Handles a request
+/// @param socket The socket to handle
+void Cluster::handleRequest(int socket) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "handling request");
+#endif
+
+	char requestBuf[REQ_BUFF_SIZE] = {};
+	ssize_t bytesRead = recv(socket, requestBuf, REQ_BUFF_SIZE, 0);
+	if (bytesRead < 0) {
+		killConnection(socket, _epollFd);
+		std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to read request: " + reason);
+	} else if (bytesRead == 0) {
+		if (!_requestBuff[socket].empty())
+			processRequest(socket, _requestBuff[socket]);
+		killConnection(socket, _epollFd);
+		return;
+	} else {
+		_requestBuff[socket].append(requestBuf, bytesRead);
+		if (isRequestValid(_requestBuff[socket])) {
+			processRequest(socket, _requestBuff[socket]);
+			_requestBuff.erase(socket); // clear current connect's request buffer
+		} else { // If request is not valid, reset the socket
+			struct epoll_event ee;
+			std::memset(&ee, '\0', sizeof(ee));
+			ee.events = (EPOLLIN | EPOLLOUT | EPOLLHUP);
+			ee.data.fd = socket;
+
+			if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, socket, &ee) == -1)
+				killConnection(socket, _epollFd);
+		}
+	}
+
+#ifdef DEBUG
+	std::cout << "handling request on fd: " BLU << socket << NC << std::endl;
+	_DEBUG(FEND, "request handled");
+#endif
+}
+
+/// @brief Checks if a request is valid
+/// @param request The request to check
+/// @return true if the request is valid, false otherwise
+bool Cluster::isRequestValid(const std::string &request) const {
+#ifdef DEBUG
+	_DEBUG(FSTART, "checking if request is valid");
+#endif
+
+	// TODO: GO GABRIEL GO!!
+	(void)request;
+	return (true);
+
+#ifdef DEBUG
+	_DEBUG(FEND, "request is valid");
+#endif
+}
+
+/// @brief Processes a request
+/// @param socket The socket to process
+/// @param request The request to process
+void Cluster::processRequest(int socket, const std::string &request) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "processing request");
+#endif
+	
+	// TODO: process request
+	// Go GABRIEL GO!!
+	(void)socket;
+	(void)request;
+
+#ifdef DEBUG
+	_DEBUG(FEND, "request processed");
+#endif
+}
+/// @brief Kills a connection
+/// @param socket The socket to kill
+/// @param epollFd The epoll instance to remove the socket from
+void Cluster::killConnection(int socket, int epollFd) {
+#ifdef DEBUG
+	_DEBUG(FSTART, "killing connection");
+#endif
+
+	close(socket);
+	if (epoll_ctl(epollFd, EPOLL_CTL_DEL, socket, NULL) == -1) {
+		std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to remove socket from epoll: " +
+								 reason);
+	}
+
+#ifdef DEBUG
+	std::cout << "epoll_event removed with fd: " BLU << socket << NC
+			  << std::endl;
+	_DEBUG(FEND, "connection killed");
+#endif
+}
+
 /* ************************************************************************** */
 /*                                  Getters */
 /* ************************************************************************** */
@@ -304,7 +493,7 @@ const std::vector<int> &Cluster::getListeningSockets(void) const {
 	return (_listenSockets);
 }
 
-/// @brief Gets epoll instance fd 
+/// @brief Gets epoll instance fd
 /// @return epoll instance fd
 int Cluster::getEpollFd(void) const {
 	return (_epollFd);

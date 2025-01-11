@@ -69,6 +69,13 @@ class Cluster {
 	void setEpollSocket(int socket);
 
 	// run()
+	bool isSocketListening(int socket) const;
+	void setupConnection(int socket);
+	void setSocketToNonBlocking(int socket);
+	void handleRequest(int socket);
+	bool isRequestValid(const std::string &requestBuf) const; // TODO: GO Gabriel GO!!
+	void processRequest(int socket, const std::string &requestBuf); // TODO: GO Gabriel GO!!
+	void killConnection(int socket, int epollFd);
 
 	// Unnused Constructors & Operators
 	Cluster(void);

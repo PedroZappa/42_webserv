@@ -26,6 +26,7 @@
 #include <sys/epoll.h>  // epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <unistd.h>     // close()
+#include <fcntl.h>     // O_NONBLOCK F_GETFL F_SETFL
 
 // C++ Libraries
 #include <climits>  // LONG_MAX
@@ -62,17 +63,19 @@ static int getMaxClients() {
 	return (val);
 }
 
-#define SERVER_NAME "webserv"
-#define SERVER_PORT 8080
-#define TIMEOUT 5
-#define MAX_PORTS 65535
-#define MAX_BODY_SIZE 1048576
-const int MAX_CLIENTS = getMaxClients();
-
 // Unit constants
 #define KB 1024
 #define MB 1048576
 #define GB 1073741824
+
+#define SERVER_NAME "webserv"
+#define SERVER_PORT 8080
+#define TIMEOUT 5
+#define MAX_PORTS ((64 * KB) - 1)
+#define MAX_BODY_SIZE MB
+#define REQ_BUFF_SIZE (2 * KB)
+
+const int MAX_CLIENTS = getMaxClients();
 
 /* ************************************************************************** */
 /*                                Enumerations                                */

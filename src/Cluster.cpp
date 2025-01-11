@@ -109,7 +109,8 @@ void Cluster::setup(void) {
 
 /// @brief Creates an epoll instance
 void Cluster::setEpollFd(void) {
-	if ((_epollFd = epoll_create(1) == -1))
+    _epollFd = epoll_create(1);
+	if (_epollFd == -1)
 		throw std::runtime_error("Failed to create epoll instance");
 }
 
@@ -178,7 +179,8 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
 		close(fd);
-		throw std::runtime_error("Failed to bind socket");
+        std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to bind socket to address: " + reason);
 	}
 	return (fd);
 
@@ -206,7 +208,10 @@ void Cluster::setEpollSocket(int socket) {
 	ee.data.fd = socket;
 
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, socket, &ee) == -1)
-		throw std::runtime_error("Failed to add socket to epoll instance");
+    {
+        std::string reason = std::strerror(errno);
+		throw std::runtime_error("Failed to add socket to epoll instance: " + reason);
+    }
 }
 
 /* ************************************************************************** */

@@ -64,8 +64,8 @@ class Location {
 	std::vector<std::string> _index;
 	State _autoIndex;
 	long _clientMaxBodySize;
-	std::map<short, std::string> _errorPage;
 	std::set<Method> _validMethods;
+	std::map<short, std::string> _errorPage;
 	std::string _uploadStore;
 	std::pair<short, std::string> _return;
 	std::string _cgiExt;

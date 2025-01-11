@@ -26,9 +26,11 @@ Location::Location(void) : _autoIndex(UNSET), _clientMaxBodySize(-1) {
 
 Location::Location(const Location &copy)
 	: _root(copy.getRoot()), _index(copy.getIndex()),
-	  _autoIndex(copy.getAutoIndex()), _clientMaxBodySize(copy.getClientMaxBodySize()),
-	  _errorPage(copy.getErrorPage()), _uploadStore(copy.getUploadStore()),
-	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt()) {
+	  _autoIndex(copy.getAutoIndex()),
+	  _clientMaxBodySize(copy.getClientMaxBodySize()),
+	  _validMethods(copy.getLimitExcept()), _errorPage(copy.getErrorPage()),
+	  _uploadStore(copy.getUploadStore()), _return(copy.getReturn()),
+	  _cgiExt(copy.getCgiExt()) {
 }
 
 Location::~Location(void) {
@@ -62,6 +64,7 @@ Location &Location::operator=(const Location &src) {
 	_index = src.getIndex();
 	_autoIndex = src.getAutoIndex();
 	_clientMaxBodySize = src.getClientMaxBodySize();
+	_validMethods = src.getLimitExcept();
 	_errorPage = src.getErrorPage();
 	_uploadStore = src.getUploadStore();
 	_return = src.getReturn();
@@ -134,10 +137,11 @@ void Location::initDirectiveMap(void) {
 	_directiveMap["limit_except"] = &Location::setLimitExcept;
 	_directiveMap["autoindex"] = &Location::setAutoIndex;
 	_directiveMap["client_max_body_size"] = &Location::setClientMaxBodySize;
+	_directiveMap["limit_except"] = &Location::setLimitExcept;
+	_directiveMap["error_page"] = &Location::setErrorPage;
 	_directiveMap["upload_store"] = &Location::setUploadStore;
 	_directiveMap["return"] = &Location::setReturn;
 	_directiveMap["cgi_ext"] = &Location::setCgiExt;
-	// _directiveMap["error_page"] = &Location::setErrorPage;
 }
 
 /* ************************************************************************** */
@@ -311,6 +315,9 @@ void Location::setAutoIndex(std::vector<std::string> &tks) {
 #endif
 }
 
+/// @brief Set the MaxBodySize value
+/// @param tks The tokens of the max_body_size directive
+/// @throw std::runtime_error if the max_body_size directive is invalid
 void Location::setClientMaxBodySize(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
@@ -364,6 +371,25 @@ void Location::setClientMaxBodySize(std::vector<std::string> &tks) {
 			_DEBUG(FEND, "processed directive: " YEL + tks[0] + " " + tks[1]);
 #endif
 		}
+	}
+}
+
+/// @brief Set the ErrorPage value
+/// @param tks The tokens of the error_page directive
+/// @throw std::runtime_error if the error_page directive is invalid
+void Location::setErrorPage(std::vector<std::string> &tks) {
+	if (tks.size() < 3)
+		throw std::runtime_error("Invalid error_page directive");
+
+	std::string page = tks.back();
+	for (size_t i = 1; (i < (tks.size() - 1)); ++i) {
+		char *end;
+		long code = std::strtol(tks[i].c_str(), &end, 10);
+		if ((*end != '\0') || (code < 300) || (code > 599) ||
+			code != static_cast<short>(code))
+			throw std::runtime_error("Invalid status code in error_page "
+									 "directive");
+		_errorPage[static_cast<short>(code)] = page;
 	}
 }
 

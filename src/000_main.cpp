@@ -59,13 +59,11 @@ int main(int argc, char **argv) {
 
 	// Attemp tp Setup Cluster
 	try {
-		std::cout << "Setting up Cluster" << std::endl;
 		cluster.setup();
 	} catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
-	std::cout << "Cluster Setup" << std::endl;
 
 	// TODO: Run Cluster
 

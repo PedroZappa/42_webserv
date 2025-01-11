@@ -149,6 +149,7 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 #ifdef DEBUG
 	_DEBUG(FSTART, "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
+
 	// Setup Socket
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
@@ -180,6 +181,7 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 		throw std::runtime_error("Failed to bind socket");
 	}
 	return (fd);
+
 #ifdef DEBUG
 	_DEBUG(FEND, "setting up socket: " YEL + ip + ":" + port + NC);
 #endif

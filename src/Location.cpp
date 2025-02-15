@@ -31,10 +31,11 @@ Location::Location(const Location &copy)
 	  _clientMaxBodySize(copy.getClientMaxBodySize()),
 	  _validMethods(copy.getLimitExcept()), _errorPage(copy.getErrorPage()),
 	  _uploadStore(copy.getUploadStore()), _return(copy.getReturn()),
-	  _cgiExt(copy.getCgiExt()) {
+	  _cgiExt(copy.getCgiExt())
+{
 }
 
-Location::~Location(void) { }
+Location::~Location(void) {}
 
 /* ************************************************************************** */
 /*                                 Local Data                                 */
@@ -86,9 +87,9 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx)
 		os << *it << std::endl;
 
 	os << BYEL "AutoIndex:\n" NC
-	   << ((ctx.getAutoIndex() == TRUE          ? "TRUE"
-				: (ctx.getAutoIndex() == FALSE) ? "FALSE"
-												: "UNSET"))
+	   << ((ctx.getAutoIndex() == TRUE		? "TRUE"
+			: (ctx.getAutoIndex() == FALSE) ? "FALSE"
+											: "UNSET"))
 	   << std::endl;
 
 	os << BYEL "Client Max Body Size:\n" NC << ctx.getClientMaxBodySize()
@@ -103,10 +104,13 @@ std::ostream &operator<<(std::ostream &os, const Location &ctx)
 	os << BYEL "Allowed Methods:\n" NC;
 	std::set<Method> methods = ctx.getLimitExcept();
 	std::set<Method>::const_iterator mit;
-	for (mit = methods.begin(); mit != methods.end(); ++mit) {
+	for (mit = methods.begin(); mit != methods.end(); ++mit)
+	{
 		bool found = false;
-		for (int i = 0; Location::methodMap[i].str != NULL; ++i) {
-			if (Location::methodMap[i].method == *mit) {
+		for (int i = 0; Location::methodMap[i].str != NULL; ++i)
+		{
+			if (Location::methodMap[i].method == *mit)
+			{
 				os << Location::methodMap[i].str << " ";
 				found = true;
 				break;
@@ -213,9 +217,11 @@ std::string Location::getCgiExt(void) const
 /// @throw std::runtime_error if the directive is invalid
 void Location::setDirective(std::string &directive)
 {
-	_DEBUG(FSTART, "processing directive: " YEL + directive + NC);
+	Logger::debug("Location", __func__, "Processing directive: " YEL + directive + NC);
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
+	if (tks.empty())
+		throw std::runtime_error("No directive to set");
 	if (tks.size() < 2)
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
 
@@ -223,23 +229,22 @@ void Location::setDirective(std::string &directive)
 
 	std::map<std::string, DirHandler>::const_iterator it;
 	it = _directiveMap.find(tks[0]);
-	if (it != _directiveMap.end())
-		(this->*(it->second))(tks);
-	else
+	if (it == _directiveMap.end())
 		throw std::runtime_error("Directive " RED + tks[0] + NC " is invalid");
-
-	_DEBUG(FEND, "set directive: " YEL + directive + " " NC);
+		
+	(this->*(it->second))(tks);
+	Logger::debug("Location", __func__, "Set directive: " YEL + directive + " " NC);
 }
 
 /// @brief Set the Root value
 /// @param root The root to set
 void Location::setRoot(std::string &root)
 {
-	_DEBUG(FSTART, "processing root directive: " YEL + root + NC);
+	Logger::debug("Location", __func__, "Processing root directive: " YEL + root + NC);
 	if (!_root.empty())
 		throw std::runtime_error("Root already set");
 	_root = root;
-	_DEBUG(FEND, "processed root directive: " YEL + _root + NC);
+	Logger::debug("Location", __func__, "Processed root directive: " YEL + _root + NC);
 }
 
 /// @brief Set the Root value
@@ -250,8 +255,8 @@ void Location::setRoot(std::vector<std::string> &tks)
 		throw std::runtime_error("Invalid number of args in root directive");
 	if (!_root.empty())
 		throw std::runtime_error("Root already set bruh!");
-	this->_root = tks[1];
-	_DEBUG(FEND, "processed root directive: " YEL + _root + NC);
+	_root = tks[1];
+	Logger::debug("Location", __func__, "Processed root directive: " YEL + _root + NC);
 }
 
 /// @brief Set the Index value
@@ -262,7 +267,7 @@ void Location::setIndex(std::vector<std::string> &tks)
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		this->_index.push_back(*it);
-	_DEBUG(FEND, "processed index directive: " YEL + _index[0] + NC);
+	Logger::debug("Location", __func__, "Processed index directive: " YEL + _index[0] + NC);
 }
 
 /// @brief Set the LimitExcept value
@@ -276,11 +281,14 @@ void Location::setLimitExcept(std::vector<std::string> &tks)
 	std::set<Method> methods;
 	std::vector<std::string>::const_iterator it;
 	// Start from tks.begin() + 1 to skip the directive name
-	for (it = tks.begin() + 1; it != tks.end(); ++it) {
+	for (it = tks.begin() + 1; it != tks.end(); ++it)
+	{
 		// Search through methodMap for matching method
 		bool methodFound = false;
-		for (const MethodMapping *map = methodMap; map->str != NULL; ++map) {
-			if (*it == map->str) {
+		for (const MethodMapping *map = methodMap; map->str != NULL; ++map)
+		{
+			if (*it == map->str)
+			{
 				methods.insert(map->method);
 				methodFound = true;
 				break;
@@ -291,17 +299,17 @@ void Location::setLimitExcept(std::vector<std::string> &tks)
 									 "directive: " +
 									 *it);
 	}
-	this->_validMethods = methods;
+	_validMethods = methods;
 
 	showContainer(__func__, "Parsed Methods", _validMethods);
-	_DEBUG(FEND, "processed limit_except directive: " YEL);
+	Logger::debug("Location", __func__, "Processed limit_except directive: " YEL);
 }
 
 /// @brief Set the AutoIndex value
 /// @param tks The tokens of the autoindex directive
 void Location::setAutoIndex(std::vector<std::string> &tks)
 {
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Location", __func__, "processing directive: " YEL + tks[0] + NC);
 
 	if (_autoIndex == TRUE || _autoIndex == FALSE)
 		throw std::runtime_error("Autoindex already set");
@@ -312,7 +320,7 @@ void Location::setAutoIndex(std::vector<std::string> &tks)
 	else
 		throw std::runtime_error("Invalid autoindex directive");
 
-	_DEBUG(FEND, "processed directive: " YEL + tks[1]);
+	Logger::debug("Location", __func__, "Processed directive: " YEL + tks[1]);
 }
 
 /// @brief Set the MaxBodySize value
@@ -320,7 +328,7 @@ void Location::setAutoIndex(std::vector<std::string> &tks)
 /// @throw std::runtime_error if the max_body_size directive is invalid
 void Location::setClientMaxBodySize(std::vector<std::string> &tks)
 {
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Location", __func__, "Processing directive: " YEL + tks[0] + NC);
 
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
@@ -340,8 +348,10 @@ void Location::setClientMaxBodySize(std::vector<std::string> &tks)
 
 	// Applying unit checking for overflow
 	_clientMaxBodySize = size;
-	if (!std::isdigit(unit)) {
-		switch (unit) {
+	if (!std::isdigit(unit))
+	{
+		switch (unit)
+		{
 		case 'k':
 		case 'K':
 			if (size > (LONG_MAX / KB))
@@ -365,10 +375,9 @@ void Location::setClientMaxBodySize(std::vector<std::string> &tks)
 			break;
 		default:
 			throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
-
-			_DEBUG(FEND, "processed directive: " YEL + tks[0] + " " + tks[1]);
 		}
 	}
+	Logger::debug("Location", __func__, "Processed directive: " YEL + tks[0] + " " + tks[1]);
 }
 
 /// @brief Set the ErrorPage value
@@ -380,7 +389,8 @@ void Location::setErrorPage(std::vector<std::string> &tks)
 		throw std::runtime_error("Invalid error_page directive");
 
 	std::string page = tks.back();
-	for (size_t i = 1; (i < (tks.size() - 1)); ++i) {
+	for (size_t i = 1; (i < (tks.size() - 1)); ++i)
+	{
 		char *end;
 		long code = std::strtol(tks[i].c_str(), &end, 10);
 		if ((*end != '\0') || (code < 300) || (code > 599) ||
@@ -395,7 +405,7 @@ void Location::setErrorPage(std::vector<std::string> &tks)
 /// @param tks The tokens of the upload_store directive
 void Location::setUploadStore(std::vector<std::string> &tks)
 {
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Location", __func__, "Processing directive: " YEL + tks[0] + NC);
 
 	if (tks.size() != 2)
 		throw std::runtime_error("Invalid upload_store directive");
@@ -403,14 +413,14 @@ void Location::setUploadStore(std::vector<std::string> &tks)
 		throw std::runtime_error("Upload_store already set");
 	_uploadStore = tks[1];
 
-	_DEBUG(FEND, "processed directive: " YEL + _uploadStore);
+	Logger::debug("Location", __func__, "Processed directive: " YEL + _uploadStore);
 }
 
 /// @brief Set the Return value
 /// @param tks The tokens of the return directive
 void Location::setReturn(std::vector<std::string> &tks)
 {
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Location", __func__, "Processing directive: " YEL + tks[0] + NC);
 
 	if (tks.size() != 3)
 		throw std::runtime_error("Invalid return directive");
@@ -426,7 +436,7 @@ void Location::setReturn(std::vector<std::string> &tks)
 	_return.first = static_cast<short>(errCode);
 	_return.second = tks[2];
 
-	_DEBUG(FEND, "processed directive: " YEL + tks[1]);
+	Logger::debug("Location", __func__, "Processed directive: " YEL + tks[1]);
 }
 
 /// @brief Set the CgiExt value
@@ -437,5 +447,5 @@ void Location::setCgiExt(std::vector<std::string> &tks)
 		throw std::runtime_error("Invalid cgi_ext directive");
 	if (!_cgiExt.empty())
 		throw std::runtime_error("Cgi_ext already set");
-	this->_cgiExt = tks[1];
+	_cgiExt = tks[1];
 }

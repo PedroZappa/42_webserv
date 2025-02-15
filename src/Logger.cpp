@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 00:27:10 by gfragoso          #+#    #+#             */
-/*   Updated: 2025/02/15 02:02:31 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:38:27 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,26 +50,21 @@ void Logger::debug(const std::string &message)
 }
 
 void Logger::debug(const std::string &funcName,
-				   const DebugType type,
 				   const std::string &message)
 {
-	debug("", funcName, type, message);
+	debug("", funcName, message);
 }
 
 void Logger::debug(const std::string &className,
 				   const std::string &funcName,
-				   const DebugType type,
 				   const std::string &message)
 {
 #ifndef DEBUG
 	return;
 #endif
 	std::string func = "[" + (className != "" ? className + "::" : "") + funcName + "]";
-	std::string symbol;
-	if (type == FSTART) symbol = GRN"(>>)";
-	if (type == FEND) symbol = RED"(<<)";
 
-	printLog(BBLU"DEBUG", symbol + NC" " + func + " " + message, false);
+	printLog(BBLU"DEBUG", func + " " + message, false);
 }						
 
 void Logger::warn(const std::string &message)

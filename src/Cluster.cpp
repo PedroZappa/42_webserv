@@ -133,7 +133,7 @@ bool Cluster::hasDuplicates(void) const {
 /// @brief Sets up the cluster's listening sockets
 void Cluster::setup(void) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "Starting Cluster Setup");
+	Logger::debug("Cluster", __func__,  "Starting Cluster Setup");
 #endif
 
 	setEpollFd(); // Create epoll instance
@@ -148,14 +148,14 @@ void Cluster::setup(void) {
 	}
 
 #ifdef DEBUG
-	_DEBUG(FEND, "Cluster Setup Done");
+	Logger::debug("Cluster", __func__,  "Cluster Setup Done");
 #endif
 }
 
 /// @brief Creates an epoll instance
 void Cluster::setEpollFd(void) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "creating epoll instance");
+	Logger::debug("Cluster", __func__,  "creating epoll instance");
 #endif
 
 	_epollFd = epoll_create(1);
@@ -165,7 +165,7 @@ void Cluster::setEpollFd(void) {
 #ifdef DEBUG
 	std::cout << "epoll instance created with fd: " BLU << _epollFd << NC
 			  << std::endl;
-	_DEBUG(FEND, "epoll instance created");
+	Logger::debug("Cluster", __func__,  "epoll instance created");
 #endif
 }
 
@@ -203,7 +203,7 @@ std::set<Socket> Cluster::getVirtualServerSockets(void) {
 /// @return The socket file descriptor
 int Cluster::setSocket(const std::string &ip, const std::string &port) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "setting up socket: " YEL + ip + ":" + port + NC);
+	Logger::debug("Cluster", __func__,  "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
 
 	// Setup Socket
@@ -240,7 +240,7 @@ int Cluster::setSocket(const std::string &ip, const std::string &port) {
 
 #ifdef DEBUG
 	std::cout << "socket created with fd: " BLU << fd << NC << std::endl;
-	_DEBUG(FEND, "setting up socket: " YEL + ip + ":" + port + NC);
+	Logger::debug("Cluster", __func__,  "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
 
 	return (fd);
@@ -260,7 +260,7 @@ void Cluster::startListen(int socket) {
 /// @throw std::runtime_error if the socket could not be added to the epoll instance
 void Cluster::setEpollSocket(int socket) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "adding socket (epoll_event) to epoll instance");
+	Logger::debug("Cluster", __func__,  "adding socket (epoll_event) to epoll instance");
 #endif
 
 	epoll_event ee;
@@ -276,7 +276,7 @@ void Cluster::setEpollSocket(int socket) {
 
 #ifdef DEBUG
 	std::cout << "epoll_event added with fd: " BLU << socket << NC << std::endl;
-	_DEBUG(FEND, "adding socket (epoll_event) to epoll instance");
+	Logger::debug("Cluster", __func__,  "adding socket (epoll_event) to epoll instance");
 #endif
 }
 
@@ -287,7 +287,7 @@ void Cluster::setEpollSocket(int socket) {
 /// @brief Start the cluster
 void Cluster::run(void) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "running cluster");
+	Logger::debug("Cluster", __func__,  "running cluster");
 #endif
 
 	std::vector<struct epoll_event> events(MAX_CLIENTS);
@@ -318,7 +318,7 @@ void Cluster::run(void) {
 	}
 
 #ifdef DEBUG
-	_DEBUG(FEND, "cluster on the run");
+	Logger::debug("Cluster", __func__,  "cluster on the run");
 #endif
 }
 
@@ -335,7 +335,7 @@ bool Cluster::isSocketListening(int socket) const {
 /// @throw std::runtime_error if the connection could not be set up
 void Cluster::setupConnection(int socket) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "setting up connection");
+	Logger::debug("Cluster", __func__,  "setting up connection");
 #endif
 
 	int clientFd = accept(socket, NULL, NULL);
@@ -359,7 +359,7 @@ void Cluster::setupConnection(int socket) {
 
 #ifdef DEBUG
 	std::cout << "epoll_event added with fd: " BLU << clientFd << NC << std::endl;
-	_DEBUG(FEND, "new connection setup");
+	Logger::debug("Cluster", __func__,  "new connection setup");
 #endif
 }
 
@@ -379,7 +379,7 @@ void Cluster::setSocketToNonBlocking(int socket) {
 /// @param socket The socket to handle
 void Cluster::handleRequest(int socket) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "handling request");
+	Logger::debug("Cluster", __func__,  "handling request");
 #endif
 
 	char requestBuf[REQ_BUFF_SIZE] = {};
@@ -411,7 +411,7 @@ void Cluster::handleRequest(int socket) {
 
 #ifdef DEBUG
 	std::cout << "handling request on fd: " BLU << socket << NC << std::endl;
-	_DEBUG(FEND, "request handled");
+	Logger::debug("Cluster", __func__,  "request handled");
 #endif
 }
 
@@ -420,7 +420,7 @@ void Cluster::handleRequest(int socket) {
 /// @return true if the request is valid, false otherwise
 bool Cluster::isRequestValid(const std::string &request) const {
 #ifdef DEBUG
-	_DEBUG(FSTART, "checking if request is valid");
+	Logger::debug("Cluster", __func__,  "checking if request is valid");
 #endif
 
 	// TODO: GO GABRIEL GO!!
@@ -428,7 +428,7 @@ bool Cluster::isRequestValid(const std::string &request) const {
 	return (true);
 
 #ifdef DEBUG
-	_DEBUG(FEND, "request is valid");
+	Logger::debug("Cluster", __func__,  "request is valid");
 #endif
 }
 
@@ -437,7 +437,7 @@ bool Cluster::isRequestValid(const std::string &request) const {
 /// @param request The request to process
 void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing request");
+	Logger::debug("Cluster", __func__,  "processing request");
 #endif
 	
 	// TODO: process request
@@ -446,7 +446,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
 	(void)request;
 
 #ifdef DEBUG
-	_DEBUG(FEND, "request processed");
+	Logger::debug("Cluster", __func__,  "request Processed");
 #endif
 }
 /// @brief Kills a connection
@@ -454,7 +454,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
 /// @param epollFd The epoll instance to remove the socket from
 void Cluster::killConnection(int socket, int epollFd) {
 #ifdef DEBUG
-	_DEBUG(FSTART, "killing connection");
+	Logger::debug("Cluster", __func__,  "killing connection");
 #endif
 
 	close(socket);
@@ -467,7 +467,7 @@ void Cluster::killConnection(int socket, int epollFd) {
 #ifdef DEBUG
 	std::cout << "epoll_event removed with fd: " BLU << socket << NC
 			  << std::endl;
-	_DEBUG(FEND, "connection killed");
+	Logger::debug("Cluster", __func__,  "connection killed");
 #endif
 }
 

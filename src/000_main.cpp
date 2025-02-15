@@ -10,12 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Cluster.hpp"
+#include "../inc/Webserv.hpp"
+#include "../inc/Logger.hpp"
 #include "../inc/ConfParser.hpp"
 #include "../inc/Server.hpp"
-#include "../inc/Webserv.hpp"
-#include "../inc/Utils.hpp"
-#include "../inc/Logger.hpp"
+#include "../inc/Cluster.hpp"
 
 int main(int argc, char **argv)
 {
@@ -27,15 +26,15 @@ int main(int argc, char **argv)
 	}
 	
 	Logger::info("Starting Webserv");
-	std::stringstream s; s << "MAX_CLIENTS: " << getMaxClients(); 
+
+	std::stringstream s; s << "MAX_CLIENTS: " << MAX_CLIENTS; 
 	Logger::debug(s.str());
 
 	// TODO: Setup Signal Handling (SIGINT)
 
 	// Parse Config
-	ConfParser parser("conf/default.conf");
-	if (argc == 2)
-		parser = ConfParser(argv[1]);
+	std::string configFile = argc > 2 ? argv[1] : "conf/default.conf"; 
+	ConfParser parser(configFile);
 
 	std::vector<Server> servers;
 
@@ -51,9 +50,7 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-#ifdef DEBUG
 	showContainer(__func__, "Loaded Servers", servers);
-#endif
 
 	// Init Server Cluster & Check for Duplicates
 	Cluster cluster(servers);
@@ -63,9 +60,7 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-#ifdef DEBUG
 	showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
-#endif
 
 	// Attemp to setup Cluster
 	try
@@ -80,9 +75,7 @@ int main(int argc, char **argv)
 
 	// TODO: Run Cluster
 
-#ifdef DEBUG
 	Logger::debug("Webserv stopped");
-#endif
 
 	return (EXIT_SUCCESS);
 }

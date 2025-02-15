@@ -12,7 +12,6 @@
 
 #include "../inc/ConfParser.hpp"
 #include "../inc/Utils.hpp"
-#include <sstream>
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -51,37 +50,39 @@ ConfParser &ConfParser::operator=(const ConfParser &src)
 /// @throws std::runtime_error if the config file cannot be opened
 void ConfParser::loadConf(void)
 {
-	_DEBUG(FEND, "Loaded config file " + _confFile);
+	Logger::info("Attemping to load config from file '" + _confFile + "'");
 
-	std::ifstream confFile(this->_confFile.c_str()); // Open config file
-	if (!confFile.is_open())
+	std::ifstream in(_confFile.c_str()); // Open config file
+	if (in.fail())
 		throw std::runtime_error("Failed to open config file " + _confFile);
 
 	// Read file
 	std::string fileContent;
-	std::getline(confFile, fileContent, '\0');
-	confFile.close(); // Close file
+	std::getline(in, fileContent, '\0');
+	in.close(); // Close file
 
 	// Clean loaded file
-	this->removeComments(fileContent);
-	this->removeSpaces(fileContent);
+	removeComments(fileContent);
+	Logger::debug("Removed comments from '" + _confFile + "'");
+	
+	removeSpaces(fileContent);
+	Logger::debug("Removed spaces from '" + _confFile + "'");
+
 	if (fileContent.empty()) // Handle empty file
 		throw std::runtime_error("Config file is empty");
 
-	_DEBUG(FEND, "Cleaned config file");
+	Logger::debug("ConfParser", __func__, "Cleaned config file");
 
 	// TODO: Handle quotes?
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = getServerBlocks(fileContent);
-	this->loadContext(serverBlocks);
+	loadContext(serverBlocks);
 
 	std::stringstream ss;
 	ss << "Loaded " << serverBlocks.size() << " servers";
 	Logger::info(ss.str());
 	// showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
-	// debug(typeid(*this).name(), __func__, FEND, ss.str());
-	// _DEBUG(FEND, "parsed config file " + ss.str());
 }
 
 /// @brief Removes comments from the config file
@@ -117,7 +118,7 @@ void ConfParser::removeSpaces(std::string &file)
 		// Extract the trimmed line into result
 		result << line.substr(start, (end - start + 1)) << '\n';
 	}
-	file = result.str(); // Replace the file content with the processed result
+	file = result.str(); // Replace the file content with the Processed result
 
 	// Remove any trailing newline character in the final result
 	if (!file.empty() && (file[file.length() - 1] == '\n'))
@@ -129,12 +130,13 @@ void ConfParser::removeSpaces(std::string &file)
 /// @return A vector of strings
 std::vector<std::string> ConfParser::tokenizer(std::string &line)
 {
-	Logger::debug("ConfParser", __func__, FSTART, "tokenizing line: " YEL + line + NC);
+	Logger::debug("ConfParser", __func__, "Tokenizing line: " YEL + line + NC);
 	std::vector<std::string> tks;
 	std::stringstream ss(line);
 	std::string val;
 
-	while (ss >> val) {
+	while (ss >> val)
+	{
 		ConfParser::removeSpaces(val);
 		if (val != "{")
 			tks.push_back(val);
@@ -147,7 +149,7 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line)
 /// @return A vector of server blocks
 std::vector<std::string> ConfParser::getServerBlocks(std::string &file)
 {
-	_DEBUG(FSTART, "getting server blocks from config file " + _confFile);
+	Logger::debug("ConfParser", __func__, "Getting server blocks from config file " + _confFile);
 	std::vector<std::string> servers;
 	std::string identifier;
 	size_t start = 0;
@@ -183,7 +185,7 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file)
 
 	std::ostringstream oss;
 	oss << "Got server blocks from config file: " << servers.size() << " blocks";
-	_DEBUG(FEND, oss.str());
+	Logger::debug("ConfParser", __func__, oss.str());
 
 	return (servers);
 }
@@ -194,7 +196,7 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file)
 /// @return The end of the server block
 size_t ConfParser::getBlockEnd(std::string &file, size_t start)
 {
-	_DEBUG(FSTART, "Getting end of server block from config file " + _confFile);
+	Logger::debug("ConfParser", __func__, "Getting end of server block from config file " + _confFile);
 	short depth = 0;
 	while (file[start])
 	{
@@ -206,7 +208,7 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start)
 			--depth;
 			if (depth == 0)
 			{
-				_DEBUG(FEND, "end of server block found");
+				Logger::debug("ConfParser", __func__, "Found end of server block");
 				return (start);
 			}
 		}
@@ -219,7 +221,7 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start)
 /// @param blocks The server blocks to load the context from
 void ConfParser::loadContext(std::vector<std::string> &blocks)
 {
-	_DEBUG(FSTART, "loaded context from config file " + _confFile);
+	Logger::debug("ConfParser", __func__, "Loading context from config file " + _confFile);
 	std::vector<std::string>::iterator it;
 	std::string line;
 	std::string brace;
@@ -255,14 +257,14 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 		// TODO: Check for duplicates
 		if (server.getRoot().empty())
 			throw std::runtime_error("Invalid server block: no root");
-		this->_servers.push_back(server);
+		_servers.push_back(server);
 
 		// std::map<std::string, Location> locations = server.getLocations();
 		// std::map<std::string, Location>::iterator it;
 		// for (it = locations.begin(); it != locations.end(); it++) {
 		// 	std::cout << it->first << std::endl;
 		// }
-		_DEBUG(FEND, "Loaded context from config file " NC + _confFile);
+		Logger::debug("ConfParser", __func__, "Loaded context from config file " NC + _confFile);
 	}
 }
 
@@ -274,7 +276,7 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 /// @return A vector of Server objects
 std::vector<Server> ConfParser::getServers(void) const
 {
-	return (this->_servers);
+	return (_servers);
 }
 
 /// @brief Returns the identifier of a server block
@@ -282,7 +284,6 @@ std::vector<Server> ConfParser::getServers(void) const
 /// @return The identifier of the server block
 std::string ConfParser::getIdentifier(const std::string &str)
 {
-	_DEBUG(FSTART, "got identifier:");
 	std::string token;
 	for (size_t i = 0; i < str.length(); i++)
 	{
@@ -291,7 +292,7 @@ std::string ConfParser::getIdentifier(const std::string &str)
 		else
 			break;
 	}
-	_DEBUG(FEND, "got identifier: " GRN + token + NC);
+	Logger::debug("ConfParser", __func__, "Got identifier: " GRN + token + NC);
 	return (token);
 }
 

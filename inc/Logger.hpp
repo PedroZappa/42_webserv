@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 00:26:58 by gfragoso          #+#    #+#             */
-/*   Updated: 2025/02/15 02:04:23 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:53:32 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,8 @@
 #include <iomanip>
 #include "Ansi.h"
 
-typedef enum
-{
-	NONE,
-	FSTART,
-	FEND
-} DebugType;
-
-#define _DEBUG(status, msg) \
-	Logger::debug(typeid(*this).name(), __func__, status, msg)
+#define _DEBUG(msg) \
+	Logger::debug(typeid(*this).name(), __func__, msg)
 
 class Logger
 {
@@ -42,11 +35,9 @@ class Logger
 	public:
 		static void debug(const std::string &message);
 		static void debug(const std::string &funcName,
-						  const DebugType type,
 						  const std::string &message);
 		static void debug(const std::string &className,
 						  const std::string &funcName,
-						  const DebugType type,
 						  const std::string &message);
 
 		static void info(const std::string &message);
@@ -68,7 +59,7 @@ void showContainer(const std::string &funcName,
 	return;
 #endif
 					
-	Logger::debug(funcName, typeid(cont).name(), NONE, "Printing container: " + contName);
+	Logger::debug(funcName, "Printing container: " + contName);
 
 	std::ostringstream output;
 	typename C::const_iterator it;

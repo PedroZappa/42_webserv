@@ -10,39 +10,49 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Cluster.hpp"
-#include "../inc/ConfParser.hpp"
-#include "../inc/Debug.hpp"
-#include "../inc/Server.hpp"
 #include "../inc/Webserv.hpp"
+#include "../inc/Logger.hpp"
+#include "../inc/ConfParser.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Cluster.hpp"
 
-int main(int argc, char **argv) {
-#ifdef DEBUG
-	debug("webserv", __func__, FSTART, "Starting Webserv");
-	std::cout << "MAX_CLIENTS: " << getMaxClients() << "" << std::endl;
-#endif
+Cluster *cluster = NULL;
+void handleSignal(int code);
 
+int main(int argc, char **argv)
+{
 	// Validate input arguments
-	if (argc != 2) {
-		std::cerr << "Usage: " << argv[0] << " config_file" << std::endl;
+	if (argc != 2)
+	{
+		Logger::error("Missing arguments! Usage: " + std::string(argv[0]) + " config_file");
 		return (EXIT_FAILURE);
 	}
-	// TODO: Setup Signal Handling (SIGINT)
+	
+	Logger::info("Starting Webserv");
+
+#ifdef DEBUG
+	std::stringstream s; s << "MAX_CLIENTS: " << MAX_CLIENTS; 
+	Logger::debug(s.str());
+#endif
+
+	// Setup Signal (INT)
+	signal(SIGINT, &handleSignal);
 
 	// Parse Config
-	ConfParser parser("conf/default.conf");
-	if (argc == 2)
-		parser = ConfParser(argv[1]);
+	std::string configFile = argc > 2 ? argv[1] : "conf/default.conf"; 
+	ConfParser parser(configFile);
 
-	// Declare servers vector
 	std::vector<Server> servers;
 
 	// Attempt to load Config
-	try {
+	try
+	{
 		parser.loadConf();
 		servers = parser.getServers();
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		Logger::error(e.what());
 		return (EXIT_FAILURE);
 	}
 
@@ -50,30 +60,49 @@ int main(int argc, char **argv) {
 	showContainer(__func__, "Loaded Servers", servers);
 #endif
 
-	// Init Server Cluster & Check for Duplicates
-	Cluster cluster(servers);
-	if (cluster.hasDuplicates()) {
-		std::cerr << "Error: Server config has duplicates" << std::endl;
+	try
+	{
+		// Init Server Cluster & Check for Duplicates
+		cluster = new Cluster(servers);
+		if (cluster->hasDuplicates())
+		{
+			Logger::error("Server config has duplicates");
+			return (EXIT_FAILURE);
+		}
+
+#ifdef DEBUG
+		showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
+#endif
+
+		// Attemp to setup Cluster
+		Logger::info("Setting up the cluster");
+		cluster->setup();
+
+		// Start running the cluster
+		Logger::info("Ready to receive requests!");
+		cluster->run();
+		delete cluster;
+	}
+	catch (std::exception &e)
+	{
+		Logger::error(e.what());
+		delete cluster;
 		return (EXIT_FAILURE);
 	}
 
-#ifdef DEBUG
-	showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
-#endif
-
-	// Attemp tp Setup Cluster
-	try {
-		cluster.setup();
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
-		return (EXIT_FAILURE);
-	}
-
-	// TODO: Run Cluster
-
-#ifdef DEBUG
-	debug("webserv finished", __func__, FEND, "Webserv process has ended");
-#endif
-
+	Logger::info("Webserv stopped");
 	return (EXIT_SUCCESS);
+}
+
+void handleSignal(int code)
+{
+	(void)code;
+	if (cluster == NULL)
+	{
+		Logger::warn("Signal caught, but the cluster is not active");
+		std::exit(0);
+	}
+
+	std::cout << "\n";
+	cluster->stop();
 }

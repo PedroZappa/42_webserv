@@ -12,24 +12,25 @@
 
 #include "../inc/Server.hpp"
 #include "../inc/ConfParser.hpp"
-#include "../inc/Debug.hpp"
+#include "../inc/Logger.hpp"
 #include "../inc/Location.hpp"
 
 /* ************************************************************************** */
 /*                                Constructors                                */
 /* ************************************************************************** */
 
-Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE) {
+Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE)
+{
 	// Push back index.html/index.htm to _serverIdx vector (NginX Defaults)
 	_serverIdx.push_back("index.html");
 	_serverIdx.push_back("index.htm");
-	this->initDirectiveMap();
+	initDirectiveMap();
 	std::set<Method> methods;
 	methods.insert(GET);
 	methods.insert(POST);
 	methods.insert(DELETE);
-	this->_validMethods = methods;
-	this->_return = std::make_pair(-1, "");
+	_validMethods = methods;
+	_return = std::make_pair(-1, "");
 }
 
 Server::Server(const Server &copy)
@@ -37,31 +38,33 @@ Server::Server(const Server &copy)
 	  _clientMaxBodySize(copy.getClientMaxBodySize()),
 	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
 	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()),
-	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt()) {
+	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt())
+{
 }
 
-Server::~Server(void) {
-}
+Server::~Server(void) {}
 
 /* ************************************************************************** */
 /*                                 Operators                                  */
 /* ************************************************************************** */
 
-Server &Server::operator=(const Server &copy) {
-	this->_netAddr = copy.getNetAddr();
-	this->_serverName = copy.getServerName();
-	this->_clientMaxBodySize = copy.getClientMaxBodySize();
-	this->_errorPage = copy.getErrorPage();
-	this->_root = copy.getRoot();
-	this->_locations = copy.getLocations();
-	this->_serverIdx = copy.getServerIdx();
-	this->_autoIndex = copy.getAutoIdx();
-	this->_return = copy.getReturn();
-	this->_cgiExt = copy.getCgiExt();
+Server &Server::operator=(const Server &copy)
+{
+	_netAddr = copy.getNetAddr();
+	_serverName = copy.getServerName();
+	_clientMaxBodySize = copy.getClientMaxBodySize();
+	_errorPage = copy.getErrorPage();
+	_root = copy.getRoot();
+	_locations = copy.getLocations();
+	_serverIdx = copy.getServerIdx();
+	_autoIndex = copy.getAutoIdx();
+	_return = copy.getReturn();
+	_cgiExt = copy.getCgiExt();
 	return (*this);
 }
 
-std::ostream &operator<<(std::ostream &os, const Server &ctx) {
+std::ostream &operator<<(std::ostream &os, const Server &ctx)
+{
 	os << BRED "Server Configuration:" NC << std::endl;
 	os << BYEL "Network Addresses:" NC << std::endl;
 	std::vector<Socket> netAddrs = ctx.getNetAddr();
@@ -105,14 +108,15 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
 /* ************************************************************************** */
 
 /// @brief Initializes the directive setters map.
-void Server::initDirectiveMap(void) {
+void Server::initDirectiveMap(void)
+{
 	_directiveMap["listen"] = &Server::setListen;
 	_directiveMap["server_name"] = &Server::setServerName;
 	_directiveMap["client_max_body_size"] = &Server::setClientMaxBodySize;
 	_directiveMap["error_page"] = &Server::setErrorPage;
 	_directiveMap["root"] = &Server::setRoot;
 	_directiveMap["index"] = &Server::setIndex;
-	// _directiveMap["autoindex"] = &Server::setAutoIdx;
+	_directiveMap["autoindex"] = &Server::setAutoIndex;
 	_directiveMap["return"] = &Server::setReturn;
 	_directiveMap["cgi_ext"] = &Server::setCgiExt;
 }
@@ -120,14 +124,16 @@ void Server::initDirectiveMap(void) {
 /// @brief Checks if the IP address is valid.
 /// @param ip The ip to check.
 /// @return True if the IP address is valid, false otherwise.
-bool Server::isIpValid(const std::string &ip) const {
+bool Server::isIpValid(const std::string &ip) const
+{
 	if (ip.empty() || ip == "0.0.0.0" || ip == "localhost")
 		return (true);
 	std::istringstream iss(ip);
 	std::string seg;
 	int nPeriods = 0;
 
-	while (std::getline(iss, seg, '.')) {
+	while (std::getline(iss, seg, '.'))
+	{
 		if (seg.empty() || (seg.size() > 3))
 			return (false);
 		std::string::size_type i;
@@ -145,7 +151,8 @@ bool Server::isIpValid(const std::string &ip) const {
 /// @brief Checks if the port number is valid.
 /// @param port The port number to check.
 /// @return True if the port number is valid, false otherwise.
-bool Server::isPortValid(const std::string &port) const {
+bool Server::isPortValid(const std::string &port) const
+{
 	std::string::size_type i;
 	for (i = 0; i < port.size(); ++i)
 		if (!std::isdigit(port[i])) // Check if the string contains only digits
@@ -160,159 +167,171 @@ bool Server::isPortValid(const std::string &port) const {
 
 /// @brief Returns the network addresses of the server.
 /// @return A vector of Socket objects representing the network addresses of the server.
-std::vector<Socket> Server::getNetAddr(void) const {
-	return (this->_netAddr);
+std::vector<Socket> Server::getNetAddr(void) const
+{
+	return (_netAddr);
 };
 
 /// @brief Returns the server names.
 /// @return A vector of strings representing the server names.
-std::vector<std::string> Server::getServerName(void) const {
-	return (this->_serverName);
+std::vector<std::string> Server::getServerName(void) const
+{
+	return (_serverName);
 }
 
 /// @brief Returns the maximum body size.
 /// @return The maximum body size.
-long Server::getClientMaxBodySize(void) const {
-	return (this->_clientMaxBodySize);
+long Server::getClientMaxBodySize(void) const
+{
+	return (_clientMaxBodySize);
 }
 
 /// @brief Returns the maximum body size.
 /// @param route The route to append to the maximum body size
 /// @return The maximum body size.
-long Server::getClientMaxBodySize(const std::string &route) const {
+long Server::getClientMaxBodySize(const std::string &route) const
+{
 	if (route.empty())
-		return (this->_clientMaxBodySize);
+		return (_clientMaxBodySize);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getClientMaxBodySize() == -1))
-		return (this->_clientMaxBodySize);
+		return (_clientMaxBodySize);
 	else
 		return (it->second.getClientMaxBodySize());
 }
 
 /// @brief Returns the error page.
 /// @return The error page.
-std::map<short, std::string> Server::getErrorPage(void) const {
-	return (this->_errorPage);
+std::map<short, std::string> Server::getErrorPage(void) const
+{
+	return (_errorPage);
 }
 
 /// @brief Returns the error page.
 /// @param route The route to append to the error page
 /// @return The error page.
-std::map<short, std::string> Server::getErrorPage(const std::string &route) const {
+std::map<short, std::string> Server::getErrorPage(const std::string &route) const
+{
 	if (route.empty())
 		return (this->_errorPage);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getErrorPage().empty()))
-		return (this->_errorPage);
-	else
-		return (it->second.getErrorPage());
+		return (_errorPage);
+	return (it->second.getErrorPage());
 }
 
 /// @brief Returns the root of the server.
 /// @return The root of the server.
-std::string Server::getRoot(void) const {
-	return (this->_root);
+std::string Server::getRoot(void) const
+{
+	return (_root);
 }
 
 /// @brief Returns the root of the server.
 /// @param route The route to append to the root
 /// @return The root of the server.
-std::string Server::getRoot(const std::string &route) const {
+std::string Server::getRoot(const std::string &route) const
+{
 	if (route.empty())
-		return (this->_root);
+		return (_root);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getRoot().empty()))
-		return (this->_root); // Return the root of the server
-	else
-		return (it->second.getRoot()); // Return the root of location
+		return (_root);			   // Return the root of the server
+	return (it->second.getRoot()); // Return the root of location
 }
 
 /// @brief Returns the locations.
 /// @return The locations.
-std::map<std::string, Location> Server::getLocations(void) const {
-	return (this->_locations);
+std::map<std::string, Location> Server::getLocations(void) const
+{
+	return (_locations);
 }
 
 /// @brief Returns the server indexes.
 /// @return A vector of strings representing the server indexes.
-std::vector<std::string> Server::getServerIdx(void) const {
-	return (this->_serverIdx);
+std::vector<std::string> Server::getServerIdx(void) const
+{
+	return (_serverIdx);
 }
 
 /// @brief Returns the auto index.
 /// @return The auto index.
-State Server::getAutoIdx(void) const {
-	return (this->_autoIndex);
+State Server::getAutoIdx(void) const
+{
+	return (_autoIndex);
 }
 
 /// @brief Returns the upload store.
 /// @param route The route to append to the upload store
 /// @return The upload store.
-std::string Server::getUploadStore(std::string &route) const {
+std::string Server::getUploadStore(std::string &route) const
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "route: " + route);
+	Logger::debug("Server", __func__, "Route: " + route);
 #endif
 
 	if (route.empty())
-		return (this->_uploadStore);
+		return (_uploadStore);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getUploadStore().empty()))
-		return (this->_uploadStore);
-	else
-		return (it->second.getUploadStore());
+		return (_uploadStore);
+	return (it->second.getUploadStore());
 
 #ifdef DEBUG
-	_DEBUG(FEND, "upload store: " + this->_uploadStore);
+	Logger::debug("Server", __func__, "Upload store: " + _uploadStore);
 #endif
 }
 
 /// @brief Returns the upload store.
 /// @return The upload store.
-std::string Server::getUploadStore(void) const {
-	return (this->_uploadStore);
+std::string Server::getUploadStore(void) const
+{
+	return (_uploadStore);
 }
 
 /// @brief Returns the return.
 /// @param route The route to get
 /// @return The return.
-std::pair<short, std::string> Server::getReturn(const std::string &route) const {
+std::pair<short, std::string> Server::getReturn(const std::string &route) const
+{
 	if (route.empty())
 		return (_return);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getReturn().first == -1))
 		return (_return);
-	else
-		return (it->second.getReturn());
+	return (it->second.getReturn());
 }
 
 /// @brief Returns the return.
 /// @return The return.
-std::pair<short, std::string> Server::getReturn(void) const {
+std::pair<short, std::string> Server::getReturn(void) const
+{
 	return (_return);
 }
 
 /// @brief Returns the cgi extension.
 /// @param route The route to get
 /// @return The cgi extension.
-std::string Server::getCgiExt(const std::string &route) const {
+std::string Server::getCgiExt(const std::string &route) const
+{
 	if (route.empty())
 		return (_cgiExt);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getCgiExt().empty()))
 		return (_cgiExt);
-	else
-		return (it->second.getCgiExt());
+	return (it->second.getCgiExt());
 }
 
 /// @brief Returns the cgi extension.
 /// @return The cgi extension.
-std::string Server::getCgiExt(void) const {
+std::string Server::getCgiExt(void) const
+{
 	return (_cgiExt);
 }
 
@@ -323,59 +342,70 @@ std::string Server::getCgiExt(void) const {
 /// @brief Sets a directive.
 /// @param directive The directive to set.
 /// @throw std::runtime_error if the directive is invalid.
-void Server::setDirective(std::string &directive) {
+void Server::setDirective(std::string &directive)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "directive: " GRN + directive);
+	Logger::debug("Server", __func__, "Directive: " GRN + directive);
 #endif
+
 	std::vector<std::string> tks;
 	tks = ConfParser::tokenizer(directive); // Tokenize
 	if (tks.size() < 2)
 		throw std::runtime_error("Directive " + directive + " is invalid");
-
-#ifdef DEBUG
 	showContainer(__func__, "Directive Tokens", tks);
+
+	for (size_t tk = 0; tk < tks.size(); tk++)
+	{
+		try
+		{
+			std::string token = tks[tk];
+			(this->*_directiveMap[token])(tks);
+
+#ifdef DEBUG
+			Logger::debug("Server", __func__, "Set directive: " BWHT + directive + NC);
 #endif
 
-	std::map<std::string, DirHandler>::const_iterator it;
-	// iterate through tokens to find a valid directive
-	for (it = _directiveMap.begin(); it != _directiveMap.end(); it++) {
-		for (size_t tk = 0; tk < tks.size(); tk++) {
-			if (tks[tk] == it->first) {
-				(this->*(it->second))(tks);
-#ifdef DEBUG
-				_DEBUG(FEND, "set directive: " BWHT + directive + NC);
-#endif
-				return;
-			}
+			return;
+		}
+		catch (const std::exception &e)
+		{
 		}
 	}
+
+	throw std::runtime_error("No valid directive found");
 }
 
 /// @brief Sets the listen directive
 /// @param tks The tokens of the listen directive
 /// @throw std::runtime_error if the listen directive is invalid
-void Server::setListen(std::vector<std::string> &tks) {
+void Server::setListen(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing listen directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing listen directive: " YEL + tks[0] + NC);
 #endif
+
 	if (tks.size() > 2)
 		throw std::runtime_error("Invalid listen directive: directive must "
 								 "include at least one IP/port");
 
 	// Process tokens from the second one onwards
 	std::vector<std::string>::const_iterator it;
-	for (it = tks.begin() + 1; it != tks.end(); ++it) {
+	for (it = tks.begin() + 1; it != tks.end(); ++it)
+	{
 		std::string val = *it;
 		Socket socket;
 
-		size_t sep = val.find(':');     // Check for 'IP:Port' format
-		if (sep != std::string::npos) { // If ':' is present
+		size_t sep = val.find(':'); // Check for 'IP:Port' format
+		if (sep != std::string::npos)
+		{ // If ':' is present
 			socket.ip = val.substr(0, sep);
 			socket.port = val.substr(sep + 1);
 
 			if (socket.ip.empty() || socket.port.empty())
 				throw std::runtime_error("Invalid listen directive '" + val + "'");
-		} else { // No ':' present; it could be just an IP or port
+		}
+		else
+		{ // No ':' present; it could be just an IP or port
 			if (val.find_first_not_of("0123456789") == std::string::npos)
 				socket.port = val; // All numeric: assume it's a port
 			else
@@ -400,33 +430,37 @@ void Server::setListen(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	_DEBUG(FEND, "processed listen directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processed listen directive: " YEL + tks[0] + NC);
 #endif
 }
 
 /// @brief Sets the server name.
 /// @param name The name of the server.
-void Server::setServerName(std::vector<std::string> &tks) {
+void Server::setServerName(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
+
 	tks.erase(tks.begin()); // Remove 'server_name'
 	std::vector<std::string>::const_iterator it;
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverName.push_back(*it);
 
 #ifdef DEBUG
-	_DEBUG(FEND, "processed directive: " YEL + _serverName[0] + NC);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + _serverName[0] + NC);
 #endif
 }
 
 /// @brief Sets the max_body_size directive
 /// @param tks Vector of tokens for the max_body_size directive
 /// @throw std::runtime_error if the max_body_size directive is invalid
-void Server::setClientMaxBodySize(std::vector<std::string> &tks) {
+void Server::setClientMaxBodySize(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
+
 	if (tks.size() != 2) // Check number of tokens
 		throw std::runtime_error("Invalid max_body_size directive: " + tks[0]);
 	if (_clientMaxBodySize != -1) // Check if already set
@@ -445,9 +479,11 @@ void Server::setClientMaxBodySize(std::vector<std::string> &tks) {
 
 	// Applying unit checking for overflow
 	_clientMaxBodySize = size;
-	if (!std::isdigit(unit)) {
+	if (!std::isdigit(unit))
+	{
 		const long maxLim = LONG_MAX;
-		switch (unit) {
+		switch (unit)
+		{
 		case 'k':
 		case 'K':
 			if (size > (maxLim / KB))
@@ -472,26 +508,28 @@ void Server::setClientMaxBodySize(std::vector<std::string> &tks) {
 	}
 
 #ifdef DEBUG
-	std::stringstream ss;
-	ss << _clientMaxBodySize;
-	std::string cliMaxBodyStr = ss.str();
-	_DEBUG(FEND, "processed directive: " YEL + tks[0] + NC);
+	// std::stringstream ss;
+	// ss << _clientMaxBodySize;
+	// std::string cliMaxBodyStr = ss.str();
+	Logger::debug("Server", __func__, "Processed directive: " YEL + tks[0] + NC);
 #endif
 }
 
 /// @brief Sets the error page directive
 /// @param tks Vector of tokens for the error_page directive
 /// @throw std::runtime_error if the error_page directive is invalid
-void Server::setErrorPage(std::vector<std::string> &tks) {
+void Server::setErrorPage(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processed directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() < 3)
 		throw std::runtime_error("Invalid error_page directive: " + tks[0]);
 
 	std::string page = tks.back();
-	for (size_t i = 1; (i < (tks.size() - 1)); i++) {
+	for (size_t i = 1; (i < (tks.size() - 1)); i++)
+	{
 		char *end;
 		long code = std::strtol(tks[i].c_str(), &end, 10);
 		if ((*end != '\0') || (code < 300) || (code > 599) ||
@@ -503,31 +541,35 @@ void Server::setErrorPage(std::vector<std::string> &tks) {
 #ifdef DEBUG
 	std::stringstream ss;
 	std::map<short, std::string>::const_iterator it;
-	for (it = _errorPage.begin(); it != _errorPage.end(); ++it) {
+	for (it = _errorPage.begin(); it != _errorPage.end(); ++it)
+	{
 		if (it != _errorPage.begin())
 			ss << ", ";
 		ss << it->first << ": " << it->second;
 	}
 	std::string errorPageStr = ss.str();
-	_DEBUG(FEND, "processed directive: " YEL + errorPageStr + NC);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + errorPageStr + NC);
 #endif
 }
 
 /// @brief Sets the root of the server.
 /// @param root The root to set.
 /// @throw std::runtime_error if the root is invalid.
-void Server::setRoot(std::vector<std::string> &root) {
+void Server::setRoot(std::vector<std::string> &root)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing root directive: " YEL + root[0] + NC);
+	Logger::debug("Server", __func__, "Processing root directive: " YEL + root[0] + NC);
 #endif
+
 	if (!_root.empty())
 		throw std::runtime_error("Root already set");
 	if (root.size() > 2)
 		throw std::runtime_error("Invalid root directive: directive must "
 								 "include only one root");
 	_root = root[1];
+
 #ifdef DEBUG
-	_DEBUG(FEND, "processed root directive: " YEL + _root + NC);
+	Logger::debug("Server", __func__, "Processed root directive: " YEL + _root + NC);
 #endif
 }
 
@@ -536,11 +578,10 @@ void Server::setRoot(std::vector<std::string> &root) {
 /// @param start The start of the location block.
 /// @param end The end of the location block.
 /// @throw std::runtime_error if the location block is invalid.
-void Server::setLocation(std::string block, size_t start, size_t end) {
+void Server::setLocation(std::string block, size_t start, size_t end)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART,
-		   "processing location block: " YEL +
-			   block.substr(start, (end - start)) + NC);
+	Logger::debug("Server", __func__, "processing location block: " YEL + block.substr(start, (end - start)) + NC);
 #endif
 
 	std::istringstream location(block.substr(start, (end - start)));
@@ -559,16 +600,15 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 	if (line != "{")
 		throw std::runtime_error("Only one route per location block "
 								 "supported.");
-	while (std::getline(location, line, ';')) {
+	while (std::getline(location, line, ';'))
+	{
 		ConfParser::removeSpaces(line);
 		if (!location.eof() && line.empty())
 			throw std::runtime_error("Invalid location block: unparsable");
 		if (line.empty())
 			continue;
 
-#ifdef DEBUG
-		std::cout << "about to set directive: " << line << std::endl;
-#endif
+		Logger::debug("About to set directive: " + line);
 
 		locInfo.setDirective(line);
 		// if (discard != "root" && discard != "autoindex" && discard != "index")
@@ -579,18 +619,21 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 	locInfo.getClientMaxBodySize();
 	_locations[route] = locInfo;
 
-#ifdef DEBUG
-	std::cout << "processed location block:\n"
-			  << _locations[route] << std::endl;
+#if DEBUG
+	std::stringstream s;
+	s << "Processed location block:\n"
+	  << _locations[route];
+	Logger::debug(s.str());
 #endif
 }
 
 /// @brief Sets the index of the server.
 /// @param tks The index to set.
 /// @throw std::runtime_error if the index is invalid.
-void Server::setIndex(std::vector<std::string> &tks) {
+void Server::setIndex(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
 	tks.erase(tks.begin()); // Remove 'index'
 	std::vector<std::string>::const_iterator it;
@@ -598,16 +641,17 @@ void Server::setIndex(std::vector<std::string> &tks) {
 	for (it = tks.begin(); it != tks.end(); it++)
 		_serverIdx.push_back(*it);
 #ifdef DEBUG
-	_DEBUG(FEND, "processed directive: " YEL + *it + NC);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + *it + NC);
 #endif
 }
 
 /// @brief Sets the autoindex of the server.
 /// @param tks The autoindex to set.
 /// @throw std::runtime_error if the autoindex is invalid.
-void Server::setAutoIndex(std::vector<std::string> &tks) {
+void Server::setAutoIndex(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
 	if (_autoIndex == TRUE || _autoIndex == FALSE)
 		throw std::runtime_error("Autoindex already set");
@@ -619,16 +663,17 @@ void Server::setAutoIndex(std::vector<std::string> &tks) {
 		throw std::runtime_error("Invalid autoindex directive");
 
 #ifdef DEBUG
-	_DEBUG(FEND, "processed directive: " YEL + _autoIndex);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + _autoIndex);
 #endif
 }
 
 /// @brief Sets the upload_store of the server.
 /// @param tks The upload_store to set.
 /// @throw std::runtime_error if the upload_store is invalid.
-void Server::setUploadStore(std::vector<std::string> &tks) {
+void Server::setUploadStore(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() != 2)
@@ -638,16 +683,17 @@ void Server::setUploadStore(std::vector<std::string> &tks) {
 	_uploadStore = tks[1];
 
 #ifdef DEBUG
-	_DEBUG(FEND, "processed directive: " YEL + _uploadStore);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + _uploadStore);
 #endif
 }
 
 /// @brief Sets the return of the server.
 /// @param tks The return to set.
 /// @throw std::runtime_error if the return is invalid.
-void Server::setReturn(std::vector<std::string> &tks) {
+void Server::setReturn(std::vector<std::string> &tks)
+{
 #ifdef DEBUG
-	_DEBUG(FSTART, "processing directive: " YEL + tks[0] + NC);
+	Logger::debug("Server", __func__, "Processing directive: " YEL + tks[0] + NC);
 #endif
 
 	if (tks.size() != 3)
@@ -665,31 +711,35 @@ void Server::setReturn(std::vector<std::string> &tks) {
 	_return.second = tks[2];
 
 #ifdef DEBUG
-	_DEBUG(FEND, "processed directive: " YEL + _return.second);
+	Logger::debug("Server", __func__, "Processed directive: " YEL + _return.second);
 #endif
 }
 
 /// @brief Sets the cgi_ext of the server.
 /// @param tks The cgi_ext to set.
 /// @throw std::runtime_error if the cgi_ext is invalid.
-void Server::setCgiExt(std::vector<std::string> &tks) {
+void Server::setCgiExt(std::vector<std::string> &tks)
+{
 	if (tks.size() != 2)
 		throw std::runtime_error("Invalid cgi_ext directive");
 	if (!_cgiExt.empty())
 		throw std::runtime_error("Cgi_ext already set");
-	this->_cgiExt = tks[1];
+	_cgiExt = tks[1];
 }
 
 /// @brief Sets the IP address for the server.
 /// @param ip The IP address to set.
 /// @param sockaadr The sockaddr_in object to set the IP address for.
 /// @throws std::runtime_error if the IP address is invalid.
-void Server::setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const {
+void Server::setIPaddr(const std::string &ip, struct sockaddr_in &sockaadr) const
+{
 	if (ip.empty())
-		sockaadr.sin_addr.s_addr = INADDR_ANY; //
-	else if (ip == "localhost") {
+		sockaadr.sin_addr.s_addr = INADDR_ANY;
+	else if (ip == "localhost")
+	{
 		if (inet_aton("127.0.0.1", &sockaadr.sin_addr) == 0)
 			throw std::runtime_error("inet_addr: Invalid IP address");
-	} else if (inet_aton(ip.c_str(), &sockaadr.sin_addr) == 0)
+	}
+	else if (inet_aton(ip.c_str(), &sockaadr.sin_addr) == 0)
 		throw std::runtime_error("inet_addr: Invalid IP address");
 }

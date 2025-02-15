@@ -15,6 +15,7 @@
 
 #include "Server.hpp"
 #include "Webserv.hpp"
+#include <sstream>
 
 class Server;
 

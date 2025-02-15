@@ -18,15 +18,17 @@
 /* ************************************************************************** */
 
 #include "Ansi.h"
+#include "Logger.hpp"
 
 // C Libraries
-#include <arpa/inet.h> // inet_aton()
+#include <arpa/inet.h> 	// inet_aton()
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
 #include <sys/epoll.h>  // epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <unistd.h>     // close()
-#include <fcntl.h>     // O_NONBLOCK F_GETFL F_SETFL
+#include <fcntl.h>     	// O_NONBLOCK F_GETFL F_SETFL
+#include <signal.h>		// signal
 
 // C++ Libraries
 #include <climits>  // LONG_MAX
@@ -50,16 +52,19 @@
 #define MAX_EPOLL_FD_PATH "/proc/sys/fs/epoll/max_user_watches"
 
 /// @brief Get the maximum number of open fds for epoll
-static int getMaxClients() {
+static int getMaxClients()
+{
 	// Get the maximum number of open fds for epoll
 	std::ifstream maxClients(MAX_EPOLL_FD_PATH);
 	int val = 666; // Default value
 
-	if (maxClients.is_open()) // if file opened successfully
-		maxClients >> val;    // Assign first int in file stream to val
-	else
-		std::cerr << "Failed to open " << MAX_EPOLL_FD_PATH << std::endl;
-
+	if (maxClients.is_open())
+	{						// if file opened successfully
+		maxClients >> val;  // Assign first int in file stream to val
+		return (val);
+	} 
+	
+	Logger::error("Failed to open " MAX_EPOLL_FD_PATH);
 	return (val);
 }
 

@@ -46,6 +46,7 @@ class Cluster {
 	bool hasDuplicates(void) const;
 	void setup(void); // Sets up the cluster listening sockets
 	void run(void);   // Runs the cluster listening loop
+	void stop(void);
 
 	// Getters
 	std::vector<VirtualServer> getVirtualServers(void) const;

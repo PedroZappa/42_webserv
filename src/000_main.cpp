@@ -16,6 +16,9 @@
 #include "../inc/Server.hpp"
 #include "../inc/Cluster.hpp"
 
+Cluster *cluster = NULL;
+void handleSignal(int code);
+
 int main(int argc, char **argv)
 {
 	// Validate input arguments
@@ -27,10 +30,13 @@ int main(int argc, char **argv)
 	
 	Logger::info("Starting Webserv");
 
+#ifdef DEBUG
 	std::stringstream s; s << "MAX_CLIENTS: " << MAX_CLIENTS; 
 	Logger::debug(s.str());
+#endif
 
-	// TODO: Setup Signal Handling (SIGINT)
+	// Setup Signal (INT)
+	signal(SIGINT, &handleSignal);
 
 	// Parse Config
 	std::string configFile = argc > 2 ? argv[1] : "conf/default.conf"; 
@@ -50,32 +56,53 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+#ifdef DEBUG
 	showContainer(__func__, "Loaded Servers", servers);
+#endif
 
-	// Init Server Cluster & Check for Duplicates
-	Cluster cluster(servers);
-	if (cluster.hasDuplicates())
-	{
-		Logger::error("Server config has duplicates");
-		return (EXIT_FAILURE);
-	}
-
-	showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
-
-	// Attemp to setup Cluster
 	try
 	{
-		cluster.setup();
+		// Init Server Cluster & Check for Duplicates
+		cluster = new Cluster(servers);
+		if (cluster->hasDuplicates())
+		{
+			Logger::error("Server config has duplicates");
+			return (EXIT_FAILURE);
+		}
+
+#ifdef DEBUG
+		showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
+#endif
+
+		// Attemp to setup Cluster
+		Logger::info("Setting up the cluster");
+		cluster->setup();
+
+		// Start running the cluster
+		Logger::info("Ready to receive requests!");
+		cluster->run();
+		delete cluster;
 	}
 	catch (std::exception &e)
 	{
 		Logger::error(e.what());
+		delete cluster;
 		return (EXIT_FAILURE);
 	}
 
-	// TODO: Run Cluster
-
 	Logger::info("Webserv stopped");
-
 	return (EXIT_SUCCESS);
+}
+
+void handleSignal(int code)
+{
+	(void)code;
+	if (cluster == NULL)
+	{
+		Logger::warn("Signal caught, but the cluster is not active");
+		std::exit(0);
+	}
+
+	std::cout << "\n";
+	cluster->stop();
 }

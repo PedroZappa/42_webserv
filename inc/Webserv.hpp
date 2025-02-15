@@ -21,13 +21,14 @@
 #include "Logger.hpp"
 
 // C Libraries
-#include <arpa/inet.h> // inet_aton()
+#include <arpa/inet.h> 	// inet_aton()
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
 #include <sys/epoll.h>  // epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <unistd.h>     // close()
-#include <fcntl.h>     // O_NONBLOCK F_GETFL F_SETFL
+#include <fcntl.h>     	// O_NONBLOCK F_GETFL F_SETFL
+#include <signal.h>		// signal
 
 // C++ Libraries
 #include <climits>  // LONG_MAX

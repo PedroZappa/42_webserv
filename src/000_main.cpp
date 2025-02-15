@@ -12,21 +12,24 @@
 
 #include "../inc/Cluster.hpp"
 #include "../inc/ConfParser.hpp"
-#include "../inc/Debug.hpp"
 #include "../inc/Server.hpp"
 #include "../inc/Webserv.hpp"
+#include "../inc/Utils.hpp"
+#include "../inc/Logger.hpp"
 
-int main(int argc, char **argv) {
-#ifdef DEBUG
-	debug("webserv", __func__, FSTART, "Starting Webserv");
-	std::cout << "MAX_CLIENTS: " << getMaxClients() << "" << std::endl;
-#endif
-
+int main(int argc, char **argv)
+{
 	// Validate input arguments
-	if (argc != 2) {
-		std::cerr << "Usage: " << argv[0] << " config_file" << std::endl;
+	if (argc != 2)
+	{
+		Logger::error("Missing arguments! Usage: " + std::string(argv[0]) + " config_file");
 		return (EXIT_FAILURE);
 	}
+	
+	Logger::info("Starting Webserv");
+	std::stringstream s; s << "MAX_CLIENTS: " << getMaxClients(); 
+	Logger::debug(s.str());
+
 	// TODO: Setup Signal Handling (SIGINT)
 
 	// Parse Config
@@ -34,15 +37,17 @@ int main(int argc, char **argv) {
 	if (argc == 2)
 		parser = ConfParser(argv[1]);
 
-	// Declare servers vector
 	std::vector<Server> servers;
 
 	// Attempt to load Config
-	try {
+	try
+	{
 		parser.loadConf();
 		servers = parser.getServers();
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		Logger::error(e.what());
 		return (EXIT_FAILURE);
 	}
 
@@ -52,8 +57,9 @@ int main(int argc, char **argv) {
 
 	// Init Server Cluster & Check for Duplicates
 	Cluster cluster(servers);
-	if (cluster.hasDuplicates()) {
-		std::cerr << "Error: Server config has duplicates" << std::endl;
+	if (cluster.hasDuplicates())
+	{
+		Logger::error("Server config has duplicates");
 		return (EXIT_FAILURE);
 	}
 
@@ -61,18 +67,21 @@ int main(int argc, char **argv) {
 	showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
 #endif
 
-	// Attemp tp Setup Cluster
-	try {
+	// Attemp to setup Cluster
+	try
+	{
 		cluster.setup();
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		Logger::error(e.what());
 		return (EXIT_FAILURE);
 	}
 
 	// TODO: Run Cluster
 
 #ifdef DEBUG
-	debug("webserv finished", __func__, FEND, "Webserv process has ended");
+	Logger::debug("Webserv stopped");
 #endif
 
 	return (EXIT_SUCCESS);

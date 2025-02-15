@@ -15,7 +15,7 @@
 
 #include "Server.hpp"
 #include "Webserv.hpp"
-#include "Debug.hpp"
+#include "Logger.hpp"
 
 /* ************************************************************************** */
 /*                                Convertions                                 */
@@ -29,11 +29,6 @@ std::string toLower(const std::string &str);
 /// @return The string
 /// @throws std::invalid_argument if the number cannot be converted
 template <typename T> std::string nToStr(T num) {
-#ifdef DEBUG
-	// debugLocus(__func__,
-	// 		   FSTART,
-	// 		   "Converting " + std::string(typeid(T).name()) + " to string");
-#endif
 	std::stringstream ss;
 	ss << num;
 	if (ss.fail() || !ss.eof())
@@ -47,11 +42,6 @@ template <typename T> std::string nToStr(T num) {
 /// @return The number
 /// @throws std::invalid_argument if the string cannot be converted
 template <typename T> T strToN(const std::string &str) {
-#ifdef DEBUG
-	// debugLocus(__func__,
-	// 		   FSTART,
-	// 		   "Converting string to " + std::string(typeid(T).name()));
-#endif
 	T num;
 	std::stringstream ss(str);
 	ss >> num;

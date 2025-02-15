@@ -44,11 +44,12 @@ INC_PATH		= inc
 
 FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
-FILES			+= Debug.cpp
 FILES			+= Server.cpp
 FILES			+= Utils.cpp
 FILES			+= Location.cpp
 FILES			+= Cluster.cpp
+
+FILES += Logger.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))
 OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)
@@ -58,7 +59,7 @@ OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)
 #==============================================================================#
 
 CXX					= c++
-CXXFLAGS	  = -Wall -Wextra -Werror
+CXXFLAGS	  = -Wall -Wextra -Werror -g -fsanitize=address
 CXXFLAGS	  += -std=c++98
 CXXFLAGS	  += #-Wshadow
 DEBUG_FLAGS	= -g

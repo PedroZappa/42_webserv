@@ -575,7 +575,7 @@ void Server::setLocation(std::string block, size_t start, size_t end)
 		if (line.empty())
 			continue;
 
-		Logger::debug("About to set directive: \n" + line);
+		Logger::debug("About to set directive: " + line);
 
 		locInfo.setDirective(line);
 		// if (discard != "root" && discard != "autoindex" && discard != "index")

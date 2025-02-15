@@ -77,12 +77,13 @@ void ConfParser::loadConf(void)
 
 	// Get Server Blocks & load them
 	std::vector<std::string> serverBlocks = getServerBlocks(fileContent);
+	showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
+
 	loadContext(serverBlocks);
 
 	std::stringstream ss;
 	ss << "Loaded " << serverBlocks.size() << " servers";
 	Logger::info(ss.str());
-	// showContainer(__func__, "Parsed Servers Blocks", serverBlocks);
 }
 
 /// @brief Removes comments from the config file

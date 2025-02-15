@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 
 	// TODO: Run Cluster
 
-	Logger::debug("Webserv stopped");
+	Logger::info("Webserv stopped");
 
 	return (EXIT_SUCCESS);
 }

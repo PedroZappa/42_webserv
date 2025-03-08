@@ -18,6 +18,9 @@
  * is responsible for parsing HTTP requests, including the request line,
  * headers, and body. It validates the request format and extracts necessary
  * information into an HttpRequest object.
+ *
+ * @author passunca
+ * @date 2025-03-08
  */
 
 #include "../inc/HttpParser.hpp"
@@ -29,7 +32,8 @@
  * @brief A class responsible for parsing HTTP requests.
  *
  * The HttpRequestParser class provides methods to parse HTTP request lines,
- * headers, and bodies, and to validate the request format.
+ * headers, and bodies, and to validate the request format. It updates the
+ * HttpRequest object with parsed data and maintains the response status.
  */
 
 /**
@@ -242,6 +246,15 @@ void HttpRequestParser::parseQueries(HttpRequest &httpReq) {
 /*                                  Checking                                  */
 /* ************************************************************************** */
 
+/**
+ * @brief Validates the HTTP method.
+ *
+ * This function checks if the provided HTTP method is one of the supported
+ * methods: GET, POST, or DELETE.
+ *
+ * @param method The HTTP method to validate.
+ * @return True if the method is valid and supported, false otherwise.
+ */
 bool HttpRequestParser::isMethodValid(const std::string &method) {
 	if (method == "GET" || method == "POST" || method == "DELETE")
 		return true;

@@ -39,6 +39,11 @@
  * into its components: request line, headers, and body. It ensures that the
  * request adheres to the HTTP protocol standards and extracts necessary
  * information for further processing.
+ *
+ * The class is designed to be robust and efficient, handling various edge cases
+ * and ensuring compliance with HTTP/1.1 standards. It supports common HTTP methods
+ * and validates the structure and content of requests to prevent malformed data
+ * from being processed.
  */
 
 /**
@@ -57,6 +62,10 @@ static int responseStatus = OK;
  * provided request buffer and populates the HttpRequest object with the parsed
  * data. It also validates the request format and updates the response status
  * code based on the parsing outcome.
+ *
+ * The function handles various HTTP methods and ensures that the request adheres
+ * to the HTTP/1.1 protocol standards. It checks for malformed requests and updates
+ * the response status accordingly.
  *
  * @param requestBuf The buffer containing the raw HTTP request as a string.
  * @param httpReq The HttpRequest object that will be populated with the parsed
@@ -114,6 +123,10 @@ unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
  * from the request line. It updates the HttpRequest object with the parsed data.
  * The function checks for valid HTTP methods, decodes the URL, and ensures the
  * protocol version is supported.
+ *
+ * The method is designed to handle edge cases such as unsupported methods, invalid
+ * URLs, and incorrect protocol versions, updating the response status to reflect
+ * any issues encountered during parsing.
  *
  * @param httpReq The HttpRequest object to populate with parsed data.
  * @param buffer The string containing the request line to be parsed.
@@ -285,6 +298,24 @@ bool isMethodImplemented(const std::string &method) {
 	return false;
 }
 
+/**
+ * @brief Validates the format of a given URL.
+ *
+ * This function checks if the provided URL adheres to the expected format
+ * for HTTP requests. It ensures that the URL starts with a '/', does not
+ * contain fragment identifiers, contains at most one '?', and has a valid
+ * number of '=' and '&' characters when a '?' is present.
+ *
+ * @param url The URL string to validate.
+ * @return True if the URL is valid according to the specified rules, false otherwise.
+ *
+ * The validation rules are as follows:
+ * - The URL must start with a '/' character.
+ * - Fragment identifiers (indicated by '#') are not allowed.
+ * - The URL can contain at most one '?' character.
+ * - If a '?' is present, the number of '=' characters must match the number
+ *   of '&' characters plus one.
+ */
 bool HttpRequestParser::isUrlValid(const std::string &url) {
 	if (url[0] != '/')
 		return false;
@@ -294,6 +325,7 @@ bool HttpRequestParser::isUrlValid(const std::string &url) {
 	// Check for a single ?
 	if (std::count(url.begin(), url.end(), '?') > 1)
 		return false;
+	// The number of '=' must match the number of '&' plus one when a '?' is present.
 	if ((url.find('?') != std::string::npos) &&
 		(std::count(url.begin(), url.end(), '=') !=
 		 std::count(url.begin(), url.end(), '&') + 1))

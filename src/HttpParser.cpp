@@ -1,0 +1,57 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpParser.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/08 19:19:55 by passunca          #+#    #+#             */
+/*   Updated: 2025/03/08 19:41:01 by passunca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../inc/HttpParser.hpp"
+#include "../inc/Webserv.hpp"
+
+static int responseStatus = OK;
+
+unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
+											HttpRequest &httpReq) {
+	responseStatus = OK;
+
+	// Catch invalid requests
+	if (requestBuf.empty() ||
+		(requestBuf.find_first_of("\r\n\t") == std::string::npos)) {
+		responseStatus = BAD_REQUEST;
+		return responseStatus;
+	}
+
+	// Prepare Buffers & flags for parsing
+	std::stringstream bufferStream(requestBuf);
+	std::string buffer;
+	bool requestLineParsed = false;
+	bool headerParsed = false;
+
+	while (std::getline(bufferStream, buffer)) {
+		if (!requestLineParsed) { // Parse request lines
+			if (!getRequestLine(httpReq, buffer)) 
+				return responseStatus;
+			requestLineParsed = true;
+		} else if (!headerParsed && (buffer != "\r")) { // Header fields
+			if (!getHeaderFields(httpReq, buffer))
+				return responseStatus;
+		} else if (buffer.empty() || (buffer == "\r")) {// Header End
+			headerParsed = true;
+			break;
+		}
+	}
+	parseQueries(httpReq);
+
+	// Get body
+	std::string body((std::istreambuf_iterator<char>(bufferStream)), 
+				  std::istreambuf_iterator<char>());
+	// Append body 
+	httpReq.body = body;
+
+	return responseStatus;
+}

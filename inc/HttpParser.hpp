@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:01:42 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/08 19:17:22 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/08 19:38:04 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,11 @@ class HttpRequestParser {
 
   private:
 	// Private helper methods
+	static bool getRequestLine(HttpRequest &httpReq, const std::string &buffer);
+	static bool getHeaderFields(HttpRequest &httpReq, const std::string &headers);
+	static void parseQueries(HttpRequest &httpReq);
+
+	// Auxiliary functions
 
 	// Private Constructors (uninstantiable)
 	HttpRequestParser();

@@ -341,6 +341,26 @@ bool HttpRequestParser::isProtocolVersionValid(const std::string &protocolVersio
 }
 
 /* ************************************************************************** */
+/*                                  Decoding                                  */
+/* ************************************************************************** */
+
+std::string HttpRequestParser::decodeUrl(const std::string &encoded) {
+	std::ostringstream decoded;
+	for (size_t i = 0; i < encoded.length(); ++i) {
+		if ((encoded[i] == '%') && ((i + 2) < encoded.length()) &&
+			std::isxdigit(encoded[i + 1]) && std::isxdigit(encoded[i + 2])) {
+			int value;
+			std::istringstream ss(encoded.substr((i + 1), 2));
+			ss >> std::hex >> value;
+			decoded << static_cast<char>(value);
+			i += 2;
+		} else
+			decoded << encoded[i];
+	}
+	return decoded.str();
+}
+
+/* ************************************************************************** */
 /*                                  Trimming */
 /* ************************************************************************** */
 

@@ -44,16 +44,17 @@ static int responseStatus = OK;
 /**
  * @brief Parses an HTTP request from a buffer.
  *
- * This function processes the HTTP request line, headers, and body from the provided
- * request buffer and populates the HttpRequest object with the parsed data. It also
- * validates the request format and updates the response status code based on the
- * parsing outcome.
+ * This function processes the HTTP request line, headers, and body from the
+ * provided request buffer and populates the HttpRequest object with the parsed
+ * data. It also validates the request format and updates the response status
+ * code based on the parsing outcome.
  *
  * @param requestBuf The buffer containing the raw HTTP request as a string.
- * @param httpReq The HttpRequest object that will be populated with the parsed data,
- * including method, URI, headers, and body.
- * @return An unsigned short representing the HTTP response status code, which indicates
- * the result of the parsing process. Possible values include OK, BAD_REQUEST, etc.
+ * @param httpReq The HttpRequest object that will be populated with the parsed
+ * data, including method, URI, headers, and body.
+ * @return An unsigned short representing the HTTP response status code, which
+ * indicates the result of the parsing process. Possible values include OK,
+ * BAD_REQUEST, etc.
  */
 unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 											HttpRequest &httpReq) {
@@ -235,6 +236,16 @@ void HttpRequestParser::parseQueries(HttpRequest &httpReq) {
 				std::pair<std::string, std::string>(key, value));
 	}
 	return;
+}
+
+/* ************************************************************************** */
+/*                                  Checking                                  */
+/* ************************************************************************** */
+
+bool HttpRequestParser::isMethodValid(const std::string &method) {
+	if (method == "GET" || method == "POST" || method == "DELETE")
+		return true;
+	return false;
 }
 
 /* ************************************************************************** */

@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:01:42 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/08 19:10:41 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/08 19:17:22 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,24 @@ struct HttpRequest {
 
 	// Constructors
 	HttpRequest() : method(UNKNOWN) {};
+};
+
+/**
+ * @class HttpRequestParser
+ * @brief Provides functionality to parse HTTP requests.
+ */
+class HttpRequestParser {
+  public:
+	// Public methods
+	static unsigned short parseHttp(const std::string &requestBuf,
+									HttpRequest &httpReq);
+
+  private:
+	// Private helper methods
+
+	// Private Constructors (uninstantiable)
+	HttpRequestParser();
+	~HttpRequestParser();
 };
 
 #endif

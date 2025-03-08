@@ -34,6 +34,11 @@
  * The HttpRequestParser class provides methods to parse HTTP request lines,
  * headers, and bodies, and to validate the request format. It updates the
  * HttpRequest object with parsed data and maintains the response status.
+ * 
+ * This class handles the parsing of HTTP requests by breaking down the request
+ * into its components: request line, headers, and body. It ensures that the
+ * request adheres to the HTTP protocol standards and extracts necessary
+ * information for further processing.
  */
 
 /**
@@ -58,7 +63,8 @@ static int responseStatus = OK;
  * data, including method, URI, headers, and body.
  * @return An unsigned short representing the HTTP response status code, which
  * indicates the result of the parsing process. Possible values include OK,
- * BAD_REQUEST, etc.
+ * BAD_REQUEST, METHOD_NOT_ALLOWED, NOT_IMPLEMENTED, URI_TOO_LONG, and
+ * HTTP_VERSION_NOT_SUPPORTED.
  */
 unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 											HttpRequest &httpReq) {
@@ -106,6 +112,8 @@ unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
  *
  * This function extracts and validates the HTTP method, URL, and protocol version
  * from the request line. It updates the HttpRequest object with the parsed data.
+ * The function checks for valid HTTP methods, decodes the URL, and ensures the
+ * protocol version is supported.
  *
  * @param httpReq The HttpRequest object to populate with parsed data.
  * @param buffer The string containing the request line to be parsed.
@@ -261,6 +269,15 @@ bool HttpRequestParser::isMethodValid(const std::string &method) {
 	return false;
 }
 
+/**
+ * @brief Checks if the HTTP method is implemented.
+ *
+ * This function determines whether the provided HTTP method is one of the
+ * implemented methods: PUT, HEAD, OPTIONS, or PATCH.
+ *
+ * @param method The HTTP method to check for implementation.
+ * @return True if the method is implemented, false otherwise.
+ */
 bool isMethodImplemented(const std::string &method) {
 	if (method == "PUT" || method == "HEAD" || method == "OPTIONS" ||
 		method == "PATCH")

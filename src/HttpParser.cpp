@@ -138,6 +138,15 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 	return true;
 }
 
+/**
+ * @brief Trims whitespace characters from both ends of a string.
+ *
+ * This function removes leading and trailing whitespace characters from the
+ * input string and returns the trimmed result.
+ *
+ * @param str The string to be trimmed.
+ * @return A new string with leading and trailing whitespace removed.
+ */
 std::string HttpRequestParser::trim(const std::string &str) {
 	size_t start = str.find_first_not_of(" \t\r\n");
 	if (start == std::string::npos)
@@ -146,6 +155,14 @@ std::string HttpRequestParser::trim(const std::string &str) {
 	return str.substr(start, (end - start + 1));
 }
 
+/**
+ * @brief Trims null characters from the end of a string.
+ *
+ * This function removes trailing null characters from the input string,
+ * effectively resizing it to exclude any null terminators.
+ *
+ * @param str The string to be trimmed of null characters.
+ */
 void HttpRequestParser::trimNull(std::string &str) {
 	size_t pos = str.find_first_not_of("\0");
 

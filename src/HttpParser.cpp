@@ -333,6 +333,15 @@ bool HttpRequestParser::isUrlValid(const std::string &url) {
 	return true;
 }
 
+/**
+ * @brief Validates the protocol version of an HTTP request.
+ *
+ * This function checks if the provided protocol version is one of the supported
+ * versions: HTTP/1.1, HTTP/1.0, or HTTP/0.9.
+ *
+ * @param protocolVersion The protocol version string to validate.
+ * @return True if the protocol version is valid and supported, false otherwise.
+ */
 bool HttpRequestParser::isProtocolVersionValid(const std::string &protocolVersion) {
 	if ((protocolVersion == "HTTP/1.1") || (protocolVersion == "HTTP/1.0") ||
 		(protocolVersion == "HTTP/0.9"))
@@ -344,6 +353,15 @@ bool HttpRequestParser::isProtocolVersionValid(const std::string &protocolVersio
 /*                                  Decoding                                  */
 /* ************************************************************************** */
 
+/**
+ * @brief Decodes a percent-encoded URL string.
+ *
+ * This function converts percent-encoded characters in a URL to their ASCII
+ * equivalents. It processes the input string and returns a decoded version.
+ *
+ * @param encoded The percent-encoded URL string to decode.
+ * @return A decoded string with percent-encoded characters converted to ASCII.
+ */
 std::string HttpRequestParser::decodeUrl(const std::string &encoded) {
 	std::ostringstream decoded;
 	for (size_t i = 0; i < encoded.length(); ++i) {

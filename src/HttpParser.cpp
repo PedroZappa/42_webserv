@@ -141,13 +141,14 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 /**
  * @brief Parses the header fields of an HTTP request.
  *
- * This function extracts key-value pairs from the header section of the HTTP request.
- * It validates the presence of a colon to separate keys and values and handles special
- * cases for date-related headers.
+ * This function extracts key-value pairs from the header section of the HTTP
+ * request. It validates the presence of a colon to separate keys and values and
+ * handles special cases for date-related headers.
  *
  * @param httpReq The HttpRequest object to populate with parsed header data.
  * @param headers The string containing the header fields to be parsed.
- * @return True if the headers are successfully parsed and valid, false otherwise.
+ * @return True if the headers are successfully parsed and valid, false
+ * otherwise.
  */
 bool HttpRequestParser::getHeaderFields(HttpRequest &httpReq,
 										const std::string &headers) {
@@ -184,8 +185,38 @@ bool HttpRequestParser::getHeaderFields(HttpRequest &httpReq,
 	return true;
 }
 
+void HttpRequestParser::parseQueries(HttpRequest &httpReq) {
+	std::size_t delimPos = httpReq.uri.find('?');
+	if (delimPos == std::string::npos)
+		return;
+
+	std::string query = httpReq.uri.substr(delimPos + 1); // Findf query
+	httpReq.uri = httpReq.uri.substr(0, delimPos);        // Extract query
+	std::stringstream ss(query);
+	std::string pair;
+
+	while (std::getline(ss, pair, '&')) {
+		size_t equalPos = pair.find('=');
+		std::string key;
+		std::string value;
+		if (equalPos == std::string::npos)
+			key = pair; // empty
+		else {
+			key = pair.substr(0, equalPos);
+			value = pair.substr(equalPos + 1);
+		}
+		trim(key);
+		trim(pair);
+
+		if (!key.empty())
+			httpReq.queryParams.insert(
+				std::pair<std::string, std::string>(key, value));
+	}
+	return;
+}
+
 /* ************************************************************************** */
-/*                                  Trimming                                  */
+/*                                  Trimming */
 /* ************************************************************************** */
 
 /**

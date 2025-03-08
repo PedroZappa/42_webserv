@@ -10,11 +10,29 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+/**
+ * @file HttpParser.cpp
+ * @brief Implementation of HTTP request parsing logic.
+ */
+
 #include "../inc/HttpParser.hpp"
 #include "../inc/Webserv.hpp"
 
+/**
+ * @brief Status of the HTTP response.
+ */
 static int responseStatus = OK;
 
+/**
+ * @brief Parses an HTTP request from a buffer.
+ * 
+ * This function parses the HTTP request line, headers, and body from the given
+ * request buffer and populates the HttpRequest object.
+ * 
+ * @param requestBuf The buffer containing the raw HTTP request.
+ * @param httpReq The HttpRequest object to populate with parsed data.
+ * @return The HTTP response status code.
+ */
 unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 											HttpRequest &httpReq) {
 	responseStatus = OK;

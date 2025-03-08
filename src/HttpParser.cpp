@@ -13,6 +13,11 @@
 /**
  * @file HttpParser.cpp
  * @brief Implementation of HTTP request parsing logic.
+ *
+ * This file contains the implementation of the HttpRequestParser class, which
+ * is responsible for parsing HTTP requests, including the request line, headers,
+ * and body. It validates the request format and extracts necessary information
+ * into an HttpRequest object.
  */
 
 #include "../inc/HttpParser.hpp"
@@ -20,6 +25,9 @@
 
 /**
  * @brief Status of the HTTP response.
+ *
+ * This static variable holds the HTTP response status code, which is updated
+ * during the parsing process to reflect the outcome of the request validation.
  */
 static int responseStatus = OK;
 
@@ -74,6 +82,16 @@ unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 	return responseStatus;
 }
 
+/**
+ * @brief Parses the request line of an HTTP request.
+ *
+ * This function extracts and validates the HTTP method, URL, and protocol version
+ * from the request line. It updates the HttpRequest object with the parsed data.
+ *
+ * @param httpReq The HttpRequest object to populate with parsed data.
+ * @param buffer The string containing the request line to be parsed.
+ * @return True if the request line is successfully parsed and valid, false otherwise.
+ */
 bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 									   const std::string &buffer) {
 	if (std::isspace(buffer[0]))

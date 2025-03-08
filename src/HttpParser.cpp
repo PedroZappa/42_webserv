@@ -40,7 +40,7 @@ static int responseStatus = OK;
  *
  * @param requestBuf The buffer containing the raw HTTP request.
  * @param httpReq The HttpRequest object to populate with parsed data.
- * @return The HTTP response status code.
+ * @return The HTTP response status code indicating the result of the parsing process.
  */
 unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 											HttpRequest &httpReq) {
@@ -137,6 +137,56 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 
 	return true;
 }
+
+/**
+ * @brief Parses the header fields of an HTTP request.
+ *
+ * This function extracts key-value pairs from the header section of the HTTP request.
+ * It validates the presence of a colon to separate keys and values and handles special
+ * cases for date-related headers.
+ *
+ * @param httpReq The HttpRequest object to populate with parsed header data.
+ * @param headers The string containing the header fields to be parsed.
+ * @return True if the headers are successfully parsed and valid, false otherwise.
+ */
+bool HttpRequestParser::getHeaderFields(HttpRequest &httpReq,
+										const std::string &headers) {
+	// check for colon
+	size_t colonPos = headers.find_first_of(':');
+	if (colonPos == std::string::npos) {
+		responseStatus = BAD_REQUEST;
+		return false;
+	}
+
+	// Extract key value pair
+	std::string key = toLower(trim(headers.substr(0, colonPos)));
+	std::string value = trim(headers.substr(colonPos + 1));
+	if (key.empty() || value.empty()) {
+		responseStatus = BAD_REQUEST;
+		return false;
+	}
+
+	std::stringstream ss(value);
+	std::string val;
+
+	if ((key == "date") || (key == "if-modified-since") ||
+		(key == "last-modified")) {
+		httpReq.headers.insert(std::pair<std::string, std::string>(key, value));
+		return true;
+	}
+	while (std::getline(ss, val, ',')) {
+		val.erase(val.find_last_not_of(" \t\r\n") + 1);
+		val.erase(0, val.find_first_not_of(" \t\r\n"));
+
+		if (!val.empty()) // Ingnore empty fields
+			httpReq.headers.insert(std::pair<std::string, std::string>(key, val));
+	}
+	return true;
+}
+
+/* ************************************************************************** */
+/*                                  Trimming                                  */
+/* ************************************************************************** */
 
 /**
  * @brief Trims whitespace characters from both ends of a string.

@@ -90,4 +90,31 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 
 		return false;
 	}
+	
+	std::string url;
+	bufferStream >> url;
+	std::string decodedUrl = decodeUrl(url);
+	if (decodedUrl.empty() || !isUrlValid(decodedUrl)) {
+		responseStatus = BAD_REQUEST;
+		return false;
+	}
+
+	if (decodedUrl.size() > URL_MAX_SIZE) {
+		responseStatus = URI_TOO_LONG;
+		return false;
+	}
+
+	std::string protocolVersion;
+	bufferStream >> protocolVersion;
+	if (protocolVersion.empty() || !isProtocolVersionValid(protocolVersion)) {
+		responseStatus = HTTP_VERSION_NOT_SUPPORTED;
+		return false;
+	}
+
+	httpReq.method = string2method(method);
+	httpReq.uri = trim(url);
+	httpReq.decodedUri = decodedUrl;
+	httpReq.protocolVersion = trim(protocolVersion);
+
+	return true;
 }

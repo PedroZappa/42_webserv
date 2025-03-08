@@ -49,6 +49,7 @@
 /*                                  Constants */
 /* ************************************************************************** */
 
+#define URL_MAX_SIZE 8094
 #define MAX_EPOLL_FD_PATH "/proc/sys/fs/epoll/max_user_watches"
 
 /// @brief Get the maximum number of open fds for epoll

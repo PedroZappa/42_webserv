@@ -61,6 +61,9 @@ class HttpRequestParser {
 	// Auxiliary functions
 	static bool isMethodValid(const std::string &method);
 	static bool methodImplemented(const std::string &method);
+	static std::string decodeUrl(const std::string &encoded);
+	static bool isUrlValid(const std::string &url);
+	static bool isProtocolVersionValid(const std::string &url);
 
 	// Private Constructors (uninstantiable)
 	HttpRequestParser();

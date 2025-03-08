@@ -34,6 +34,18 @@ std::string method2string(Method method) {
 		return ("POST");
 	case DELETE:
 		return ("DELETE");
+	case HEAD:
+		return ("HEAD");
+	case PUT:
+		return ("PUT");
+	case CONNECT:
+		return ("CONNECT");
+	case OPTIONS:
+		return ("OPTIONS");
+	case TRACE:
+		return ("TRACE");
+	case PATCH:
+		return ("PATCH");
 	default:
 		return ("UNKNOWN");
 	}

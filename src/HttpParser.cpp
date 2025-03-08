@@ -254,7 +254,7 @@ void HttpRequestParser::parseQueries(HttpRequest &httpReq) {
 			value = pair.substr(equalPos + 1);
 		}
 		trim(key);
-		trim(pair);
+		trim(value);
 
 		if (!key.empty())
 			httpReq.queryParams.insert(
@@ -291,7 +291,7 @@ bool HttpRequestParser::isMethodValid(const std::string &method) {
  * @param method The HTTP method to check for implementation.
  * @return True if the method is implemented, false otherwise.
  */
-bool isMethodImplemented(const std::string &method) {
+bool HttpRequestParser::isMethodImplemented(const std::string &method) {
 	if (method == "PUT" || method == "HEAD" || method == "OPTIONS" ||
 		method == "PATCH")
 		return true;

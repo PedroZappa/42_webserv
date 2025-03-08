@@ -34,7 +34,7 @@
  * The HttpRequestParser class provides methods to parse HTTP request lines,
  * headers, and bodies, and to validate the request format. It updates the
  * HttpRequest object with parsed data and maintains the response status.
- * 
+ *
  * This class handles the parsing of HTTP requests by breaking down the request
  * into its components: request line, headers, and body. It ensures that the
  * request adheres to the HTTP protocol standards and extracts necessary
@@ -283,6 +283,22 @@ bool isMethodImplemented(const std::string &method) {
 		method == "PATCH")
 		return true;
 	return false;
+}
+
+bool HttpRequestParser::isUrlValid(const std::string &url) {
+	if (url[0] != '/')
+		return false;
+	// No fragment urls allowed
+	if (url.find("#") != std::string::npos)
+		return false;
+	// Check for a single ?
+	if (std::count(url.begin(), url.end(), '?') > 1)
+		return false;
+	if ((url.find('?') != std::string::npos) &&
+		(std::count(url.begin(), url.end(), '=') !=
+		 std::count(url.begin(), url.end(), '&') + 1))
+		return false;
+	return true;
 }
 
 /* ************************************************************************** */

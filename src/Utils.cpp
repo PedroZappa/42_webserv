@@ -25,3 +25,27 @@ std::string toLower(const std::string &str) {
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 	return (lower);
 }
+
+std::string method2string(Method method) {
+	switch (method) {
+	case GET:
+		return ("GET");
+	case POST:
+		return ("POST");
+	case DELETE:
+		return ("DELETE");
+	default:
+		return ("UNKNOWN");
+	}
+}
+
+Method string2method(const std::string &str) {
+	if (str == "GET")
+		return (GET);
+	else if (str == "POST")
+		return (POST);
+	else if (str == "DELETE")
+		return (DELETE);
+	else
+		return (UNKNOWN);
+}

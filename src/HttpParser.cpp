@@ -15,12 +15,13 @@
  * @brief Implementation of HTTP request parsing logic.
  *
  * This file contains the implementation of the HttpRequestParser class, which
- * is responsible for parsing HTTP requests, including the request line, headers,
- * and body. It validates the request format and extracts necessary information
- * into an HttpRequest object.
+ * is responsible for parsing HTTP requests, including the request line,
+ * headers, and body. It validates the request format and extracts necessary
+ * information into an HttpRequest object.
  */
 
 #include "../inc/HttpParser.hpp"
+#include "../inc/Utils.hpp"
 #include "../inc/Webserv.hpp"
 
 /**
@@ -103,12 +104,12 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 	bufferStream >> method;
 	if (method.empty() || !isMethodValid(method)) {
 		responseStatus = METHOD_NOT_ALLOWED;
-		if (methodImplemented(method))
+		if (isMethodImplemented(method))
 			responseStatus = NOT_IMPLEMENTED;
 
 		return false;
 	}
-	
+
 	std::string url;
 	bufferStream >> url;
 	std::string decodedUrl = decodeUrl(url);
@@ -135,4 +136,21 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 	httpReq.protocolVersion = trim(protocolVersion);
 
 	return true;
+}
+
+std::string HttpRequestParser::trim(const std::string &str) {
+	size_t start = str.find_first_not_of(" \t\r\n");
+	if (start == std::string::npos)
+		return "";
+	size_t end = str.find_last_not_of(" \t\r\n");
+	return str.substr(start, (end - start + 1));
+}
+
+void HttpRequestParser::trimNull(std::string &str) {
+	size_t pos = str.find_first_not_of("\0");
+
+	if (pos == std::string::npos)
+		str.clear();
+	else
+		str.resize(pos + 1);
 }

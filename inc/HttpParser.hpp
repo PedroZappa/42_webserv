@@ -58,12 +58,16 @@ class HttpRequestParser {
 	static bool getHeaderFields(HttpRequest &httpReq, const std::string &headers);
 	static void parseQueries(HttpRequest &httpReq);
 
-	// Auxiliary functions
+	// Checking
 	static bool isMethodValid(const std::string &method);
-	static bool methodImplemented(const std::string &method);
-	static std::string decodeUrl(const std::string &encoded);
+	static bool isMethodImplemented(const std::string &method);
 	static bool isUrlValid(const std::string &url);
 	static bool isProtocolVersionValid(const std::string &url);
+	// Decoding
+	static std::string decodeUrl(const std::string &encoded);
+	// Trimming
+	static std::string trim(const std::string &str);
+	static void trimNull(std::string &str);
 
 	// Private Constructors (uninstantiable)
 	HttpRequestParser();

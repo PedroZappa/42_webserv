@@ -22,7 +22,8 @@
 /* ************************************************************************** */
 
 std::string toLower(const std::string &str);
-
+Method string2method(const std::string &str);
+std::string method2string(Method method);
 
 /// @brief Converts a number to a string
 /// @param num The number to be converted

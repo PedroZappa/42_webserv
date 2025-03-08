@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:30:45 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/08 19:07:21 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@
 /*                                  Constants */
 /* ************************************************************************** */
 
+#define URL_MAX_SIZE 8094
 #define MAX_EPOLL_FD_PATH "/proc/sys/fs/epoll/max_user_watches"
 
 /// @brief Get the maximum number of open fds for epoll
@@ -95,7 +96,8 @@ enum Method { // Keep only the methods that we want to implement
 	CONNECT,
 	OPTIONS,
 	TRACE,
-	PATCH
+	PATCH,
+	UNKNOWN
 };
 
 enum State { TRUE, FALSE, UNSET };

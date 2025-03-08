@@ -59,6 +59,8 @@ class HttpRequestParser {
 	static void parseQueries(HttpRequest &httpReq);
 
 	// Auxiliary functions
+	static bool isMethodValid(const std::string &method);
+	static bool methodImplemented(const std::string &method);
 
 	// Private Constructors (uninstantiable)
 	HttpRequestParser();

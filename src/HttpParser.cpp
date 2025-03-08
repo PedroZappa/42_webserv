@@ -25,10 +25,10 @@ static int responseStatus = OK;
 
 /**
  * @brief Parses an HTTP request from a buffer.
- * 
+ *
  * This function parses the HTTP request line, headers, and body from the given
  * request buffer and populates the HttpRequest object.
- * 
+ *
  * @param requestBuf The buffer containing the raw HTTP request.
  * @param httpReq The HttpRequest object to populate with parsed data.
  * @return The HTTP response status code.
@@ -52,13 +52,13 @@ unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 
 	while (std::getline(bufferStream, buffer)) {
 		if (!requestLineParsed) { // Parse request lines
-			if (!getRequestLine(httpReq, buffer)) 
+			if (!getRequestLine(httpReq, buffer))
 				return responseStatus;
 			requestLineParsed = true;
 		} else if (!headerParsed && (buffer != "\r")) { // Header fields
 			if (!getHeaderFields(httpReq, buffer))
 				return responseStatus;
-		} else if (buffer.empty() || (buffer == "\r")) {// Header End
+		} else if (buffer.empty() || (buffer == "\r")) { // Header End
 			headerParsed = true;
 			break;
 		}
@@ -66,10 +66,28 @@ unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 	parseQueries(httpReq);
 
 	// Get body
-	std::string body((std::istreambuf_iterator<char>(bufferStream)), 
-				  std::istreambuf_iterator<char>());
-	// Append body 
+	std::string body((std::istreambuf_iterator<char>(bufferStream)),
+					 std::istreambuf_iterator<char>());
+	// Append body
 	httpReq.body = body;
 
 	return responseStatus;
+}
+
+bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
+									   const std::string &buffer) {
+	if (std::isspace(buffer[0]))
+		return false;
+
+	std::stringstream bufferStream(buffer);
+	std::string method;
+
+	bufferStream >> method;
+	if (method.empty() || !isMethodValid(method)) {
+		responseStatus = METHOD_NOT_ALLOWED;
+		if (methodImplemented(method))
+			responseStatus = NOT_IMPLEMENTED;
+
+		return false;
+	}
 }

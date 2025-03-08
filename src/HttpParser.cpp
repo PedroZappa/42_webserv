@@ -25,10 +25,19 @@
 #include "../inc/Webserv.hpp"
 
 /**
+ * @class HttpRequestParser
+ * @brief A class responsible for parsing HTTP requests.
+ *
+ * The HttpRequestParser class provides methods to parse HTTP request lines,
+ * headers, and bodies, and to validate the request format.
+ */
+
+/**
  * @brief Status of the HTTP response.
  *
  * This static variable holds the HTTP response status code, which is updated
  * during the parsing process to reflect the outcome of the request validation.
+ * It is initialized to OK and modified as needed during parsing.
  */
 static int responseStatus = OK;
 
@@ -189,6 +198,15 @@ bool HttpRequestParser::getHeaderFields(HttpRequest &httpReq,
 	return true;
 }
 
+/**
+ * @brief Parses the query parameters from the URI of an HTTP request.
+ *
+ * This function extracts query parameters from the URI of the HttpRequest object.
+ * It identifies the query string, splits it into key-value pairs, and populates
+ * the queryParams map in the HttpRequest object with these pairs.
+ *
+ * @param httpReq The HttpRequest object whose URI will be parsed for query parameters.
+ */
 void HttpRequestParser::parseQueries(HttpRequest &httpReq) {
 	std::size_t delimPos = httpReq.uri.find('?');
 	if (delimPos == std::string::npos)

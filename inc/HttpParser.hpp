@@ -62,7 +62,7 @@ class HttpRequestParser {
 	static bool isMethodValid(const std::string &method);
 	static bool isMethodImplemented(const std::string &method);
 	static bool isUrlValid(const std::string &url);
-	static bool isProtocolVersionValid(const std::string &url);
+	static bool isProtocolVersionValid(const std::string &protocolVersion);
 	// Decoding
 	static std::string decodeUrl(const std::string &encoded);
 	// Trimming

@@ -41,9 +41,9 @@
  * information for further processing.
  *
  * The class is designed to be robust and efficient, handling various edge cases
- * and ensuring compliance with HTTP/1.1 standards. It supports common HTTP methods
- * and validates the structure and content of requests to prevent malformed data
- * from being processed.
+ * and ensuring compliance with HTTP/1.1 standards. It supports common HTTP
+ * methods and validates the structure and content of requests to prevent
+ * malformed data from being processed.
  */
 
 /**
@@ -63,9 +63,9 @@ static int responseStatus = OK;
  * data. It also validates the request format and updates the response status
  * code based on the parsing outcome.
  *
- * The function handles various HTTP methods and ensures that the request adheres
- * to the HTTP/1.1 protocol standards. It checks for malformed requests and updates
- * the response status accordingly.
+ * The function handles various HTTP methods and ensures that the request
+ * adheres to the HTTP/1.1 protocol standards. It checks for malformed requests
+ * and updates the response status accordingly.
  *
  * @param requestBuf The buffer containing the raw HTTP request as a string.
  * @param httpReq The HttpRequest object that will be populated with the parsed
@@ -331,6 +331,13 @@ bool HttpRequestParser::isUrlValid(const std::string &url) {
 		 std::count(url.begin(), url.end(), '&') + 1))
 		return false;
 	return true;
+}
+
+bool HttpRequestParser::isProtocolVersionValid(const std::string &protocolVersion) {
+	if ((protocolVersion == "HTTP/1.1") || (protocolVersion == "HTTP/1.0") ||
+		(protocolVersion == "HTTP/0.9"))
+		return true;
+	return false;
 }
 
 /* ************************************************************************** */

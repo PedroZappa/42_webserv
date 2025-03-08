@@ -261,6 +261,13 @@ bool HttpRequestParser::isMethodValid(const std::string &method) {
 	return false;
 }
 
+bool isMethodImplemented(const std::string &method) {
+	if (method == "PUT" || method == "HEAD" || method == "OPTIONS" ||
+		method == "PATCH")
+		return true;
+	return false;
+}
+
 /* ************************************************************************** */
 /*                                  Trimming */
 /* ************************************************************************** */

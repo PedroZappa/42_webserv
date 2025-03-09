@@ -20,7 +20,8 @@ AResponse::AResponse(const Server &server, const HttpRequest &request)
 	: _server(server), _request(request) {
 }
 
-AResponse::AResponse(const AResponse &other) : _server(other._server) {
+AResponse::AResponse(const AResponse &other) 
+    : _server(other._server), _request(other._request) {
 }
 
 AResponse::~AResponse() {}

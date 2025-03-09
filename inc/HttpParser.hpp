@@ -44,7 +44,21 @@ struct HttpRequest {
 
 /**
  * @class HttpRequestParser
- * @brief Provides functionality to parse HTTP requests.
+ * @brief A class responsible for parsing HTTP requests.
+ *
+ * The HttpRequestParser class provides methods to parse HTTP request lines,
+ * headers, and bodies, and to validate the request format. It updates the
+ * HttpRequest object with parsed data and maintains the response status.
+ *
+ * This class handles the parsing of HTTP requests by breaking down the request
+ * into its components: request line, headers, and body. It ensures that the
+ * request adheres to the HTTP protocol standards and extracts necessary
+ * information for further processing.
+ *
+ * The class is designed to be robust and efficient, handling various edge cases
+ * and ensuring compliance with HTTP/1.1 standards. It supports common HTTP
+ * methods and validates the structure and content of requests to prevent
+ * malformed data from being processed.
  */
 class HttpRequestParser {
   public:
@@ -73,5 +87,8 @@ class HttpRequestParser {
 	HttpRequestParser();
 	~HttpRequestParser();
 };
+
+// Overload the stream insertion operator 
+std::ostream &operator<<(std::ostream &os, const HttpRequest &httpReq);
 
 #endif

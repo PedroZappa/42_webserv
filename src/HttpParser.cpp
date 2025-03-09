@@ -19,6 +19,10 @@
  * headers, and body. It validates the request format and extracts necessary
  * information into an HttpRequest object.
  *
+ * The parser handles various HTTP methods and ensures compliance with HTTP/1.1
+ * protocol standards. It checks for malformed requests and updates the response
+ * status accordingly.
+ *
  * @author passunca
  * @date 2025-03-08
  */
@@ -26,25 +30,6 @@
 #include "../inc/HttpParser.hpp"
 #include "../inc/Utils.hpp"
 #include "../inc/Webserv.hpp"
-
-/**
- * @class HttpRequestParser
- * @brief A class responsible for parsing HTTP requests.
- *
- * The HttpRequestParser class provides methods to parse HTTP request lines,
- * headers, and bodies, and to validate the request format. It updates the
- * HttpRequest object with parsed data and maintains the response status.
- *
- * This class handles the parsing of HTTP requests by breaking down the request
- * into its components: request line, headers, and body. It ensures that the
- * request adheres to the HTTP protocol standards and extracts necessary
- * information for further processing.
- *
- * The class is designed to be robust and efficient, handling various edge cases
- * and ensuring compliance with HTTP/1.1 standards. It supports common HTTP
- * methods and validates the structure and content of requests to prevent
- * malformed data from being processed.
- */
 
 /**
  * @brief Status of the HTTP response.
@@ -56,24 +41,16 @@
 static int responseStatus = OK;
 
 /**
- * @brief Parses an HTTP request from a buffer.
+ * @class HttpRequestParser
+ * @brief A class for parsing HTTP requests.
  *
- * This function processes the HTTP request line, headers, and body from the
- * provided request buffer and populates the HttpRequest object with the parsed
- * data. It also validates the request format and updates the response status
- * code based on the parsing outcome.
+ * The HttpRequestParser class provides methods to parse HTTP requests,
+ * including the request line, headers, and body. It validates the request
+ * format and extracts necessary information into an HttpRequest object.
  *
- * The function handles various HTTP methods and ensures that the request
- * adheres to the HTTP/1.1 protocol standards. It checks for malformed requests
- * and updates the response status accordingly.
- *
- * @param requestBuf The buffer containing the raw HTTP request as a string.
- * @param httpReq The HttpRequest object that will be populated with the parsed
- * data, including method, URI, headers, and body.
- * @return An unsigned short representing the HTTP response status code, which
- * indicates the result of the parsing process. Possible values include OK,
- * BAD_REQUEST, METHOD_NOT_ALLOWED, NOT_IMPLEMENTED, URI_TOO_LONG, and
- * HTTP_VERSION_NOT_SUPPORTED.
+ * The parser handles various HTTP methods and ensures compliance with HTTP/1.1
+ * protocol standards. It checks for malformed requests and updates the response
+ * status accordingly.
  */
 unsigned short HttpRequestParser::parseHttp(const std::string &requestBuf,
 											HttpRequest &httpReq) {
@@ -309,7 +286,7 @@ bool HttpRequestParser::isMethodImplemented(const std::string &method) {
  * @param url The URL string to validate.
  * @return True if the URL is valid according to the specified rules, false otherwise.
  *
- * The validation rules are as follows:
+ * @details The validation rules are as follows:
  * - The URL must start with a '/' character.
  * - Fragment identifiers (indicated by '#') are not allowed.
  * - The URL can contain at most one '?' character.
@@ -414,4 +391,27 @@ void HttpRequestParser::trimNull(std::string &str) {
 		str.clear();
 	else
 		str.resize(pos + 1);
+}
+
+/* ************************************************************************** */
+/*                                 Overloads                                  */
+/* ************************************************************************** */
+
+std::ostream &operator<<(std::ostream &os, const HttpRequest &httpReq) {
+	os << BGRN "HTTP Request:" NC << std::endl;
+	os << BYEL "Method: " NC << method2string(httpReq.method) << std::endl;
+	os << BYEL "URI: " NC << httpReq.uri << std::endl;
+	os << BYEL "Protocol Version: " NC << httpReq.protocolVersion << std::endl;
+	os << BYEL "Headers: " NC << std::endl;
+	std::multimap<std::string, std::string>::const_iterator it;
+	for (it = httpReq.headers.begin(); it != httpReq.headers.end(); ++it)
+		os << "\t" << it->first << ": " << it->second << std::endl;
+	os << BYEL "Query Fields: " NC << std::endl;
+	std::multimap<std::string, std::string>::const_iterator itq;
+	for (it = httpReq.queryParams.begin(); itq != httpReq.queryParams.end();
+		 ++itq)
+		os << "\t" << it->first << ": " << it->second << std::endl;
+	os << BYEL "Body: " NC << std::endl << httpReq.body << std::endl;
+
+	return (os);
 }

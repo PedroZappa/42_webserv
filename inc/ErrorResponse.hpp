@@ -17,7 +17,7 @@
 
 class ErrorResponse : public AResponse {
   public:
-	ErrorResponse(const Server &, const HttpRequest &, short errrorStatus);
+	ErrorResponse(const Server &, const HttpRequest &, short errorStatus);
 	ErrorResponse(const ErrorResponse &);
 	~ErrorResponse();
 

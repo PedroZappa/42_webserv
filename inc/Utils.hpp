@@ -29,7 +29,7 @@ std::string method2string(Method method);
 /// @param num The number to be converted
 /// @return The string
 /// @throws std::invalid_argument if the number cannot be converted
-template <typename T> std::string nToStr(T num) {
+template <typename T> std::string number2string(T num) {
 	std::stringstream ss;
 	ss << num;
 	if (ss.fail() || !ss.eof())
@@ -42,7 +42,7 @@ template <typename T> std::string nToStr(T num) {
 /// @param str The string to convert
 /// @return The number
 /// @throws std::invalid_argument if the string cannot be converted
-template <typename T> T strToN(const std::string &str) {
+template <typename T> T string2number(const std::string &str) {
 	T num;
 	std::stringstream ss(str);
 	ss >> num;

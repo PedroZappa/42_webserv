@@ -14,42 +14,42 @@
 #include "../inc/Utils.hpp"
 #include <sys/socket.h>
 
-bool isRunning = true; // Is server running?
+/**
+ * @brief Global flag indicating if the server is running.
+ */
+bool isRunning = true;
 
 /* ************************************************************************** */
 /*                          Constructor & Destructor                          */
 /* ************************************************************************** */
 
-/// @brief Default constructor
-/// @param servers Vector of servers to add to the cluster
-/// @details Creates a parameterized cluster
+/**
+ * @brief Constructs a Cluster with a given set of servers.
+ *
+ * @param servers Vector of servers to add to the cluster.
+ * @details Initializes the cluster by adding each server and its associated
+ * virtual servers.
+ */
 Cluster::Cluster(const std::vector<Server> &servers)
-	: _servers(), _epollFd(-1)
-{
+	: _servers(), _epollFd(-1) {
 	std::vector<Server>::const_iterator it;
-	for (it = servers.begin(); it != servers.end(); ++it)
-	{
+	for (it = servers.begin(); it != servers.end(); ++it) {
 		_servers.push_back(&(*it)); // Add server to cluster
 		std::vector<Socket> netAddrs = (*it).getNetAddr();
 		std::vector<std::string> names = (*it).getServerName();
 
 		std::vector<Socket>::const_iterator sockIt; // Add virtual servers
-		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt)
-		{
-			if (names.empty())
-			{ // Add nameless virtual server
+		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt) {
+			if (names.empty()) { // Add nameless virtual server
 				struct VirtualServer vs;
 				vs.ip = sockIt->ip;
 				vs.port = sockIt->port;
 				vs.name = "";
 				vs.server = &(*it);
 				_virtualServers.push_back(vs);
-			}
-			else
-			{ // Add named virtual servers
+			} else { // Add named virtual servers
 				std::vector<std::string>::const_iterator nameIt;
-				for (nameIt = names.begin(); nameIt != names.end(); ++nameIt)
-				{
+				for (nameIt = names.begin(); nameIt != names.end(); ++nameIt) {
 					struct VirtualServer vs;
 					vs.ip = sockIt->ip;
 					vs.port = sockIt->port;
@@ -62,9 +62,12 @@ Cluster::Cluster(const std::vector<Server> &servers)
 	}
 }
 
-///@brief Default destructor
-Cluster::~Cluster()
-{
+/**
+ * @brief Destroys the Cluster, closing all associated resources.
+ *
+ * @details Closes the epoll instance and all listening sockets.
+ */
+Cluster::~Cluster() {
 	// Close epoll instance
 	if (_epollFd != -1)
 		close(_epollFd);
@@ -78,19 +81,27 @@ Cluster::~Cluster()
 /*                                 Operators                                  */
 /* ************************************************************************** */
 
-/// @brief Index operator
-/// @param idx The index to get
-/// @throw std::out_of_range if the index is out of range
-/// @details Returns the server at the specified index
-const Server &Cluster::operator[](size_t idx) const
-{
+/**
+ * @brief Accesses a server by index.
+ *
+ * @param idx The index of the server to access.
+ * @return const Server& Reference to the server at the specified index.
+ * @throw std::out_of_range if the index is out of range.
+ */
+const Server &Cluster::operator[](size_t idx) const {
 	if (idx >= _servers.size())
 		throw std::out_of_range("Index out of range");
 	return (*_servers[idx]);
 }
 
-std::ostream &operator<<(std::ostream &os, const Cluster &cluster)
-{
+/**
+ * @brief Overloads the << operator to output Cluster information.
+ *
+ * @param os The output stream.
+ * @param cluster The Cluster object to output.
+ * @return std::ostream& The output stream with Cluster information.
+ */
+std::ostream &operator<<(std::ostream &os, const Cluster &cluster) {
 	// Print basic cluster information
 	os << "Cluster Info:\n";
 
@@ -98,16 +109,14 @@ std::ostream &operator<<(std::ostream &os, const Cluster &cluster)
 	os << "Virtual Servers:\n";
 	const std::vector<Cluster::VirtualServer> &virtualServers =
 		cluster.getVirtualServers();
-	for (size_t i = 0; i < virtualServers.size(); ++i)
-	{
+	for (size_t i = 0; i < virtualServers.size(); ++i) {
 		os << "  [" << i << "] " << virtualServers[i] << "\n";
 	}
 
 	// Print Listening Sockets
 	os << "Listening Sockets:\n";
 	const std::vector<int> &listeningSockets = cluster.getListeningSockets();
-	for (size_t i = 0; i < listeningSockets.size(); ++i)
-	{
+	for (size_t i = 0; i < listeningSockets.size(); ++i) {
 		os << "  [" << i << "] " << listeningSockets[i] << "\n";
 	}
 
@@ -117,12 +126,14 @@ std::ostream &operator<<(std::ostream &os, const Cluster &cluster)
 	return (os);
 }
 
-/// @brief Overload the << operator for the Cluster::VirtualServer class
-/// @param os The output stream
-/// @param server The VirtualServer object
-/// @return The output stream
-std::ostream &operator<<(std::ostream &os, const Cluster::VirtualServer &server)
-{
+/**
+ * @brief Overloads the << operator to output VirtualServer information.
+ *
+ * @param os The output stream.
+ * @param server The VirtualServer object to output.
+ * @return std::ostream& The output stream with VirtualServer information.
+ */
+std::ostream &operator<<(std::ostream &os, const Cluster::VirtualServer &server) {
 	os << "VirtualServer(Name: " << server.name << ", IP: " << server.ip
 	   << ", Port: " << server.port << ")";
 	return (os);
@@ -132,10 +143,12 @@ std::ostream &operator<<(std::ostream &os, const Cluster::VirtualServer &server)
 /*                                  Checkers                                  */
 /* ************************************************************************** */
 
-/// @brief Checks if the cluster has duplicate virtual servers
-/// @return True if the cluster has duplicate virtual servers, false otherwise
-bool Cluster::hasDuplicates(void) const
-{
+/**
+ * @brief Checks for duplicate virtual servers in the cluster.
+ *
+ * @return true if duplicates exist, false otherwise.
+ */
+bool Cluster::hasDuplicates(void) const {
 	std::set<const Server *> servers(_servers.begin(), _servers.end());
 	return (servers.size() != _servers.size());
 }
@@ -144,9 +157,13 @@ bool Cluster::hasDuplicates(void) const
 /*                                   Setup                                    */
 /* ************************************************************************** */
 
-/// @brief Sets up the cluster's listening sockets
-void Cluster::setup(void)
-{
+/**
+ * @brief Sets up the cluster's listening sockets and epoll instance.
+ *
+ * @details Initializes the epoll instance and configures all virtual server
+ * sockets for listening.
+ */
+void Cluster::setup(void) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "Starting Cluster Setup");
 #endif
@@ -155,8 +172,7 @@ void Cluster::setup(void)
 	std::set<Socket> sockets = getVirtualServerSockets();
 	std::set<Socket>::const_iterator it; // To iterate through sockets
 
-	for ((it = sockets.begin()); (it != sockets.end()); ++it)
-	{
+	for ((it = sockets.begin()); (it != sockets.end()); ++it) {
 		Socket addr(it->ip, it->port);
 		int fd = setSocket(it->ip, it->port);
 		startListen(fd);
@@ -168,9 +184,12 @@ void Cluster::setup(void)
 #endif
 }
 
-/// @brief Creates an epoll instance
-void Cluster::setEpollFd(void)
-{
+/**
+ * @brief Creates an epoll instance for the cluster.
+ *
+ * @throw std::runtime_error if the epoll instance cannot be created.
+ */
+void Cluster::setEpollFd(void) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "creating epoll instance");
 #endif
@@ -186,10 +205,12 @@ void Cluster::setEpollFd(void)
 #endif
 }
 
-/// @brief Gets the virtual server sockets
-/// @details Returns a set of interest sockets
-std::set<Socket> Cluster::getVirtualServerSockets(void)
-{
+/**
+ * @brief Retrieves the set of sockets for all virtual servers.
+ *
+ * @return std::set<Socket> A set of sockets representing the virtual servers.
+ */
+std::set<Socket> Cluster::getVirtualServerSockets(void) {
 	std::vector<VirtualServer> virtualServers = getVirtualServers();
 	std::set<std::string> portsToDelete;
 
@@ -207,23 +228,25 @@ std::set<Socket> Cluster::getVirtualServerSockets(void)
 
 	std::set<Socket> serversInterestList;
 	std::vector<VirtualServer>::const_iterator vsit3;
-	for (vsit3 = virtualServers.begin(); vsit3 != virtualServers.end(); ++vsit3)
-	{
+	for (vsit3 = virtualServers.begin(); vsit3 != virtualServers.end(); ++vsit3) {
 		Socket addr(vsit3->ip, vsit3->port);
 		serversInterestList.insert(addr);
 	}
 	return (serversInterestList);
 }
 
-/// @brief Sets a socket
-/// @param ip The IP address of the socket
-/// @param port The port of the socket
-/// @throw std::runtime_error if the socket could not be created
-/// @return The socket file descriptor
-int Cluster::setSocket(const std::string &ip, const std::string &port)
-{
+/**
+ * @brief Configures a socket for a given IP and port.
+ *
+ * @param ip The IP address for the socket.
+ * @param port The port for the socket.
+ * @return int The file descriptor of the configured socket.
+ * @throw std::runtime_error if the socket cannot be created or bound.
+ */
+int Cluster::setSocket(const std::string &ip, const std::string &port) {
 #ifdef DEBUG
-	Logger::debug("Cluster", __func__, "setting up socket: " YEL + ip + ":" + port + NC);
+	Logger::debug(
+		"Cluster", __func__, "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
 
 	// Setup Socket
@@ -241,22 +264,18 @@ int Cluster::setSocket(const std::string &ip, const std::string &port)
 	struct sockaddr_in addr;
 	std::memset(&addr, '\0', sizeof(addr));
 	addr.sin_family = AF_INET; // Set IPv4
-	if (ip == "0.0.0.0")	   // Bind to all avaliable interfaces
+	if (ip == "0.0.0.0")       // Bind to all avaliable interfaces
 		addr.sin_addr.s_addr = INADDR_ANY;
-	else if (ip == "localhost")
-	{
+	else if (ip == "localhost") {
 		if (inet_aton("127.0.0.1", &addr.sin_addr) == 0)
 			throw std::runtime_error("inet_addr: Invalid IP address");
-	}
-	else
-	{
+	} else {
 		if (inet_aton(ip.c_str(), &addr.sin_addr) == 0)
 			throw std::runtime_error("inet_addr: Invalid IP address");
 	}
-	addr.sin_port = htons(strToN<int>(port));
+	addr.sin_port = htons(string2number<int>(port));
 
-	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
-	{
+	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
 		close(fd);
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to bind socket to address: " + reason);
@@ -264,30 +283,36 @@ int Cluster::setSocket(const std::string &ip, const std::string &port)
 
 #ifdef DEBUG
 	std::cout << "socket created with fd: " BLU << fd << NC << std::endl;
-	Logger::debug("Cluster", __func__, "setting up socket: " YEL + ip + ":" + port + NC);
+	Logger::debug(
+		"Cluster", __func__, "setting up socket: " YEL + ip + ":" + port + NC);
 #endif
 
 	return (fd);
 }
 
-/// @brief Listens on a socket
-/// @param socket The socket to listen on
-/// @throw std::runtime_error if the socket could not be listened on
-void Cluster::startListen(int socket)
-{
-	if (listen(socket, SOMAXCONN) == -1)
-	{
+/**
+ * @brief Begins listening on a specified socket.
+ *
+ * @param socket The socket file descriptor to listen on.
+ * @throw std::runtime_error if the socket cannot be listened on.
+ */
+void Cluster::startListen(int socket) {
+	if (listen(socket, SOMAXCONN) == -1) {
 		close(socket);
 		throw std::runtime_error("Failed to listen on socket");
 	}
 }
-/// @brief Sets a socket in the epoll instance
-/// @param socket The socket to set
-/// @throw std::runtime_error if the socket could not be added to the epoll instance
-void Cluster::setEpollSocket(int socket)
-{
+
+/**
+ * @brief Adds a socket to the epoll instance for monitoring.
+ *
+ * @param socket The socket file descriptor to add.
+ * @throw std::runtime_error if the socket cannot be added to the epoll instance.
+ */
+void Cluster::setEpollSocket(int socket) {
 #ifdef DEBUG
-	Logger::debug("Cluster", __func__, "adding socket (epoll_event) to epoll instance");
+	Logger::debug(
+		"Cluster", __func__, "adding socket (epoll_event) to epoll instance");
 #endif
 
 	epoll_event ee;
@@ -295,8 +320,7 @@ void Cluster::setEpollSocket(int socket)
 	ee.events = EPOLLIN;
 	ee.data.fd = socket;
 
-	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, socket, &ee) == -1)
-	{
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, socket, &ee) == -1) {
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to add socket to epoll instance: " +
 								 reason);
@@ -304,7 +328,8 @@ void Cluster::setEpollSocket(int socket)
 
 #ifdef DEBUG
 	std::cout << "epoll_event added with fd: " BLU << socket << NC << std::endl;
-	Logger::debug("Cluster", __func__, "adding socket (epoll_event) to epoll instance");
+	Logger::debug(
+		"Cluster", __func__, "adding socket (epoll_event) to epoll instance");
 #endif
 }
 
@@ -312,32 +337,30 @@ void Cluster::setEpollSocket(int socket)
 /*                                    Run                                     */
 /* ************************************************************************** */
 
-/// @brief Start the cluster
-void Cluster::run(void)
-{
+/**
+ * @brief Starts the cluster's main event loop.
+ *
+ * @details Continuously monitors and handles events on the cluster's sockets.
+ */
+void Cluster::run(void) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "Started running cluster");
 #endif
 
 	std::vector<struct epoll_event> events(MAX_CLIENTS);
-	while (isRunning)
-	{
-		try
-		{
+	while (isRunning) {
+		try {
 			int nEvents = epoll_wait(_epollFd, &events[0], MAX_CLIENTS, -1);
 			if ((nEvents == -1) && (errno == EINTR)) // Loop exit condition
 				continue;
-			else if (nEvents == -1)
-			{
+			else if (nEvents == -1) {
 				std::string reason = std::strerror(errno);
 				throw std::runtime_error("epoll_wait failed: " + reason);
 			}
 
-			for (long i = 0; i < nEvents; ++i)
-			{
+			for (long i = 0; i < nEvents; ++i) {
 				int socket = events[i].data.fd;
-				if (events[i].events & EPOLLERR)
-				{
+				if (events[i].events & EPOLLERR) {
 					killConnection(socket, _epollFd);
 					continue;
 				}
@@ -346,9 +369,7 @@ void Cluster::run(void)
 				else if (events[i].events & EPOLLIN)
 					handleRequest(socket);
 			}
-		}
-		catch (const std::exception &e)
-		{
+		} catch (const std::exception &e) {
 			Logger::error(e.what());
 		}
 	}
@@ -358,33 +379,40 @@ void Cluster::run(void)
 #endif
 }
 
-void Cluster::stop(void)
-{
+/**
+ * @brief Stops the cluster's main event loop.
+ *
+ * @details Sets the running flag to false, signaling the loop to exit.
+ */
+void Cluster::stop(void) {
 	Logger::warn("Stop triggered. Webserv will stop in moments...");
 	isRunning = false;
 }
 
-/// @brief Checks if a socket is listening
-/// @param socket The socket to check
-/// @return true if the socket is listening, false otherwise
-bool Cluster::isSocketListening(int socket) const
-{
+/**
+ * @brief Checks if a socket is currently listening.
+ *
+ * @param socket The socket file descriptor to check.
+ * @return true if the socket is listening, false otherwise.
+ */
+bool Cluster::isSocketListening(int socket) const {
 	return (std::find(_listenSockets.begin(), _listenSockets.end(), socket) !=
 			_listenSockets.end());
 }
 
-/// @brief Sets up a new connection
-/// @param socket The socket to set up
-/// @throw std::runtime_error if the connection could not be set up
-void Cluster::setupConnection(int socket)
-{
+/**
+ * @brief Sets up a new client connection on a listening socket.
+ *
+ * @param socket The listening socket file descriptor.
+ * @throw std::runtime_error if the connection cannot be established.
+ */
+void Cluster::setupConnection(int socket) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "Setting up connection");
 #endif
 
 	int clientFd = accept(socket, NULL, NULL);
-	if (clientFd == -1)
-	{
+	if (clientFd == -1) {
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to accept connection: " + reason);
 	}
@@ -395,8 +423,7 @@ void Cluster::setupConnection(int socket)
 	std::memset(&ee, '\0', sizeof(ee));
 	ee.events = (EPOLLIN | EPOLLOUT | EPOLLET);
 	ee.data.fd = clientFd;
-	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, clientFd, &ee) == -1)
-	{
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, clientFd, &ee) == -1) {
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to add client socket to epoll "
 								 "instance: " +
@@ -410,53 +437,49 @@ void Cluster::setupConnection(int socket)
 #endif
 }
 
-/// @brief Sets a socket to non-blocking
-/// @param socket The socket to set
-/// @throw std::runtime_error if the socket could not be set to non-blocking
-void Cluster::setSocketToNonBlocking(int socket)
-{
+/**
+ * @brief Configures a socket to operate in non-blocking mode.
+ *
+ * @param socket The socket file descriptor to configure.
+ * @throw std::runtime_error if the socket cannot be set to non-blocking.
+ */
+void Cluster::setSocketToNonBlocking(int socket) {
 	int flags = fcntl(socket, F_GETFL, 0);
-	if ((flags == -1) || fcntl(socket, F_SETFL, flags | O_NONBLOCK) == -1)
-	{
+	if ((flags == -1) || fcntl(socket, F_SETFL, flags | O_NONBLOCK) == -1) {
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to set socket to non-blocking: " +
 								 reason);
 	}
 }
 
-/// @brief Handles a request
-/// @param socket The socket to handle
-void Cluster::handleRequest(int socket)
-{
+/**
+ * @brief Handles incoming requests on a socket.
+ *
+ * @param socket The socket file descriptor to handle requests on.
+ * @details Reads data from the socket and processes valid requests.
+ */
+void Cluster::handleRequest(int socket) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "Handling request");
 #endif
 
 	char requestBuf[REQ_BUFF_SIZE] = {};
 	ssize_t bytesRead = recv(socket, requestBuf, REQ_BUFF_SIZE, 0);
-	if (bytesRead < 0)
-	{
+	if (bytesRead < 0) {
 		killConnection(socket, _epollFd);
 		std::string reason = std::strerror(errno);
 		throw std::runtime_error("Failed to read request: " + reason);
-	}
-	else if (bytesRead == 0)
-	{
+	} else if (bytesRead == 0) {
 		if (!_requestBuff[socket].empty())
 			processRequest(socket, _requestBuff[socket]);
 		killConnection(socket, _epollFd);
 		return;
-	}
-	else
-	{
+	} else { // Handle request
 		_requestBuff[socket].append(requestBuf, bytesRead);
-		if (isRequestValid(_requestBuff[socket]))
-		{
+		if (isRequestValid(_requestBuff[socket])) {
 			processRequest(socket, _requestBuff[socket]);
 			_requestBuff.erase(socket); // clear current connect's request buffer
-		}
-		else
-		{ // If request is not valid, reset the socket
+		} else { // If request is not valid, reset the socket
 			struct epoll_event ee;
 			std::memset(&ee, '\0', sizeof(ee));
 			ee.events = (EPOLLIN | EPOLLOUT | EPOLLHUP);
@@ -473,17 +496,48 @@ void Cluster::handleRequest(int socket)
 #endif
 }
 
-/// @brief Checks if a request is valid
-/// @param request The request to check
-/// @return true if the request is valid, false otherwise
-bool Cluster::isRequestValid(const std::string &request) const
-{
+/**
+ * @brief Validates an incoming request.
+ *
+ * @param request The request string to validate.
+ * @return true if the request is valid, false otherwise.
+ */
+bool Cluster::isRequestValid(const std::string &request) const {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "checking if request is valid");
 #endif
 
-	// TODO: GO GABRIEL GO!!
-	(void)request;
+	// Extract Headers
+	std::size_t headerEnd = request.find("\r\n\r\n");
+	if (headerEnd == std::string::npos)
+		return (false); // Incomplete Headers
+
+	std::string headers = request.substr(0, headerEnd);
+	if (headers.empty())
+		return (false); // Empty Headers
+
+	// Check for `Content-Length`
+	std::size_t contentLengthPos = headers.find("Content-Length:");
+	if (contentLengthPos != std::string::npos) {
+		std::size_t contentLengthStart =
+			(contentLengthPos + std::string("Content-Length:").length());
+		std::size_t contentLengthEnd = headers.find("\r\n", contentLengthStart);
+		if (contentLengthEnd != std::string::npos) {
+			std::string contentLengthStr = headers.substr(
+				contentLengthStart, contentLengthEnd - contentLengthStart);
+			std::size_t contentLength =
+				string2number<std::size_t>(contentLengthStr);
+			// +4 to account for \r\n\r\n
+			return (request.size() >= (headerEnd + 4 + contentLength));
+		}
+	}
+	// Check for `Transfer-Encoding: chunked`
+	if (headers.find("Transfer-Encoding: chunked") != std::string::npos)
+		// Look for end of chunked transfer
+		return (request.find("0\r\n\r\n") != std::string::npos);
+
+	// Assumme request is complete if no `Content-Length` or
+	// `Transfer-Encoding: chunked` is present
 	return (true);
 
 #ifdef DEBUG
@@ -491,11 +545,14 @@ bool Cluster::isRequestValid(const std::string &request) const
 #endif
 }
 
-/// @brief Processes a request
-/// @param socket The socket to process
-/// @param request The request to process
-void Cluster::processRequest(int socket, const std::string &request)
-{
+/**
+ * @brief Processes a valid request.
+ *
+ * @param socket The socket file descriptor associated with the request.
+ * @param request The request string to process.
+ * @details This function is a placeholder for request processing logic.
+ */
+void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "processing request");
 #endif
@@ -509,26 +566,26 @@ void Cluster::processRequest(int socket, const std::string &request)
 	Logger::debug("Cluster", __func__, "request Processed");
 #endif
 }
-/// @brief Kills a connection
-/// @param socket The socket to kill
-/// @param epollFd The epoll instance to remove the socket from
-void Cluster::killConnection(int socket, int epollFd)
-{
+/**
+ * @brief Terminates a connection and removes it from the epoll instance.
+ *
+ * @param socket The socket file descriptor to close.
+ * @param epollFd The epoll instance file descriptor.
+ * @throw std::runtime_error if the socket cannot be removed from the epoll instance.
+ */
+void Cluster::killConnection(int socket, int epollFd) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "killing connection");
 #endif
 
 	close(socket);
-	if (epoll_ctl(epollFd, EPOLL_CTL_DEL, socket, NULL) == -1)
-	{
+	if (epoll_ctl(epollFd, EPOLL_CTL_DEL, socket, NULL) == -1) {
 		std::string reason = std::strerror(errno);
-		throw std::runtime_error("Failed to remove socket from epoll: " +
-								 reason);
+		throw std::runtime_error("Failed to remove socket from epoll: " + reason);
 	}
 
 #ifdef DEBUG
-	std::cout << "epoll_event removed with fd: " BLU << socket << NC
-			  << std::endl;
+	std::cout << "epoll_event removed with fd: " BLU << socket << NC << std::endl;
 	Logger::debug("Cluster", __func__, "connection killed");
 #endif
 }
@@ -537,30 +594,38 @@ void Cluster::killConnection(int socket, int epollFd)
 /*                                  Getters */
 /* ************************************************************************** */
 
-/// @brief Gets the virtual servers
-/// @return A vector of virtual servers
-std::vector<Cluster::VirtualServer> Cluster::getVirtualServers(void) const
-{
+/**
+ * @brief Retrieves the list of virtual servers in the cluster.
+ *
+ * @return std::vector<VirtualServer> A vector of virtual servers.
+ */
+std::vector<Cluster::VirtualServer> Cluster::getVirtualServers(void) const {
 	return (_virtualServers);
 }
 
-/// @brief Gets the servers
-/// @return A vector of servers
-const std::vector<const Server *> &Cluster::getServers(void) const
-{
+/**
+ * @brief Retrieves the list of servers in the cluster.
+ *
+ * @return const std::vector<const Server*>& A reference to the vector of servers.
+ */
+const std::vector<const Server *> &Cluster::getServers(void) const {
 	return (_servers);
 }
 
-/// @brief Gets the listen sockets
-/// @return A vector of listen sockets
-const std::vector<int> &Cluster::getListeningSockets(void) const
-{
+/**
+ * @brief Retrieves the list of listening sockets.
+ *
+ * @return const std::vector<int>& A reference to the vector of listening sockets.
+ */
+const std::vector<int> &Cluster::getListeningSockets(void) const {
 	return (_listenSockets);
 }
 
-/// @brief Gets epoll instance fd
-/// @return epoll instance fd
-int Cluster::getEpollFd(void) const
-{
+/**
+ * @brief Retrieves the file descriptor of the epoll instance.
+ *
+ * @return int The epoll instance file descriptor.
+ */
+int Cluster::getEpollFd(void) const {
 	return (_epollFd);
 }

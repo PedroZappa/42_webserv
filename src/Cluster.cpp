@@ -22,7 +22,10 @@
 
 #include "../inc/Cluster.hpp"
 #include "../inc/Utils.hpp"
-#include <sys/socket.h>
+#include "../inc/ErrorResponse.hpp"
+// #include "../inc/GetResponse.hpp"
+// #include "../inc/PostResponse.hpp"
+// #include "../inc/deleteResponse.hpp"
 
 /**
  * @brief Global flag indicating if the server is running.
@@ -560,7 +563,7 @@ bool Cluster::isRequestValid(const std::string &request) const {
  *
  * @param socket The socket file descriptor associated with the request.
  * @param request The request string to process.
- * @details 
+ * @details
  */
 void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
@@ -588,7 +591,28 @@ const std::string getResponse(HttpRequest &request,
 							  int socket) {
 	AResponse *responseControl;
 
-	
+	const Server *server = getContext(request, socket);
+	if (errorStatus != OK)
+		responseControl = new ErrorResponse(*server, errorStatus);
+	else {
+		switch (static_cast<int>(request.method)) {
+		case GET:
+			responseControl = new GetResponse(*server, request);
+			break;
+		case POST:
+			responseControl = new PostResponse(*server, request);
+			break;
+		case DELETE:
+			responseControl = new DeleteResponse(*server, request);
+			break;
+		}
+	}
+	std::string response = responseControl->generateResponse();
+	delete responseControl;
+	return (response);
+}
+
+const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 }
 
 /**
@@ -655,4 +679,3 @@ int Cluster::getEpollFd(void) const {
 	return (_epollFd);
 }
 /** @} */
-

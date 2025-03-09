@@ -408,9 +408,8 @@ std::ostream &operator<<(std::ostream &os, const HttpRequest &httpReq) {
 		os << "\t" << it->first << ": " << it->second << std::endl;
 	os << BYEL "Query Fields: " NC << std::endl;
 	std::multimap<std::string, std::string>::const_iterator itq;
-	for (it = httpReq.queryParams.begin(); itq != httpReq.queryParams.end();
-		 ++itq)
-		os << "\t" << it->first << ": " << it->second << std::endl;
+	for (itq = httpReq.queryParams.begin(); itq != httpReq.queryParams.end(); ++itq)
+		os << "\t" << itq->first << ": " << itq->second << std::endl;
 	os << BYEL "Body: " NC << std::endl << httpReq.body << std::endl;
 
 	return (os);

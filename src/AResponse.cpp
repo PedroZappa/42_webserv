@@ -31,5 +31,6 @@ AResponse::~AResponse() {}
 
 const AResponse &AResponse::operator=(const AResponse &other) {
 	(void)other;
+	// Assignment intentionally does nothing for abstract base class
 	return (*this);
 }

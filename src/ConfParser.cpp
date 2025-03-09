@@ -16,22 +16,42 @@
 /* ************************************************************************** */
 /*                                Constructors                                */
 /* ************************************************************************** */
+
+/**
+ * @brief Default constructor for ConfParser.
+ */
 ConfParser::ConfParser(void) { }
 
+/**
+ * @brief Constructs a ConfParser with a specified configuration file.
+ * @param confFile The path to the configuration file.
+ */
 ConfParser::ConfParser(const std::string &confFile)
 	: _confFile(confFile) { }
 
+/**
+ * @brief Copy constructor for ConfParser.
+ * @param copy The ConfParser object to copy from.
+ */
 ConfParser::ConfParser(const ConfParser &copy)
 {
 	*this = copy;
 }
 
+/**
+ * @brief Destructor for ConfParser.
+ */
 ConfParser::~ConfParser(void) { }
 
 /* ************************************************************************** */
 /*                                 Operators                                  */
 /* ************************************************************************** */
 
+/**
+ * @brief Assignment operator for ConfParser.
+ * @param src The ConfParser object to assign from.
+ * @return A reference to the assigned ConfParser object.
+ */
 ConfParser &ConfParser::operator=(const ConfParser &src)
 {
 	if (this == &src) return (*this);
@@ -46,8 +66,10 @@ ConfParser &ConfParser::operator=(const ConfParser &src)
 /*                                  Parsing                                   */
 /* ************************************************************************** */
 
-/// @brief Loads the config file and parses it into a vector of servers
-/// @throws std::runtime_error if the config file cannot be opened
+/**
+ * @brief Loads the configuration file and parses it into a vector of servers.
+ * @throws std::runtime_error if the configuration file cannot be opened or is empty.
+ */
 void ConfParser::loadConf(void)
 {
 	Logger::info("Attemping to load config from file '" + _confFile + "'");
@@ -94,8 +116,10 @@ void ConfParser::loadConf(void)
 	Logger::info(ss.str());
 }
 
-/// @brief Removes comments from the config file
-/// @param file The config file to remove comments from
+/**
+ * @brief Removes comments from the configuration file.
+ * @param file The configuration file content to remove comments from.
+ */
 void ConfParser::removeComments(std::string &file)
 {
 	if (file.empty()) return;
@@ -107,8 +131,10 @@ void ConfParser::removeComments(std::string &file)
 	}
 }
 
-/// @brief Removes spaces from the config file
-/// @param file The config file to remove spaces from
+/**
+ * @brief Removes spaces from the configuration file.
+ * @param file The configuration file content to remove spaces from.
+ */
 void ConfParser::removeSpaces(std::string &file)
 {
 	std::string line;
@@ -134,9 +160,11 @@ void ConfParser::removeSpaces(std::string &file)
 		file.erase(file.length() - 1);
 }
 
-/// @brief Tokenizes a string into a vector of strings
-/// @param line The string to tokenize
-/// @return A vector of strings
+/**
+ * @brief Tokenizes a string into a vector of strings.
+ * @param line The string to tokenize.
+ * @return A vector of tokenized strings.
+ */
 std::vector<std::string> ConfParser::tokenizer(std::string &line)
 {
 #ifdef DEBUG
@@ -156,9 +184,12 @@ std::vector<std::string> ConfParser::tokenizer(std::string &line)
 	return (tks);
 }
 
-/// @brief Gets the server blocks from the config file
-/// @param file The config file to get the server blocks from
-/// @return A vector of server blocks
+/**
+ * @brief Extracts server blocks from the configuration file content.
+ * @param file The configuration file content.
+ * @return A vector of server block strings.
+ * @throws std::runtime_error if a server block is invalid.
+ */
 std::vector<std::string> ConfParser::getServerBlocks(std::string &file)
 {
 #ifdef DEBUG
@@ -207,10 +238,13 @@ std::vector<std::string> ConfParser::getServerBlocks(std::string &file)
 	return (servers);
 }
 
-/// @brief Gets the end of a server block
-/// @param file The config file to get the end of the server block from
-/// @param start The start of the server block
-/// @return The end of the server block
+/**
+ * @brief Finds the end of a server block in the configuration file content.
+ * @param file The configuration file content.
+ * @param start The starting position of the server block.
+ * @return The position of the end of the server block.
+ * @throws std::runtime_error if the server block is not properly closed.
+ */
 size_t ConfParser::getBlockEnd(std::string &file, size_t start)
 {
 #ifdef DEBUG
@@ -237,8 +271,11 @@ size_t ConfParser::getBlockEnd(std::string &file, size_t start)
 	throw std::runtime_error("Invalid server block: no '}' at end");
 }
 
-/// @brief Loads the context from the config file
-/// @param blocks The server blocks to load the context from
+/**
+ * @brief Loads the context from server blocks.
+ * @param blocks The server blocks to load the context from.
+ * @throws std::runtime_error if a server block is invalid or has no root.
+ */
 void ConfParser::loadContext(std::vector<std::string> &blocks)
 {
 #ifdef DEBUG
@@ -296,16 +333,20 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 /*                                  Getters                                   */
 /* ************************************************************************** */
 
-/// @brief Returns the vector of servers
-/// @return A vector of Server objects
+/**
+ * @brief Retrieves the vector of servers.
+ * @return A vector of Server objects.
+ */
 std::vector<Server> ConfParser::getServers(void) const
 {
 	return (_servers);
 }
 
-/// @brief Returns the identifier of a server block
-/// @param str The string to get the identifier from
-/// @return The identifier of the server block
+/**
+ * @brief Extracts the identifier from a string.
+ * @param str The string to extract the identifier from.
+ * @return The extracted identifier.
+ */
 std::string ConfParser::getIdentifier(const std::string &str)
 {
 	std::string token;
@@ -326,6 +367,11 @@ std::string ConfParser::getIdentifier(const std::string &str)
 /*                                   Debug                                    */
 /* ************************************************************************** */
 
+/**
+ * @brief Debugs the server locations by printing them.
+ * @param serverN The server number.
+ * @param route The route of the server location.
+ */
 void ConfParser::debugServerLocations(size_t serverN, const std::string &route)
 {
 	std::cout << "Server " << serverN << " location: " << route << std::endl;

@@ -1,3 +1,13 @@
+/**
+ * @defgroup ClusterModule Cluster Management Module
+ * @{
+ *
+ * This module handles the management and operation of server clusters,
+ * including setup, event handling, and connection management.
+ *
+ * @version 1.0
+ */
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -641,3 +651,5 @@ const std::vector<int> &Cluster::getListeningSockets(void) const {
 int Cluster::getEpollFd(void) const {
 	return (_epollFd);
 }
+/** @} */
+

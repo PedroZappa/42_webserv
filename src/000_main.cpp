@@ -5,10 +5,30 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/23 10:08:08 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:35:43 by passunca         ###   ########.fr       */
+/*   Created: 2025/03/09 12:29:52 by passunca          #+#    #+#             */
+/*   Updated: 2025/03/09 12:29:59 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+/**
+ * @defgroup main
+ * @{
+ *
+ * @brief Brief description of this module or group.
+ * @version 1.0
+ */
+
+/**
+ * @file 000_main.cpp
+ * @brief Entry point for the Webserv application.
+ * 
+ * This file contains the main function which initializes and runs the Webserv application.
+ * It handles configuration parsing, signal handling, and server cluster management.
+ * 
+ * @version 1.0
+ * @date 2025-01-10
+ * @author passunca
+ */
 
 #include "../inc/Webserv.hpp"
 #include "../inc/Logger.hpp"
@@ -16,9 +36,26 @@
 #include "../inc/Server.hpp"
 #include "../inc/Cluster.hpp"
 
+/**
+ * @brief Global pointer to the Cluster instance.
+ * 
+ * This pointer is used to manage the server cluster and handle signals.
+ */
 Cluster *cluster = NULL;
+
 void handleSignal(int code);
 
+/**
+ * @brief Main function for the Webserv application.
+ * 
+ * This function initializes the Webserv application, parses the configuration file,
+ * sets up the server cluster, and starts handling requests. It also manages signal
+ * handling for graceful shutdown.
+ * 
+ * @param argc The number of command-line arguments.
+ * @param argv The array of command-line arguments.
+ * @return int Returns EXIT_SUCCESS on successful execution, EXIT_FAILURE otherwise.
+ */
 int main(int argc, char **argv)
 {
 	// Validate input arguments
@@ -94,6 +131,14 @@ int main(int argc, char **argv)
 	return (EXIT_SUCCESS);
 }
 
+/**
+ * @brief Handles the SIGINT signal to stop the server cluster.
+ * 
+ * This function is triggered when a SIGINT signal is received. It ensures that
+ * the server cluster is stopped gracefully if it is active.
+ * 
+ * @param code The signal code received.
+ */
 void handleSignal(int code)
 {
 	(void)code;
@@ -106,3 +151,5 @@ void handleSignal(int code)
 	std::cout << "\n";
 	cluster->stop();
 }
+/** @} */
+

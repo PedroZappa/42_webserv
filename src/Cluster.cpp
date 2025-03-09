@@ -586,6 +586,9 @@ void Cluster::processRequest(int socket, const std::string &request) {
 const std::string getResponse(HttpRequest &request,
 							  unsigned short &errorStatus,
 							  int socket) {
+	AResponse *responseControl;
+
+	
 }
 
 /**

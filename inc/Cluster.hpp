@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 12:12:24 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:25:43 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/09 19:14:56 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "HttpParser.hpp"
 #include "Server.hpp"
+#include "AResponse.hpp"
 
 class Server;
 

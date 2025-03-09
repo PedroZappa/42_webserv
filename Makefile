@@ -6,7 +6,7 @@
 #    By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/14 12:26:53 by passunca          #+#    #+#              #
-#    Updated: 2025/03/08 19:19:35 by passunca         ###   ########.fr        #
+#    Updated: 2025/03/09 19:10:06 by passunca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,6 +49,7 @@ FILES			+= Utils.cpp
 FILES			+= Location.cpp
 FILES			+= Cluster.cpp
 FILES			+= HttpParser.cpp
+FILES			+= AResponse.cpp
 
 FILES += Logger.cpp
 

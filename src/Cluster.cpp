@@ -550,22 +550,34 @@ bool Cluster::isRequestValid(const std::string &request) const {
  *
  * @param socket The socket file descriptor associated with the request.
  * @param request The request string to process.
- * @details This function is a placeholder for request processing logic.
+ * @details 
  */
 void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "processing request");
 #endif
 
-	// TODO: process request
-	// Go GABRIEL GO!!
-	(void)socket;
-	(void)request;
+	HttpRequest req;
+	unsigned short errorStatus = HttpRequestParser::parseHttp(request, req);
+	std::string response = getResponse(req, errorStatus, socket);
+
+	ssize_t toSend = send(socket, request.c_str(), request.size(), 0);
+	if (toSend == -1) {
+		killConnection(socket, _epollFd);
+	}
+
+	killConnection(socket, _epollFd);
 
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "request Processed");
 #endif
 }
+
+const std::string getResponse(HttpRequest &request,
+							  unsigned short &errorStatus,
+							  int socket) {
+}
+
 /**
  * @brief Terminates a connection and removes it from the epoll instance.
  *

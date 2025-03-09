@@ -13,6 +13,7 @@
 #ifndef CLUSTER_HPP
 #define CLUSTER_HPP
 
+#include "HttpParser.hpp"
 #include "Server.hpp"
 
 class Server;
@@ -74,8 +75,11 @@ class Cluster {
 	void setupConnection(int socket);
 	void setSocketToNonBlocking(int socket);
 	void handleRequest(int socket);
-	bool isRequestValid(const std::string &requestBuf) const; // TODO: GO Gabriel GO!!
-	void processRequest(int socket, const std::string &requestBuf); // TODO: GO Gabriel GO!!
+	bool isRequestValid(const std::string &requestBuf) const;
+	void processRequest(int socket, const std::string &requestBuf);
+	const std::string getResponse(HttpRequest &request,
+								  unsigned short &errorStatus,
+								  int socket);
 	void killConnection(int socket, int epollFd);
 
 	// Unnused Constructors & Operators

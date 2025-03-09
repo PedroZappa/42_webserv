@@ -27,7 +27,7 @@ private:
 	short _errorStatus;
 
 	ErrorResponse();
-	ErrorResponse &operator=(const ErrorResponse &);
+	const ErrorResponse &operator=(const ErrorResponse &);
 };
 
 #endif

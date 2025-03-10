@@ -93,7 +93,7 @@ short GetResponse::loadFile(std::string &path) {
 			if (getTime(it->second) <= getTime(lastModified))
 				return (NOT_MODIFIED);
 		}
-		// Load File'a body
+		// Load file content into the response body
 		_response.body.assign((std::istreambuf_iterator<char>(file)),
 							  (std::istreambuf_iterator<char>()));
 		file.close();

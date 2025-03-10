@@ -641,9 +641,9 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	std::string hostname = getHostnameFromRequest(request);
 	size_t colonPos = hostname.find_first_of(":");
 	if (colonPos != std::string::npos)
-		hostname = hostname.substr(0, colonPos);
-	std::vector<const Server *> validServers;
+		hostname.resize(colonPos);
 
+	std::vector<const Server *> validServers;
 	std::vector<const Server *>::const_iterator it;
 	for (it = _servers.begin(); it != _servers.end(); ++it) {
 		std::vector<Socket> netAddrs = (*it)->getNetAddr();
@@ -710,15 +710,20 @@ const Socket Cluster::getSocketAddress(int socket) {
 /**
  * @brief Extracts the hostname from an HTTP request.
  *
+ * This function iterates over the headers of the given HTTP request to find
+ * the "Host" header, which contains the hostname. It performs a case-insensitive
+ * comparison to locate the header.
+ *
  * @param request The HTTP request containing headers.
- * @return const std::string The extracted hostname or an empty string if not found.
+ * @return const std::string The extracted hostname or an empty string if the "Host" header is not found.
  */
 const std::string Cluster::getHostnameFromRequest(const HttpRequest &request) {
 	std::multimap<std::string, std::string>::const_iterator hostname;
-	hostname = request.headers.find("host");
-
-	if (hostname != request.headers.end())
-		return (hostname->second);
+	for (hostname = request.headers.begin(); hostname != request.headers.end(); ++hostname) {
+		if (strcasecmp(hostname->first.c_str(), "host") == 0) {
+			return (hostname->second);
+		}
+	}
 	return ("");
 }
 

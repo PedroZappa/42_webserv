@@ -6,16 +6,16 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 15:18:14 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:33:49 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:30:59 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include "Logger.hpp"
 #include "Server.hpp"
 #include "Webserv.hpp"
-#include "Logger.hpp"
 
 /* ************************************************************************** */
 /*                                Convertions                                 */
@@ -51,5 +51,18 @@ template <typename T> T string2number(const std::string &str) {
 									std::string(typeid(T).name()));
 	return (num);
 }
+
+/* ************************************************************************** */
+/*                                    Time                                    */
+/* ************************************************************************** */
+
+/// @brief Converts HTTP time format string to a time_t value
+/// @param httpTime The HTTP time string to convert
+/// @return The time as time_t value
+time_t getTime(const std::string &httpTime);
+/// @brief Helper function to convert month string to its numeric value
+/// @param month_str Three-letter month abbreviation (e.g., "Jan")
+/// @return Month number (0-11)
+int getMonthFromStr(const std::string &month_str);
 
 #endif

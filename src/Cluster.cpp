@@ -1,3 +1,13 @@
+/**
+ * @defgroup ClusterModule Cluster Management Module
+ * @{
+ *
+ * This module handles the management and operation of server clusters,
+ * including setup, event handling, and connection management.
+ *
+ * @version 1.0
+ */
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -11,8 +21,11 @@
 /* ************************************************************************** */
 
 #include "../inc/Cluster.hpp"
+#include "../inc/DeleteResponse.hpp"
+#include "../inc/ErrorResponse.hpp"
+#include "../inc/GetResponse.hpp"
+#include "../inc/PostResponse.hpp"
 #include "../inc/Utils.hpp"
-#include <sys/socket.h>
 
 /**
  * @brief Global flag indicating if the server is running.
@@ -550,22 +563,170 @@ bool Cluster::isRequestValid(const std::string &request) const {
  *
  * @param socket The socket file descriptor associated with the request.
  * @param request The request string to process.
- * @details This function is a placeholder for request processing logic.
+ * @details
  */
 void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "processing request");
 #endif
 
-	// TODO: process request
-	// Go GABRIEL GO!!
-	(void)socket;
-	(void)request;
+	HttpRequest req;
+	unsigned short errorStatus = HttpRequestParser::parseHttp(request, req);
+	std::string response = getResponse(req, errorStatus, socket);
+
+	ssize_t toSend = send(socket, request.c_str(), request.size(), 0);
+	if (toSend == -1) {
+		killConnection(socket, _epollFd);
+	}
+
+	killConnection(socket, _epollFd);
 
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "request Processed");
 #endif
 }
+
+/**
+ * @brief Generates a response for a given HTTP request.
+ *
+ * @param request The HTTP request to process.
+ * @param errorStatus The error status code, if any.
+ * @param socket The socket file descriptor associated with the request.
+ * @return std::string The generated HTTP response.
+ * @details Determines the appropriate response type based on the request method
+ * and error status, then generates and returns the response.
+ */
+const std::string Cluster::getResponse(HttpRequest &request,
+							  unsigned short &errorStatus,
+							  int socket) {
+	AResponse *responseControl;
+	const Server *server = getContext(request, socket);
+
+	if (errorStatus != OK)
+		responseControl = new ErrorResponse(*server, request, errorStatus);
+	else {
+		switch (static_cast<int>(request.method)) {
+		case GET:
+			responseControl = new GetResponse(*server, request);
+			break;
+		case POST:
+			responseControl = new PostResponse(*server, request);
+			break;
+		case DELETE:
+			responseControl = new DeleteResponse(*server, request);
+			break;
+		}
+		/// TODO: Add other methods
+	}
+
+	std::string response = responseControl->generateResponse();
+
+	delete responseControl;
+	return (response);
+}
+
+/**
+ * @brief Retrieves the server context for a given HTTP request and socket.
+ *
+ * @param request The HTTP request containing headers.
+ * @param socket The socket file descriptor associated with the request.
+ * @return const Server* Pointer to the server context.
+ * @details Determines the appropriate server context based on the request's
+ * hostname and the socket's address. If multiple servers match, it returns
+ * the first server with a matching hostname. If no server matches, it returns
+ * the first server found.
+ */
+const Server *Cluster::getContext(const HttpRequest &request, int socket) {
+	const Socket addr = getSocketAddress(socket);
+	std::string hostname = getHostnameFromRequest(request);
+	size_t colonPos = hostname.find_first_of(":");
+	if (colonPos != std::string::npos)
+		hostname.resize(colonPos);
+
+	std::vector<const Server *> validServers;
+	std::vector<const Server *>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it) {
+		std::vector<Socket> netAddrs = (*it)->getNetAddr();
+
+		std::vector<Socket>::const_iterator sockIt;
+		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt)
+			if (*sockIt == addr)
+				validServers.push_back(*it);
+	}
+	
+	// If no address was found, check matching piort
+	if (validServers.empty()) {
+		std::vector<const Server *>::const_iterator it;
+		for (it = _servers.begin(); it != _servers.end(); ++it) {
+			std::vector<Socket> netAddrs = (*it)->getNetAddr();
+
+			std::vector<Socket>::const_iterator sockIt;
+			for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt)
+				if (sockIt->port == addr.port)
+					validServers.push_back(*it);
+		}
+	}
+
+	// if multiple servers are found...
+	if (validServers.size() > 1) {
+		std::vector<const Server *>::const_iterator it;
+		for (it = validServers.begin(); it != validServers.end(); ++it) {
+			std::vector<std::string> serverNames = (*it)->getServerName();		
+
+			if (std::find(serverNames.begin(), serverNames.end(), hostname) != serverNames.end())
+				return &(**it); // return first matching server
+		}
+	}
+
+	// if no server was found, return first server
+	return (validServers.front()); 
+}
+
+/**
+ * @brief Retrieves the socket address for a given socket.
+ *
+ * @param socket The socket file descriptor to retrieve the address for.
+ * @return const Socket The socket address containing IP and port.
+ */
+const Socket Cluster::getSocketAddress(int socket) {
+    struct sockaddr addr;
+    socklen_t addrLen = sizeof(addr);
+    struct sockaddr_in *addrIn;
+    Socket address;
+
+    if (getsockname(socket, &addr, &addrLen) == -1) {
+        // Handle error or use a default address
+        address.ip = "0.0.0.0";
+        address.port = 0;
+        return address;
+    }
+    addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
+    address.ip = inet_ntoa(addrIn->sin_addr);
+    address.port = ntohs(addrIn->sin_port);
+
+    return (address);
+}
+
+/**
+ * @brief Extracts the hostname from an HTTP request.
+ *
+ * This function iterates over the headers of the given HTTP request to find
+ * the "Host" header, which contains the hostname. It performs a case-insensitive
+ * comparison to locate the header.
+ *
+ * @param request The HTTP request containing headers.
+ * @return const std::string The extracted hostname or an empty string if the "Host" header is not found.
+ */
+const std::string Cluster::getHostnameFromRequest(const HttpRequest &request) {
+	std::multimap<std::string, std::string>::const_iterator hostname;
+	for (hostname = request.headers.begin(); hostname != request.headers.end(); ++hostname) {
+		if (strcasecmp(hostname->first.c_str(), "host") == 0) {
+			return (hostname->second);
+		}
+	}
+	return ("");
+}
+
 /**
  * @brief Terminates a connection and removes it from the epoll instance.
  *
@@ -629,3 +790,4 @@ const std::vector<int> &Cluster::getListeningSockets(void) const {
 int Cluster::getEpollFd(void) const {
 	return (_epollFd);
 }
+/** @} */

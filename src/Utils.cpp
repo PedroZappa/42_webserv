@@ -1,3 +1,15 @@
+/**
+ * @defgroup Utils Utility Functions
+ * @{
+ *
+ * This module provides utility functions for string manipulation, HTTP method
+ * conversions, and time parsing. It includes functions to convert strings to
+ * lowercase, map HTTP methods between enums and strings, and parse HTTP date
+ * strings to time_t values.
+ *
+ * @version 1.0
+ */
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +18,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 15:20:31 by passunca          #+#    #+#             */
-/*   Updated: 2025/01/10 17:33:52 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:36:39 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +29,29 @@
 /*                                Convertions                                 */
 /* ************************************************************************** */
 
-/// @brief Converts a string to lowercase
-/// @param str The string to convert
-/// @return The lowercase string
+/**
+ * @brief Converts a string to lowercase.
+ *
+ * This function takes a string and converts all its characters to lowercase.
+ *
+ * @param str The input string to be converted.
+ * @return A new string with all characters in lowercase.
+ */
 std::string toLower(const std::string &str) {
 	std::string lower = str;
 	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 	return (lower);
 }
 
+/**
+ * @brief Converts an HTTP method enum to its string representation.
+ *
+ * This function maps an HTTP method enum value to its corresponding string
+ * representation, such as "GET", "POST", etc.
+ *
+ * @param method The HTTP method enum to be converted.
+ * @return A string representing the HTTP method.
+ */
 std::string method2string(Method method) {
 	switch (method) {
 	case GET:
@@ -51,6 +77,16 @@ std::string method2string(Method method) {
 	}
 }
 
+/**
+ * @brief Converts a string to its corresponding HTTP method enum.
+ *
+ * This function maps a string representation of an HTTP method to its
+ * corresponding enum value. If the string does not match any known method,
+ * it returns UNKNOWN.
+ *
+ * @param str The string representation of the HTTP method.
+ * @return The corresponding HTTP method enum.
+ */
 Method string2method(const std::string &str) {
 	if (str == "GET")
 		return (GET);
@@ -73,3 +109,78 @@ Method string2method(const std::string &str) {
 	else
 		return (UNKNOWN);
 }
+
+/* ************************************************************************** */
+/*                                    Time                                    */
+/* ************************************************************************** */
+
+static int getMonthFromStr(const std::string &month_str);
+
+/**
+ * @brief Parses an HTTP date string and converts it to time_t.
+ *
+ * This function takes a date string in the format "Wed, 11 Oct 2015 07:42:00 GMT"
+ * and converts it to a time_t value representing the UTC time.
+ *
+ * @param httpTime The HTTP date string to be parsed.
+ * @return The corresponding time_t value, or -1 if parsing fails.
+ */
+time_t getTime(const std::string &httpTime) {
+	struct tm t;
+	memset(&t, 0, sizeof(t));
+
+	char monthStr[4];
+	int year, day, hour, minute, second;
+
+	// date ex.: "Wed, 11 Oct 2015 07:42:00 GMT"
+	if (sscanf(httpTime.c_str(),
+			   "%*3s, %d %3s %d %d:%d:%d GMT",
+			   &day,
+			   monthStr,
+			   &year,
+			   &hour,
+			   &minute,
+			   &second) != 6)
+		return (-1);
+
+
+	int month = getMonthFromStr(monthStr);
+	if (month == -1)
+		return (-1);
+
+	// Set tm struct
+	// https://en.cppreference.com/w/cpp/chrono/c/strftime
+	strptime(monthStr, "%b", &t);
+	t.tm_year = year - 1900;
+	t.tm_mon = month;
+	t.tm_mday = day;
+	t.tm_hour = hour;
+	t.tm_min = minute;
+	t.tm_sec = second;
+	t.tm_isdst = 0; // Not accounting for daylight savings
+
+	// convert to UTC time  (using timegm to avoid timezone tweaks)
+	time_t utc = timegm(&t);
+	return (utc);
+}
+
+/**
+ * @brief Converts a three-letter month abbreviation to its corresponding month index.
+ *
+ * This function maps a three-letter month abbreviation (e.g., "Jan", "Feb") to
+ * its corresponding zero-based month index (e.g., 0 for January, 1 for February).
+ *
+ * @param month_str The three-letter month abbreviation.
+ * @return The zero-based month index, or -1 if the abbreviation is invalid.
+ */
+static int getMonthFromStr(const std::string &month_str) {
+	const char *months[] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+	for (int i = 0; i < 12; ++i)
+		if (month_str == months[i])
+			return i;
+	return (-1);
+}
+/** @} */
+

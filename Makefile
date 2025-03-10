@@ -50,6 +50,7 @@ FILES			+= Location.cpp
 FILES			+= Cluster.cpp
 FILES			+= HttpParser.cpp
 FILES			+= AResponse.cpp
+FILES			+= GetResponse.cpp
 
 FILES += Logger.cpp
 

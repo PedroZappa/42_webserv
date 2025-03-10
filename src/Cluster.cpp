@@ -625,6 +625,17 @@ const std::string Cluster::getResponse(HttpRequest &request,
 	return (response);
 }
 
+/**
+ * @brief Retrieves the server context for a given HTTP request and socket.
+ *
+ * @param request The HTTP request containing headers.
+ * @param socket The socket file descriptor associated with the request.
+ * @return const Server* Pointer to the server context.
+ * @details Determines the appropriate server context based on the request's
+ * hostname and the socket's address. If multiple servers match, it returns
+ * the first server with a matching hostname. If no server matches, it returns
+ * the first server found.
+ */
 const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	const Socket addr = getSocketAddress(socket);
 	std::string hostname = getHostnameFromRequest(request);
@@ -670,6 +681,7 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	// if no server was found, return first server
 	return (validServers.front()); 
 }
+
 /**
  * @brief Retrieves the socket address for a given socket.
  *

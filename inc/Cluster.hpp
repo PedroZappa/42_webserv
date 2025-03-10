@@ -14,7 +14,6 @@
 #define CLUSTER_HPP
 
 #include "AResponse.hpp"
-#include "ErrorResponse.hpp"
 #include "HttpParser.hpp"
 #include "Server.hpp"
 #include <sys/socket.h>
@@ -65,8 +64,6 @@ class Cluster {
 	const std::vector<int> &getListeningSockets(void) const;
 	int getEpollFd(void) const;
 
-	static const Server *getContext(const HttpRequest &request, int socket);
-
   private:
 	std::vector<const Server *> _servers;       /**< List of server pointers. */
 	std::vector<VirtualServer> _virtualServers; /**< List of virtual servers. */
@@ -89,9 +86,13 @@ class Cluster {
 	void handleRequest(int socket);
 	bool isRequestValid(const std::string &requestBuf) const;
 	void processRequest(int socket, const std::string &requestBuf);
-	const std::string getResponse(HttpRequest &request,
+	const std::string getResponse(HttpRequest &,
 								  unsigned short &errorStatus,
 								  int socket);
+
+	const Server *getContext(const HttpRequest &, int socket);
+	const Socket getSocketAddress(int socket);
+	const std::string getHostnameFromRequest(const HttpRequest &);
 
 	void killConnection(int socket, int epollFd);
 

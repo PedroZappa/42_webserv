@@ -21,11 +21,11 @@
 /* ************************************************************************** */
 
 #include "../inc/Cluster.hpp"
-#include "../inc/Utils.hpp"
+#include "../inc/DeleteResponse.hpp"
 #include "../inc/ErrorResponse.hpp"
 #include "../inc/GetResponse.hpp"
 #include "../inc/PostResponse.hpp"
-#include "../inc/DeleteResponse.hpp"
+#include "../inc/Utils.hpp"
 
 /**
  * @brief Global flag indicating if the server is running.
@@ -600,7 +600,7 @@ const std::string getResponse(HttpRequest &request,
 							  unsigned short &errorStatus,
 							  int socket) {
 	AResponse *responseControl;
-	const Server *server = Cluster::getContext(request, socket);
+	const Server *server = getContext(request, socket);
 
 	if (errorStatus != OK)
 		responseControl = new ErrorResponse(*server, request, errorStatus);
@@ -626,6 +626,64 @@ const std::string getResponse(HttpRequest &request,
 }
 
 const Server *Cluster::getContext(const HttpRequest &request, int socket) {
+	const Socket addr = getSocketAddress(socket);
+	std::string hostname = getHostnameFromRequest(request);
+	size_t colonPos = hostname.find_first_of(":");
+	if (colonPos != std::string::npos)
+		hostname = hostname.substr(0, colonPos);
+	std::vector<const Server *> validServers;
+
+	std::vector<const Server *>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it) {
+		std::vector<Socket> netAddrs = (*it)->getNetAddr();
+
+		std::vector<Socket>::const_iterator sockIt;
+		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt)
+			if (*sockIt == addr)
+				validServers.push_back(*it);
+	}
+	
+	// If no address was found, check matching piort
+	// if (validServers.empty())
+
+	// if multiple serverser aer found...
+
+	// if no server was found, return first server
+	return (validServers.front()); 
+}
+/**
+ * @brief Retrieves the socket address for a given socket.
+ *
+ * @param socket The socket file descriptor to retrieve the address for.
+ * @return const Socket The socket address containing IP and port.
+ */
+const Socket Cluster::getSocketAddress(int socket) {
+	struct sockaddr addr;
+	socklen_t addrLen = sizeof(addr);
+	struct sockaddr_in *addrIn;
+	Socket address;
+
+	getsockname(socket, &addr, &addrLen);
+	addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
+	address.ip = inet_ntoa(addrIn->sin_addr);
+	address.port = ntohs(addrIn->sin_port);
+
+	return (address);
+}
+
+/**
+ * @brief Extracts the hostname from an HTTP request.
+ *
+ * @param request The HTTP request containing headers.
+ * @return const std::string The extracted hostname or an empty string if not found.
+ */
+const std::string getHostnameFromRequest(const HttpRequest &request) {
+	std::multimap<std::string, std::string>::const_iterator hostname;
+	hostname = request.headers.find("host");
+
+	if (hostname != request.headers.end())
+		return (hostname->second);
+	return ("");
 }
 
 /**

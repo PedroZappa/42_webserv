@@ -37,7 +37,7 @@
  * and HTTP request.
  */
 AResponse::AResponse(const Server &server, const HttpRequest &request)
-	: _server(server), _request(request) {
+	: _request(request),_server(server)  {
 }
 
 /**
@@ -47,7 +47,7 @@ AResponse::AResponse(const Server &server, const HttpRequest &request)
  * Initializes a new AResponse object as a copy of the given object.
  */
 AResponse::AResponse(const AResponse &other) 
-    : _server(other._server), _request(other._request) {
+    : _request(other._request), _server(other._server) {
 }
 
 /**

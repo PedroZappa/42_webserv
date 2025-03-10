@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 19:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 16:44:23 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:44:56 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ class Location;
  * This structure holds the status code, headers, and body of an HTTP response.
  */
 struct HttpResponse {
-	unsigned short status;/**< HTTP status code. */
+	unsigned short status;                           /**< HTTP status code. */
 	std::multimap<std::string, std::string> headers; /**< HTTP headers. */
-	std::string body; /**< HTTP response body. */
+	std::string body;                                /**< HTTP response body. */
 
 	HttpResponse() : status(200) {
 	}
@@ -50,18 +50,27 @@ class AResponse {
 	AResponse(const AResponse &);
 	// Assignment Operator
 	const AResponse &operator=(const AResponse &);
-	// Destructor 
+	// Destructor
 	virtual ~AResponse();
 
 	// Public Member Functions
 	virtual std::string generateResponse() = 0;
 
   protected:
-	HttpRequest _request; /**< The HTTP request. */
-	HttpResponse _response; /**< The HTTP response. */
-	const Server &_server;/**< Reference to the server configuration. */
+	HttpRequest _request;       /**< The HTTP request. */
+	HttpResponse _response;     /**< The HTTP response. */
+	const Server &_server;      /**< Reference to the server configuration. */
 	std::string _locationRoute; /**< The location route. */
 
+	// Checkers
+	bool isCGI() const;
+
+	// Utils
+	std::string getLastModifiedDate(const std::string &path) const;
+
+	// Response Construction Helpers
+	void setMimeType(const std::string& path);
+	void loadCommonHeaders();
 };
 
 /**

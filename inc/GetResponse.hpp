@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 16:24:12 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 16:40:42 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:38:34 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define GETRESPONSE_HPP
 
 #include "../inc/AResponse.hpp"
+#include "../inc/Webserv.hpp"
+#include "../inc/Utils.hpp"
 
 /**
  * @class GetResponse
@@ -33,8 +35,8 @@ class GetResponse : public AResponse {
 	~GetResponse();
 
 	// Public Methods
-	std::string generateResponse();
 	short loadFile(std::string &path);
+	std::string generateResponse();
 
 
   private:

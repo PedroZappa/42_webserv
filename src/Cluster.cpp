@@ -689,17 +689,22 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
  * @return const Socket The socket address containing IP and port.
  */
 const Socket Cluster::getSocketAddress(int socket) {
-	struct sockaddr addr;
-	socklen_t addrLen = sizeof(addr);
-	struct sockaddr_in *addrIn;
-	Socket address;
+    struct sockaddr addr;
+    socklen_t addrLen = sizeof(addr);
+    struct sockaddr_in *addrIn;
+    Socket address;
 
-	getsockname(socket, &addr, &addrLen);
-	addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
-	address.ip = inet_ntoa(addrIn->sin_addr);
-	address.port = ntohs(addrIn->sin_port);
+    if (getsockname(socket, &addr, &addrLen) == -1) {
+        // Handle error or use a default address
+        address.ip = "0.0.0.0";
+        address.port = 0;
+        return address;
+    }
+    addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
+    address.ip = inet_ntoa(addrIn->sin_addr);
+    address.port = ntohs(addrIn->sin_port);
 
-	return (address);
+    return (address);
 }
 
 /**

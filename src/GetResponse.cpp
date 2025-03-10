@@ -90,8 +90,15 @@ short GetResponse::loadFile(std::string &path) {
 		it = headers.find("If-Modified-Since");
 		if (it != headers.end()) {
 			std::string lastModified = getLastModifiedDate(path);
-			if (getTime(it->second) <= getTime(lastModified))
-				return (NOT_MODIFIED);
+			try {
+				time_t requestTime = getTime(it->second);
+				time_t fileTime = getTime(lastModified);
+				if (requestTime <= fileTime)
+					return (NOT_MODIFIED);
+			} catch (const std::exception& e) {
+				// Log error parsing the date
+				LOG_WARNING("Error parsing date headers: " << e.what());
+			}
 		}
 		// Load file content into the response body
 		_response.body.assign((std::istreambuf_iterator<char>(file)),

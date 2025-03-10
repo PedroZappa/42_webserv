@@ -23,9 +23,9 @@
 #include "../inc/Cluster.hpp"
 #include "../inc/Utils.hpp"
 #include "../inc/ErrorResponse.hpp"
-// #include "../inc/GetResponse.hpp"
-// #include "../inc/PostResponse.hpp"
-// #include "../inc/deleteResponse.hpp"
+#include "../inc/GetResponse.hpp"
+#include "../inc/PostResponse.hpp"
+#include "../inc/DeleteResponse.hpp"
 
 /**
  * @brief Global flag indicating if the server is running.
@@ -586,14 +586,24 @@ void Cluster::processRequest(int socket, const std::string &request) {
 #endif
 }
 
+/**
+ * @brief Generates a response for a given HTTP request.
+ *
+ * @param request The HTTP request to process.
+ * @param errorStatus The error status code, if any.
+ * @param socket The socket file descriptor associated with the request.
+ * @return std::string The generated HTTP response.
+ * @details Determines the appropriate response type based on the request method
+ * and error status, then generates and returns the response.
+ */
 const std::string getResponse(HttpRequest &request,
 							  unsigned short &errorStatus,
 							  int socket) {
 	AResponse *responseControl;
+	const Server *server = Cluster::getContext(request, socket);
 
-	const Server *server = getContext(request, socket);
 	if (errorStatus != OK)
-		responseControl = new ErrorResponse(*server, errorStatus);
+		responseControl = new ErrorResponse(*server, request, errorStatus);
 	else {
 		switch (static_cast<int>(request.method)) {
 		case GET:
@@ -606,8 +616,11 @@ const std::string getResponse(HttpRequest &request,
 			responseControl = new DeleteResponse(*server, request);
 			break;
 		}
+		/// TODO: Add other methods
 	}
+
 	std::string response = responseControl->generateResponse();
+
 	delete responseControl;
 	return (response);
 }

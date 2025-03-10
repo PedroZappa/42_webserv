@@ -13,23 +13,29 @@
 #ifndef CLUSTER_HPP
 #define CLUSTER_HPP
 
-#include "HttpParser.hpp"
-#include "Server.hpp"
 #include "AResponse.hpp"
 #include "ErrorResponse.hpp"
-
+#include "HttpParser.hpp"
+#include "Server.hpp"
 #include <sys/socket.h>
 
 class Server;
 
+/**
+ * @class Cluster
+ * @brief Manages a cluster of servers, handling socket setup and request processing.
+ */
 class Cluster {
   public:
-	// Virtual Server Context
+	/**
+	 * @struct VirtualServer
+	 * @brief Represents a virtual server with its associated details.
+	 */
 	struct VirtualServer {
-		const Server *server;
-		std::string name;
-		std::string ip;
-		std::string port;
+		const Server *server; /**< Pointer to the server instance. */
+		std::string name;     /**< Name of the virtual server. */
+		std::string ip;       /**< IP address of the virtual server. */
+		std::string port;     /**< Port number of the virtual server. */
 
 		bool operator<(const VirtualServer &rhs) const { // For std:set
 			if (this->ip != rhs.ip)
@@ -59,12 +65,14 @@ class Cluster {
 	const std::vector<int> &getListeningSockets(void) const;
 	int getEpollFd(void) const;
 
+	static const Server *getContext(const HttpRequest &request, int socket);
+
   private:
-	std::vector<const Server *> _servers;
-	std::vector<VirtualServer> _virtualServers;
-	std::vector<int> _listenSockets;
-	int _epollFd;
-	std::map<int, std::string> _requestBuff;
+	std::vector<const Server *> _servers;       /**< List of server pointers. */
+	std::vector<VirtualServer> _virtualServers; /**< List of virtual servers. */
+	std::vector<int> _listenSockets; /**< List of listening socket file descriptors. */
+	int _epollFd;                    /**< Epoll file descriptor. */
+	std::map<int, std::string> _requestBuff; /**< Buffer for incoming requests. */
 
 	// Private Methods
 	// setupCluster()
@@ -84,7 +92,6 @@ class Cluster {
 	const std::string getResponse(HttpRequest &request,
 								  unsigned short &errorStatus,
 								  int socket);
-	const Server *getContext(const HttpRequest &request, int socket);
 
 	void killConnection(int socket, int epollFd);
 

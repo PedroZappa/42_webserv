@@ -105,7 +105,9 @@ short GetResponse::loadFile(std::string &path) {
 							  (std::istreambuf_iterator<char>()));
 		file.close();
 
-		if (_request.uri.find("download") != std::string::npos) {
+		// Check for specific download path pattern
+		if (_request.uri.compare(0, 10, "/download/") == 0 || 
+		    _request.uri == "/download") {
 			size_t lastSlash = _request.uri.find_last_of('/');
 			std::string filename = _request.uri.substr(lastSlash + 1);
 			if (filename.empty()) 

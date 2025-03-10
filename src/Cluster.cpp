@@ -596,7 +596,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
  * @details Determines the appropriate response type based on the request method
  * and error status, then generates and returns the response.
  */
-const std::string getResponse(HttpRequest &request,
+const std::string Cluster::getResponse(HttpRequest &request,
 							  unsigned short &errorStatus,
 							  int socket) {
 	AResponse *responseControl;
@@ -644,9 +644,28 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	}
 	
 	// If no address was found, check matching piort
-	// if (validServers.empty())
+	if (validServers.empty()) {
+		std::vector<const Server *>::const_iterator it;
+		for (it = _servers.begin(); it != _servers.end(); ++it) {
+			std::vector<Socket> netAddrs = (*it)->getNetAddr();
 
-	// if multiple serverser aer found...
+			std::vector<Socket>::const_iterator sockIt;
+			for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt)
+				if (sockIt->port == addr.port)
+					validServers.push_back(*it);
+		}
+	}
+
+	// if multiple servers are found...
+	if (validServers.size() > 1) {
+		std::vector<const Server *>::const_iterator it;
+		for (it = validServers.begin(); it != validServers.end(); ++it) {
+			std::vector<std::string> serverNames = (*it)->getServerName();		
+
+			if (std::find(serverNames.begin(), serverNames.end(), hostname) != serverNames.end())
+				return &(**it); // return first matching server
+		}
+	}
 
 	// if no server was found, return first server
 	return (validServers.front()); 
@@ -677,7 +696,7 @@ const Socket Cluster::getSocketAddress(int socket) {
  * @param request The HTTP request containing headers.
  * @return const std::string The extracted hostname or an empty string if not found.
  */
-const std::string getHostnameFromRequest(const HttpRequest &request) {
+const std::string Cluster::getHostnameFromRequest(const HttpRequest &request) {
 	std::multimap<std::string, std::string>::const_iterator hostname;
 	hostname = request.headers.find("host");
 

@@ -57,6 +57,6 @@ template <typename T> T string2number(const std::string &str) {
 /* ************************************************************************** */
 
 time_t getTime(const std::string &httpTime);
-static int getMonthFromStr(const std::string &month_str);
+int getMonthFromStr(const std::string &month_str);
 
 #endif

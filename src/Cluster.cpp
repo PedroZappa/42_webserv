@@ -45,11 +45,11 @@ bool isRunning = true;
  */
 Cluster::Cluster(const std::vector<Server> &servers)
 	: _servers(), _epollFd(-1) {
-	std::vector<Server>::const_iterator it;
-	for (it = servers.begin(); it != servers.end(); ++it) {
-		_servers.push_back(&(*it)); // Add server to cluster
-		std::vector<Socket> netAddrs = (*it).getNetAddr();
-		std::vector<std::string> names = (*it).getServerName();
+	std::vector<Server>::const_iterator serverIt;
+	for (serverIt = servers.begin(); serverIt != servers.end(); ++serverIt) {
+		_servers.push_back(&(*serverIt)); // Add server to cluster
+		std::vector<Socket> netAddrs = (*serverIt).getNetAddr();
+		std::vector<std::string> names = (*serverIt).getServerName();
 
 		std::vector<Socket>::const_iterator sockIt; // Add virtual servers
 		for (sockIt = netAddrs.begin(); sockIt != netAddrs.end(); ++sockIt) {
@@ -58,7 +58,7 @@ Cluster::Cluster(const std::vector<Server> &servers)
 				vs.ip = sockIt->ip;
 				vs.port = sockIt->port;
 				vs.name = "";
-				vs.server = &(*it);
+				vs.server = &(*serverIt);
 				_virtualServers.push_back(vs);
 			} else { // Add named virtual servers
 				std::vector<std::string>::const_iterator nameIt;
@@ -67,7 +67,7 @@ Cluster::Cluster(const std::vector<Server> &servers)
 					vs.ip = sockIt->ip;
 					vs.port = sockIt->port;
 					vs.name = *nameIt;
-					vs.server = &(*it);
+					vs.server = &(*serverIt);
 					_virtualServers.push_back(vs);
 				}
 			}
@@ -227,22 +227,22 @@ std::set<Socket> Cluster::getVirtualServerSockets(void) {
 	std::vector<VirtualServer> virtualServers = getVirtualServers();
 	std::set<std::string> portsToDelete;
 
-	std::vector<VirtualServer>::const_iterator vsit;
-	for (vsit = virtualServers.begin(); vsit != virtualServers.end(); ++vsit)
-		if (vsit->ip.empty())
-			portsToDelete.insert(vsit->port);
+	std::vector<VirtualServer>::const_iterator vsIt;
+	for (vsIt = virtualServers.begin(); vsIt != virtualServers.end(); ++vsIt)
+		if (vsIt->ip.empty())
+			portsToDelete.insert(vsIt->port);
 
-	std::vector<VirtualServer>::iterator vsit2;
-	for (vsit2 = virtualServers.begin(); vsit2 != virtualServers.end();)
-		if ((portsToDelete.count(vsit2->port) > 0) && !(vsit2->ip.empty()))
-			vsit2 = virtualServers.erase(vsit2);
+	std::vector<VirtualServer>::iterator vsIt2;
+	for (vsIt2 = virtualServers.begin(); vsIt2 != virtualServers.end();)
+		if ((portsToDelete.count(vsIt2->port) > 0) && !(vsIt2->ip.empty()))
+			vsIt2 = virtualServers.erase(vsIt2);
 		else
-			++vsit2;
+			++vsIt2;
 
 	std::set<Socket> serversInterestList;
-	std::vector<VirtualServer>::const_iterator vsit3;
-	for (vsit3 = virtualServers.begin(); vsit3 != virtualServers.end(); ++vsit3) {
-		Socket addr(vsit3->ip, vsit3->port);
+	std::vector<VirtualServer>::const_iterator vsIt3;
+	for (vsIt3 = virtualServers.begin(); vsIt3 != virtualServers.end(); ++vsIt3) {
+		Socket addr(vsIt3->ip, vsIt3->port);
 		serversInterestList.insert(addr);
 	}
 	return (serversInterestList);

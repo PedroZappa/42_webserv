@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 19:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 18:44:56 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:26:42 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,22 @@ class AResponse {
 
 	// Checkers
 	bool isCGI() const;
+	// PostRequest
+	short checkMethod() const;
+	short checkBodySize() const;
+	short checkFile(const std::string &path) const;
 
 	// Utils
-	std::string getLastModifiedDate(const std::string &path) const;
+	std::string getLastModifiedDate(const std::string &path) const; // TODO:
+	const std::string getResponseStr() const; // TODO:
 
 	// Response Construction Helpers
-	void setMimeType(const std::string& path);
-	void loadCommonHeaders();
+	void setMimeType(const std::string& path); // TODO:
+	void loadCommonHeaders(); // TODO:
+	// ErrorResponse
+	const std::string getErrorPage(int errorStatus);// TODO:
+	// PostResponse
+	void setLocationRoute(); // TODO:
 };
 
 /**

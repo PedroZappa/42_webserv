@@ -697,7 +697,7 @@ const Socket Cluster::getSocketAddress(int socket) {
     if (getsockname(socket, &addr, &addrLen) == -1) {
         // Handle error or use a default address
         address.ip = "0.0.0.0";
-        address.port = 0;
+        address.port = "0";
         return address;
     }
     addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);

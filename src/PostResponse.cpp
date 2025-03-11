@@ -14,7 +14,7 @@
 #include "../inc/Utils.hpp"
 #include "../inc/Webserv.hpp"
 
-static unsigned short responseStatus = OK;
+// static unsigned short responseStatus = OK;
 
 /**
  * @class PostResponse

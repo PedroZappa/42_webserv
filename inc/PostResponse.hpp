@@ -43,7 +43,7 @@ class PostResponse : public AResponse {
 	/**
 	 * @brief Constructors
 	 * */
-	PostResponse(const Server &, const HttpRequest &);
+	PostResponse(const Server &, const HttpRequest &, int clientFd, int epollFd);
 	PostResponse(const PostResponse &);
 	~PostResponse();
 
@@ -51,15 +51,26 @@ class PostResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	std::vector<std::multimap<std::string, std::string> >
+	std::vector<std::multimap<std::string, std::string>>
 		_body;                              /**< Body of the response */
 	std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
 	std::string _limit;       /**< Boundary limit for the response */
 	struct File _file2upload; /**< File to be uploaded */
+	int _clientFd;
+	int _epollFd;
 
 	// Unusable
 	PostResponse();
 	PostResponse &operator=(const PostResponse &);
+
+	// Private Methods
+	unsigned short parseHttp();
+	short checkBody();
+	short getFile();
+	short uploadFile();
+	short checkForm();
 };
+
+static std::string generateDefaultUploadResponse();
 
 #endif

@@ -64,15 +64,22 @@ class AResponse {
 
 	// Checkers
 	bool isCGI() const;
+	// PostRequest
+	short checkMethod() const;
+	short checkBodySize() const;
+	short checkFile(const std::string &path) const;
 
 	// Utils
-	std::string getLastModifiedDate(const std::string &path) const;
+	std::string getLastModifiedDate(const std::string &path) const; // TODO:
+	const std::string getResponseStr() const; // TODO:
 
 	// Response Construction Helpers
-	void setMimeType(const std::string& path);
-	void loadCommonHeaders();
+	void setMimeType(const std::string& path); // TODO:
+	void loadCommonHeaders(); // TODO:
 	// ErrorResponse
-	const std::string getErrorPage(int errorStatus);
+	const std::string getErrorPage(int errorStatus);// TODO:
+	// PostResponse
+	void setLocationRoute(); // TODO:
 };
 
 /**

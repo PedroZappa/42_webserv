@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 19:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 18:44:56 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:26:42 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ class AResponse {
 	// Response Construction Helpers
 	void setMimeType(const std::string& path);
 	void loadCommonHeaders();
+	// ErrorResponse
+	const std::string getErrorPage(int errorStatus);
 };
 
 /**

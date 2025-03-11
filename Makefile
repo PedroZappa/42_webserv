@@ -46,12 +46,15 @@ FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
 FILES			+= Server.cpp
 FILES			+= Utils.cpp
+FILES			+= Logger.cpp
 FILES			+= Location.cpp
 FILES			+= Cluster.cpp
 FILES			+= HttpParser.cpp
 FILES			+= AResponse.cpp
-
-FILES += Logger.cpp
+FILES			+= GetResponse.cpp
+FILES			+= PostResponse.cpp
+FILES			+= DeleteResponse.cpp
+FILES			+= ErrorResponse.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))
 OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)

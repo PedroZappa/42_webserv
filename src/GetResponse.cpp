@@ -97,7 +97,8 @@ short GetResponse::loadFile(std::string &path) {
 					return (NOT_MODIFIED);
 			} catch (const std::exception& e) {
 				// Log error parsing the date
-				LOG_WARNING("Error parsing date headers: " << e.what());
+				std::stringstream s; s << "Error parsing date headers: " << e.what();
+				Logger::error(s.str());
 			}
 		}
 		// Load file content into the response body

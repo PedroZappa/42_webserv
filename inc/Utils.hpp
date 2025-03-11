@@ -60,10 +60,12 @@ template <typename T> T string2number(const std::string &str) {
 /// @param httpTime The HTTP time string to convert
 /// @return The time as time_t value
 time_t getTime(const std::string &httpTime);
+
 /// @brief Helper function to convert month string to its numeric value
 /// @param month_str Three-letter month abbreviation (e.g., "Jan")
 /// @return Month number (0-11)
 // // for completeness, if uncommented throws error
 // static int getMonthFromStr(const std::string &month_str); 
+
 
 #endif

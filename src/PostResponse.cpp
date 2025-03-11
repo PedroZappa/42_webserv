@@ -16,10 +16,26 @@
 
 static unsigned short responseStatus = OK;
 
+/**
+ * @class PostResponse
+ * @brief Handles HTTP POST requests and generates appropriate responses.
+ *
+ * This class is responsible for processing HTTP POST requests, including
+ * checking methods, parsing HTTP data, validating body size, handling file
+ * uploads, and triggering CGI scripts if necessary.
+ */
+
 /* ************************************************************************** */
 /*                                Constructors                                */
 /* ************************************************************************** */
 
+/**
+ * @brief Constructs a PostResponse object.
+ * @param server Reference to the server configuration.
+ * @param request Reference to the HTTP request.
+ * @param clientFd File descriptor for the client connection.
+ * @param epollFd File descriptor for epoll instance.
+ */
 PostResponse::PostResponse(const Server &server,
 						   const HttpRequest &request,
 						   int clientFd,
@@ -27,9 +43,16 @@ PostResponse::PostResponse(const Server &server,
 	: AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd) {
 }
 
+/**
+ * @brief Copy constructor for PostResponse.
+ * @param other Another PostResponse object to copy from.
+ */
 PostResponse::PostResponse(const PostResponse &other) : AResponse(other) {
 }
 
+/**
+ * @brief Destructor for PostResponse.
+ */
 PostResponse::~PostResponse() {
 }
 
@@ -37,6 +60,16 @@ PostResponse::~PostResponse() {
 /*                          Public Member Functions                           */
 /* ************************************************************************** */
 
+/**
+ * @brief Generates the HTTP response for a POST request.
+ * @return A string containing the HTTP response.
+ *
+ * This function processes the POST request by checking the method, parsing
+ * the HTTP data, validating the body size, and handling file uploads. If
+ * the request is not a CGI request, it performs form checks, body checks,
+ * and file uploads, generating a default upload response upon success.
+ * If the request is a CGI request, it triggers the CGI script.
+ */
 std::string PostResponse::generateResponse() {
 	unsigned short status = OK;
 	setLocationRoute();
@@ -70,6 +103,13 @@ std::string PostResponse::generateResponse() {
 	return (getResponseStr());
 }
 
+/**
+ * @brief Generates a default HTML response for successful file uploads.
+ * @return A string containing the HTML response.
+ *
+ * This function returns a simple HTML page indicating that the file upload
+ * was successful, with a link to return to the index page.
+ */
 static std::string generateDefaultUploadResponse() {
 	return "<!DOCTYPE html>\n"
 		   "<html lang=\"en\">\n"

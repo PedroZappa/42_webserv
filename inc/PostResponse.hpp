@@ -67,6 +67,7 @@ class PostResponse : public AResponse {
 	unsigned short parseHttp();
 	bool hasHeader(const std::string &header) const;
 	bool send100continue();
+
 	short checkBody();
 	short getFile();
 	short uploadFile();

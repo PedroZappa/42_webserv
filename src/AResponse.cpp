@@ -95,4 +95,10 @@ short AResponse::checkMethod() const {
 	return (OK);
 }
 
+short AResponse::checkBodySize() const {
+	if (_request.body.size() > _server.getClientMaxBodySize(_locationRoute))
+		return (PAYLOAD_TOO_LARGE);
+	return (OK);
+}
+
 /** @} */

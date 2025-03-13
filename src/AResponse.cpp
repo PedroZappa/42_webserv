@@ -131,4 +131,33 @@ short AResponse::checkBodySize() const {
 	return (OK);
 }
 
+/**
+ * @brief Checks the status of a file at the given path.
+ * @param path The path to the file to check.
+ * @return A status code indicating the result of the check.
+ *
+ * This method checks the status of a file at the specified path. It verifies
+ * if the file exists, if it is accessible, and whether it is a directory or
+ * a regular file. The method returns a status code indicating whether the
+ * file was found, if access is forbidden, or if the file type is incorrect.
+ */
+short AResponse::checkFile(const std::string &path) const {
+	struct stat info;
+
+	if (stat(path.c_str(), &info) != 0) { // File does not exist
+		if (errno == ENOENT)
+			return (NOT_FOUND);
+		else if (errno == EACCES)
+			return (FORBIDDEN);
+	}
+	// check if file is a directory (finishes with /)
+	bool expectDir = !path.empty() && path[path.size() - 1] == '/';
+	if (expectDir && (info.st_mode & S_IFMT) != S_IFDIR)
+		return (NOT_FOUND);
+	// Check if its not a directory or a regular file
+	if ((!S_ISDIR(info.st_mode) && expectDir) || !S_ISREG(info.st_mode))
+		return (FORBIDDEN);
+	return (OK);
+}
+
 /** @} */

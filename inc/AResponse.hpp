@@ -16,8 +16,8 @@
 #include "HttpParser.hpp"
 #include "Location.hpp"
 #include "Server.hpp"
-#include "Webserv.hpp"
 #include "Utils.hpp"
+#include "Webserv.hpp"
 
 class Server;
 class Location;
@@ -33,7 +33,7 @@ struct HttpResponse {
 	std::multimap<std::string, std::string> headers; /**< HTTP headers. */
 	std::string body;                                /**< HTTP response body. */
 
-	HttpResponse() : status(200) {
+	HttpResponse() : status(OK) {
 	}
 };
 
@@ -67,16 +67,20 @@ class AResponse {
 	short checkMethod() const;
 	short checkBodySize() const;
 	short checkFile(const std::string &path) const;
+	//
 
-	// Utils
+	// Getters
 	std::string getLastModifiedDate(const std::string &path) const;
 	const std::string getResponseStr() const;
+	const std::string getPath(const std::string &root,
+							  const std::string &path) const;
+	//
 
-	// Response Construction Helpers
-	void setMimeType(const std::string& path);
-	void loadHeaders(); // TODO:
+	// Setters
+	void setMimeType(const std::string &path);
+	void loadHeaders();
 	// ErrorResponse
-	const std::string getErrorPage(int errorStatus);// TODO:
+	const std::string getErrorPage(int errStat);
 	// PostResponse
 	void setLocationRoute(); // TODO:
 };

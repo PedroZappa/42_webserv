@@ -59,7 +59,7 @@ class Server {
 	long getClientMaxBodySize(void) const;
 	long getClientMaxBodySize(const std::string &route) const;
 	std::map<short, std::string> getErrorPage(void) const;
-	std::map<short, std::string> getErrorPage(const std::string &route) const;
+	std::map<short, std::string> getErrorPages(const std::string &route) const;
 	std::string getRoot(void) const;
 	std::string getRoot(const std::string &route) const;
 	std::map<std::string, Location> getLocations(void) const;
@@ -94,7 +94,7 @@ class Server {
 	std::vector<Socket> _netAddr;
 	std::vector<std::string> _serverName;
 	long _clientMaxBodySize;
-	std::map<short, std::string> _errorPage;
+	std::map<short, std::string> _errorPages;
 	std::string _root;
 	std::map<std::string, Location> _locations;
 	std::vector<std::string> _serverIdx;

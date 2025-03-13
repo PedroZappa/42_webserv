@@ -72,7 +72,6 @@ class PostResponse : public AResponse {
 	short uploadFile();
 	short checkForm();
 	//
-	// static std::string generateDefaultUploadResponse();
 };
 
 #endif

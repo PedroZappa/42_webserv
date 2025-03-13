@@ -76,8 +76,28 @@ const AResponse &AResponse::operator=(const AResponse &other) {
 }
 
 /* ************************************************************************** */
-/*                            Protected Methods                               */
+/*                             PROTECTED METHODS                              */
 /* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                  Checkers                                  */
+/* ************************************************************************** */
+
+/**
+ * @brief Checks if the request is for a CGI script.
+ * @return True if the request URI matches the CGI extension, false otherwise.
+ *
+ * This method determines if the current request is intended for a CGI script
+ * by comparing the URI's extension with the configured CGI extension for the
+ * server.
+ */
+bool AResponse::isCGI() const {
+	std::string cgiExt = _server.getCgiExt(_locationRoute);
+	size_t dotPos = cgiExt.find_last_of('.');
+	if ((!cgiExt.empty()) && (_request.uri.substr(dotPos) == cgiExt))
+		return (true);
+	return (false);
+}
 
 /**
  * @brief Checks if the HTTP method is allowed.

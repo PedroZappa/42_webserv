@@ -17,6 +17,7 @@
 #include "Location.hpp"
 #include "Server.hpp"
 #include "Webserv.hpp"
+#include "Utils.hpp"
 
 class Server;
 class Location;
@@ -73,7 +74,7 @@ class AResponse {
 
 	// Response Construction Helpers
 	void setMimeType(const std::string& path);
-	void loadCommonHeaders(); // TODO:
+	void loadHeaders(); // TODO:
 	// ErrorResponse
 	const std::string getErrorPage(int errorStatus);// TODO:
 	// PostResponse

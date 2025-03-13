@@ -182,5 +182,22 @@ static int getMonthFromStr(const std::string &month_str) {
 			return i;
 	return (-1);
 }
+
+/**
+ * @brief Generates the current date and time in HTTP-date format.
+ *
+ * This function retrieves the current time, converts it to GMT, and formats it
+ * as a string in the HTTP-date format: "Day, DD Mon YYYY HH:MM:SS GMT".
+ *
+ * @return A string representing the current date and time in HTTP-date format.
+ */
+std::string getHttpDate() {
+	std::time_t now = std::time(0);
+	std::tm *gmt = std::gmtime(&now);
+	char buf[35];
+	std::strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", gmt);
+	return (std::string(buf));
+}
+
 /** @} */
 

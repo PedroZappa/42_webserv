@@ -242,7 +242,7 @@ const std::map<short, std::string> STATUS_MESSAGES = initStatusMessages();
  * with their respective MIME types. The map includes MIME types for text,
  * image, audio/video, application, Microsoft, and other formats.
  */
-static std::map<std::string, std::string> initMimeTypes() {
+static std::map<std::string, std::string> initMimeTyes() {
 	std::map<std::string, std::string> mimeTypes;
 
 	// Text formats
@@ -357,7 +357,7 @@ const std::string AResponse::getResponseStr() const {
  * @note MIME (Multipurpose Internet Mail Extensions) 
  */
 void AResponse::setMimeType(const std::string &path) {
-	static std::map<std::string, std::string> mimeTs = initMimeTypes();
+	static std::map<std::string, std::string> mimeTs = initMimeTyes();
 
 	std::size_t dotPos = path.find_last_of('.');
 	if (dotPos != std::string::npos) {
@@ -370,6 +370,16 @@ void AResponse::setMimeType(const std::string &path) {
 	}
 	_response.headers.insert( // Nginx Defaults
 		std::make_pair("Content-Type", "application/octet-stream"));
+}
+
+void AResponse::loadHeaders() {
+	_response.headers.insert(std::make_pair("Connection", "keep-alive"));
+	if (_response.body.size() > 0)
+		_response.headers.insert(std::make_pair("Content-Length",
+			number2string<unsigned long>(_response.body.size())));
+	_response.headers.insert(std::make_pair("Date", getHttpDate()));
+	_response.headers.insert(std::make_pair("Server", "webserv"));
+
 }
 
 /** @} */

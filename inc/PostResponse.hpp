@@ -65,10 +65,13 @@ class PostResponse : public AResponse {
 
 	// Private Methods
 	unsigned short parseHttp();
+	bool hasHeader(const std::string &header) const;
+	bool send100continue();
 	short checkBody();
 	short getFile();
 	short uploadFile();
 	short checkForm();
+	//
 };
 
 static std::string generateDefaultUploadResponse();

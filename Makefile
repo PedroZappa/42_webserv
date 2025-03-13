@@ -52,7 +52,6 @@ FILES			+= Cluster.cpp
 FILES			+= HttpParser.cpp
 FILES			+= AResponse.cpp
 FILES			+= GetResponse.cpp
-
 FILES			+= PostResponse.cpp
 FILES			+= DeleteResponse.cpp
 FILES			+= ErrorResponse.cpp

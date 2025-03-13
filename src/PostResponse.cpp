@@ -14,8 +14,6 @@
 #include "../inc/Utils.hpp"
 #include "../inc/Webserv.hpp"
 
-// static unsigned short responseStatus = OK;
-
 /**
  * @class PostResponse
  * @brief Handles HTTP POST requests and generates appropriate responses.
@@ -24,6 +22,16 @@
  * checking methods, parsing HTTP data, validating body size, handling file
  * uploads, and triggering CGI scripts if necessary.
  */
+
+/**
+ * @brief Global variable to store the response status.
+ *
+ * This variable holds the current status of the HTTP response being processed.
+ * It is used throughout the PostResponse class to determine the appropriate
+ * response to send back to the client based on the outcome of various checks
+ * and operations.
+ */
+static unsigned short responseStatus = OK;
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -128,4 +136,69 @@ static std::string generateDefaultUploadResponse() {
 		   "\t<a href=\"index.html\">Back to Index</a>\n"
 		   "</body>\n"
 		   "</html>\n";
+}
+
+/* ************************************************************************** */
+/*                              Private Methods                               */
+/* ************************************************************************** */
+
+/**
+ * @brief Parses the HTTP request headers.
+ * @return An unsigned short representing the response status.
+ *
+ * Checks for the presence of specific headers such as "expect" and
+ * "content-length". Sends a 100 Continue response if necessary and
+ * validates the request headers.
+ */
+unsigned short PostResponse::parseHttp() {
+	if (hasHeader("expect"))
+		if (!send100continue())
+			return (responseStatus);
+	if (!hasHeader("content-length") ||
+		(hasHeader("transfer-encoding") && !isCGI()))
+		responseStatus = BAD_REQUEST;
+	return responseStatus;
+}
+
+/**
+ * @brief Checks if a specific header is present in the request.
+ * @param header The header to check for.
+ * @return True if the header is present, false otherwise.
+ */
+bool PostResponse::hasHeader(const std::string &header) const {
+	if (_request.headers.find(header) != _request.headers.end())
+		return (true);
+	return (false);
+}
+
+/**
+ * @brief Sends a 100 Continue response to the client.
+ * @return True if the response was sent successfully, false otherwise.
+ *
+ * Validates the "expect" header and sends a 100 Continue response
+ * if the request is valid. Checks for content length and transfer
+ * encoding headers to ensure the request is well-formed.
+ */
+bool PostResponse::send100continue() {
+	if (_request.headers.find("expect")->second != "100-continue") {
+		responseStatus = BAD_REQUEST;
+		return (false);
+	}
+	if (!hasHeader("content-length") && !hasHeader("transfer-encoding")) {
+		responseStatus = BAD_REQUEST;
+		return (false);
+	}
+	if (hasHeader("content-length") &&
+		string2number<ssize_t>(_request.headers.find("content-length")->second) >
+			_server.getClientMaxBodySize()) {
+		responseStatus = PAYLOAD_TOO_LARGE;
+		return (false);
+	}
+	ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
+	if (sent < 0) {
+		responseStatus = INTERNAL_SERVER_ERROR;
+		return (false);
+	}
+
+	return (true);
 }

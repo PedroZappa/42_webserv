@@ -95,6 +95,16 @@ short AResponse::checkMethod() const {
 	return (OK);
 }
 
+/**
+ * @brief Checks if the request body size exceeds the maximum allowed size.
+ * @return A status code indicating if the body size is acceptable or too large.
+ *
+ * This method compares the size of the HTTP request body with the maximum
+ * allowed size specified in the server configuration for the current
+ * location route. If the body size exceeds the limit, it returns a status
+ * code indicating that the payload is too large; otherwise, it returns a
+ * status code indicating that the body size is acceptable.
+ */
 short AResponse::checkBodySize() const {
 	if (_request.body.size() > _server.getClientMaxBodySize(_locationRoute))
 		return (PAYLOAD_TOO_LARGE);

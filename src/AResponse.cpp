@@ -372,14 +372,24 @@ void AResponse::setMimeType(const std::string &path) {
 		std::make_pair("Content-Type", "application/octet-stream"));
 }
 
+/**
+ * @brief Loads the HTTP headers for the response.
+ *
+ * This method populates the HTTP headers for the response object. It sets
+ * the "Connection" header to "keep-alive", the "Content-Length" header if
+ * the response body is not empty, the "Date" header with the current HTTP
+ * date, the "Server" header with the server name, and the "Cache-Control"
+ * header to "no-cache".
+ */
 void AResponse::loadHeaders() {
 	_response.headers.insert(std::make_pair("Connection", "keep-alive"));
 	if (_response.body.size() > 0)
-		_response.headers.insert(std::make_pair("Content-Length",
+		_response.headers.insert(std::make_pair(
+			"Content-Length",
 			number2string<unsigned long>(_response.body.size())));
 	_response.headers.insert(std::make_pair("Date", getHttpDate()));
-	_response.headers.insert(std::make_pair("Server", "webserv"));
-
+	_response.headers.insert(std::make_pair("Server", SERVER_NAME));
+	_response.headers.insert(std::make_pair("Cache-Control", "no-cache"));
 }
 
 /** @} */

@@ -597,31 +597,31 @@ void Cluster::processRequest(int socket, const std::string &request) {
  * and error status, then generates and returns the response.
  */
 const std::string Cluster::getResponse(HttpRequest &request,
-							  unsigned short &errorStatus,
-							  int socket) {
-	AResponse *responseControl;
+									   unsigned short &errorStatus,
+									   int socket) {
+	AResponse *responseCtrl;
 	const Server *server = getContext(request, socket);
 
 	if (errorStatus != OK)
-		responseControl = new ErrorResponse(*server, request, errorStatus);
+		responseCtrl = new ErrorResponse(*server, request, errorStatus);
 	else {
 		switch (static_cast<int>(request.method)) {
 		case GET:
-			responseControl = new GetResponse(*server, request);
+			responseCtrl = new GetResponse(*server, request);
 			break;
 		case POST:
-			responseControl = new PostResponse(*server, request);
+			responseCtrl = new PostResponse(*server, request, socket, _epollFd);
 			break;
 		case DELETE:
-			responseControl = new DeleteResponse(*server, request);
+			responseCtrl = new DeleteResponse(*server, request);
 			break;
 		}
 		/// TODO: Add other methods
 	}
 
-	std::string response = responseControl->generateResponse();
+	std::string response = responseCtrl->generateResponse();
 
-	delete responseControl;
+	delete responseCtrl;
 	return (response);
 }
 
@@ -653,7 +653,7 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 			if (*sockIt == addr)
 				validServers.push_back(*it);
 	}
-	
+
 	// If no address was found, check matching piort
 	if (validServers.empty()) {
 		std::vector<const Server *>::const_iterator it;
@@ -671,15 +671,16 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	if (validServers.size() > 1) {
 		std::vector<const Server *>::const_iterator it;
 		for (it = validServers.begin(); it != validServers.end(); ++it) {
-			std::vector<std::string> serverNames = (*it)->getServerName();		
+			std::vector<std::string> serverNames = (*it)->getServerName();
 
-			if (std::find(serverNames.begin(), serverNames.end(), hostname) != serverNames.end())
+			if (std::find(serverNames.begin(), serverNames.end(), hostname) !=
+				serverNames.end())
 				return &(**it); // return first matching server
 		}
 	}
 
 	// if no server was found, return first server
-	return (validServers.front()); 
+	return (validServers.front());
 }
 
 /**
@@ -689,37 +690,39 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
  * @return const Socket The socket address containing IP and port.
  */
 const Socket Cluster::getSocketAddress(int socket) {
-    struct sockaddr addr;
-    socklen_t addrLen = sizeof(addr);
-    struct sockaddr_in *addrIn;
-    Socket address;
+	struct sockaddr addr;
+	socklen_t addrLen = sizeof(addr);
+	struct sockaddr_in *addrIn;
+	Socket address;
 
-    if (getsockname(socket, &addr, &addrLen) == -1) {
-        // Handle error or use a default address
-        address.ip = "0.0.0.0";
-        address.port = "0";
-        return address;
-    }
-    addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
-    address.ip = inet_ntoa(addrIn->sin_addr);
-    address.port = ntohs(addrIn->sin_port);
+	if (getsockname(socket, &addr, &addrLen) == -1) {
+		// Handle error or use a default address
+		address.ip = "0.0.0.0";
+		address.port = "0";
+		return address;
+	}
+	addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
+	address.ip = inet_ntoa(addrIn->sin_addr);
+	address.port = ntohs(addrIn->sin_port);
 
-    return (address);
+	return (address);
 }
 
 /**
  * @brief Extracts the hostname from an HTTP request.
  *
  * This function iterates over the headers of the given HTTP request to find
- * the "Host" header, which contains the hostname. It performs a case-insensitive
- * comparison to locate the header.
+ * the "Host" header, which contains the hostname. It performs a
+ * case-insensitive comparison to locate the header.
  *
  * @param request The HTTP request containing headers.
- * @return const std::string The extracted hostname or an empty string if the "Host" header is not found.
+ * @return const std::string The extracted hostname or an empty string if the
+ * "Host" header is not found.
  */
 const std::string Cluster::getHostnameFromRequest(const HttpRequest &request) {
 	std::multimap<std::string, std::string>::const_iterator hostname;
-	for (hostname = request.headers.begin(); hostname != request.headers.end(); ++hostname) {
+	for (hostname = request.headers.begin(); hostname != request.headers.end();
+		 ++hostname) {
 		if (strcasecmp(hostname->first.c_str(), "host") == 0) {
 			return (hostname->second);
 		}

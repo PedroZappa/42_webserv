@@ -69,6 +69,33 @@ PostResponse::~PostResponse() {
 /* ************************************************************************** */
 
 /**
+ * @brief Generates a default HTML response for successful file uploads.
+ * @return A string containing the HTML response.
+ *
+ * This function returns a simple HTML page indicating that the file upload
+ * was successful, with a link to return to the index page.
+ */
+static std::string generateDefaultUploadResponse() {
+	return "<!DOCTYPE html>\n"
+		   "<html lang=\"en\">\n"
+		   "<head>\n"
+		   "\t<meta charset=\"UTF-8\">\n"
+		   "\t<meta name=\"viewport\" content=\"width=device-width, "
+		   "initial-scale=1.0\">\n"
+		   "\t<link rel=\"icon\" href=\"assets/favicon.ico\" "
+		   "type=\"image/x-icon\">\n"
+		   "\t<link rel=\"stylesheet\" href=\"assets/css/style.css\">\n"
+		   "\t<title>Upload Successful</title>\n"
+		   "</head>\n"
+		   "<body>\n"
+		   "\t<h1>File Uploaded Successfully!</h1>\n"
+		   "\t<p>Your file has been uploaded.</p>\n"
+		   "\t<a href=\"index.html\">Back to Index</a>\n"
+		   "</body>\n"
+		   "</html>\n";
+}
+
+/**
  * @brief Generates the HTTP response for a POST request.
  * @return A string containing the HTTP response.
  *
@@ -109,33 +136,6 @@ std::string PostResponse::generateResponse() {
 	loadHeaders();
 
 	return (getResponseStr());
-}
-
-/**
- * @brief Generates a default HTML response for successful file uploads.
- * @return A string containing the HTML response.
- *
- * This function returns a simple HTML page indicating that the file upload
- * was successful, with a link to return to the index page.
- */
-static std::string generateDefaultUploadResponse() {
-	return "<!DOCTYPE html>\n"
-		   "<html lang=\"en\">\n"
-		   "<head>\n"
-		   "\t<meta charset=\"UTF-8\">\n"
-		   "\t<meta name=\"viewport\" content=\"width=device-width, "
-		   "initial-scale=1.0\">\n"
-		   "\t<link rel=\"icon\" href=\"assets/favicon.ico\" "
-		   "type=\"image/x-icon\">\n"
-		   "\t<link rel=\"stylesheet\" href=\"assets/css/style.css\">\n"
-		   "\t<title>Upload Successful</title>\n"
-		   "</head>\n"
-		   "<body>\n"
-		   "\t<h1>File Uploaded Successfully!</h1>\n"
-		   "\t<p>Your file has been uploaded.</p>\n"
-		   "\t<a href=\"index.html\">Back to Index</a>\n"
-		   "</body>\n"
-		   "</html>\n";
 }
 
 /* ************************************************************************** */

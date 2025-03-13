@@ -48,9 +48,7 @@ class AResponse {
 	// Constructors
 	AResponse(const Server &, const HttpRequest &);
 	AResponse(const AResponse &);
-	// Assignment Operator
 	const AResponse &operator=(const AResponse &);
-	// Destructor
 	virtual ~AResponse();
 
 	// Public Member Functions

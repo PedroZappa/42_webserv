@@ -2,10 +2,10 @@
  * @defgroup AResponseModule AResponse Class Module
  * @{
  *
- * This module provides the AResponse class, which serves as an abstract base class
- * for handling HTTP responses. It includes constructors, a destructor, and an
- * assignment operator. The class is initialized with server configuration and
- * HTTP request details.
+ * This module provides the AResponse class, which serves as an abstract base
+ * class for handling HTTP responses. It includes constructors, a destructor,
+ * and an assignment operator. The class is initialized with server
+ * configuration and HTTP request details.
  *
  * @version 1.0
  */
@@ -37,7 +37,7 @@
  * and HTTP request.
  */
 AResponse::AResponse(const Server &server, const HttpRequest &request)
-	: _request(request),_server(server)  {
+	: _request(request), _server(server) {
 }
 
 /**
@@ -46,14 +46,16 @@ AResponse::AResponse(const Server &server, const HttpRequest &request)
  *
  * Initializes a new AResponse object as a copy of the given object.
  */
-AResponse::AResponse(const AResponse &other) 
-    : _request(other._request), _server(other._server) {
+AResponse::AResponse(const AResponse &other)
+	: _request(other._request), _response(other._response),
+	  _server(other._server), _locationRoute(other._locationRoute) {
 }
 
 /**
  * @brief Destructor for AResponse.
  */
-AResponse::~AResponse() {}
+AResponse::~AResponse() {
+}
 
 /* ************************************************************************** */
 /*                                 Operators                                  */
@@ -73,5 +75,24 @@ const AResponse &AResponse::operator=(const AResponse &other) {
 	return (*this);
 }
 
-/** @} */
+/* ************************************************************************** */
+/*                            Protected Methods                               */
+/* ************************************************************************** */
 
+/**
+ * @brief Checks if the HTTP method is allowed.
+ * @return A status code indicating if the method is allowed or not.
+ *
+ * This method checks if the HTTP method of the request is within the
+ * allowed methods for the server configuration and location route.
+ */
+short AResponse::checkMethod() const {
+	const std::set<Method> allowedMethods =
+		_server.getValidMethods(_locationRoute);
+	std::set<Method>::const_iterator it = allowedMethods.find(_request.method);
+	if (it == allowedMethods.end())
+		return (METHOD_NOT_ALLOWED);
+	return (OK);
+}
+
+/** @} */

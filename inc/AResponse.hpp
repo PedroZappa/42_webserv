@@ -68,11 +68,11 @@ class AResponse {
 	short checkFile(const std::string &path) const;
 
 	// Utils
-	std::string getLastModifiedDate(const std::string &path) const; // TODO:
-	const std::string getResponseStr() const; // TODO:
+	std::string getLastModifiedDate(const std::string &path) const;
+	const std::string getResponseStr() const;
 
 	// Response Construction Helpers
-	void setMimeType(const std::string& path); // TODO:
+	void setMimeType(const std::string& path);
 	void loadCommonHeaders(); // TODO:
 	// ErrorResponse
 	const std::string getErrorPage(int errorStatus);// TODO:

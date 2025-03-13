@@ -160,4 +160,216 @@ short AResponse::checkFile(const std::string &path) const {
 	return (OK);
 }
 
+/* ************************************************************************** */
+/*                                   Utils                                    */
+/* ************************************************************************** */
+
+/**
+ * @brief Initializes a map of HTTP status codes to their corresponding messages.
+ * @return A map where the key is the HTTP status code and the value is the status message.
+ *
+ * This function creates and returns a map that associates HTTP status codes
+ * with their respective textual descriptions. The map includes status codes
+ * for informational responses, successful responses, redirection messages,
+ * client error responses, and server error responses.
+ */
+static std::map<short, std::string> initStatusMessages() {
+	std::map<short, std::string> m;
+	m.insert(std::make_pair(100, "Continue"));
+	m.insert(std::make_pair(101, "Switching Protocols"));
+
+	m.insert(std::make_pair(200, "OK"));
+	m.insert(std::make_pair(201, "Created"));
+	m.insert(std::make_pair(202, "Accepted"));
+	m.insert(std::make_pair(203, "Non-Authoritative Information"));
+	m.insert(std::make_pair(204, "No Content"));
+	m.insert(std::make_pair(205, "Reset Content"));
+	m.insert(std::make_pair(206, "Partial Content"));
+
+	m.insert(std::make_pair(300, "Multiple Choices"));
+	m.insert(std::make_pair(301, "Moved Permanently"));
+	m.insert(std::make_pair(302, "Found"));
+	m.insert(std::make_pair(303, "See Other"));
+	m.insert(std::make_pair(304, "Not Modified"));
+	m.insert(std::make_pair(305, "Use Proxy"));
+	m.insert(std::make_pair(307, "Temporary Redirect"));
+	m.insert(std::make_pair(308, "Permanent Redirect"));
+
+	m.insert(std::make_pair(400, "Bad Request"));
+	m.insert(std::make_pair(401, "Unauthorized"));
+	m.insert(std::make_pair(402, "Payment Required"));
+	m.insert(std::make_pair(403, "Forbidden"));
+	m.insert(std::make_pair(404, "Not Found"));
+	m.insert(std::make_pair(405, "Method Not Allowed"));
+	m.insert(std::make_pair(406, "Not Acceptable"));
+	m.insert(std::make_pair(407, "Proxy Authentication Required"));
+	m.insert(std::make_pair(408, "Request Timeout"));
+	m.insert(std::make_pair(409, "Conflict"));
+	m.insert(std::make_pair(410, "Gone"));
+	m.insert(std::make_pair(411, "Length Required"));
+	m.insert(std::make_pair(412, "Precondition Failed"));
+	m.insert(std::make_pair(413, "Payload Too Large"));
+	m.insert(std::make_pair(414, "URI Too Long"));
+	m.insert(std::make_pair(415, "Unsupported Media Type"));
+	m.insert(std::make_pair(416, "Range Not Satisfiable"));
+	m.insert(std::make_pair(417, "Expectation Failed"));
+	m.insert(std::make_pair(421, "Misdirected Request"));
+	m.insert(std::make_pair(422, "Unprocessable Content"));
+	m.insert(std::make_pair(426, "Upgrade Required"));
+
+	m.insert(std::make_pair(500, "Internal Server Error"));
+	m.insert(std::make_pair(501, "Not Implemented"));
+	m.insert(std::make_pair(502, "Bad Gateway"));
+	m.insert(std::make_pair(503, "Service Unavailable"));
+	m.insert(std::make_pair(504, "Gateway Timeout"));
+	m.insert(std::make_pair(505, "HTTP Version Not Supported"));
+	return m;
+}
+
+/*
+ * @brief A constant map of HTTP status codes to their corresponding messages.
+ *
+ * This map is initialized using the initStatusMessages function and provides
+ * a convenient way to look up the textual description of an HTTP status code.
+ */
+const std::map<short, std::string> STATUS_MESSAGES = initStatusMessages();
+
+/**
+ * @brief Initializes a map of MIME types to their corresponding content types.
+ * @return A map where the key is the file extension and the value is the MIME type.
+ *
+ * This function creates and returns a map that associates file extensions
+ * with their respective MIME types. The map includes MIME types for text,
+ * image, audio/video, application, Microsoft, and other formats.
+ */
+static std::map<std::string, std::string> initMimeTypes() {
+	std::map<std::string, std::string> mimeTypes;
+
+	// Text formats
+	mimeTypes["html"] = "text/html";
+	mimeTypes["htm"] = "text/html";
+	mimeTypes["css"] = "text/css";
+	mimeTypes["csv"] = "text/csv";
+	mimeTypes["txt"] = "text/plain";
+	mimeTypes["xml"] = "application/xml";
+
+	// Image formats
+	mimeTypes["png"] = "image/png";
+	mimeTypes["jpg"] = "image/jpeg";
+	mimeTypes["jpeg"] = "image/jpeg";
+	mimeTypes["gif"] = "image/gif";
+	mimeTypes["bmp"] = "image/bmp";
+	mimeTypes["ico"] = "image/x-icon";
+
+	// Audio/Video formats
+	mimeTypes["mp3"] = "audio/mpeg";
+	mimeTypes["wav"] = "audio/wav";
+	mimeTypes["mp4"] = "video/mp4";
+	mimeTypes["avi"] = "video/x-msvideo";
+	mimeTypes["mov"] = "video/quicktime";
+
+	// Application formats
+	mimeTypes["json"] = "application/json";
+	mimeTypes["js"] = "application/javascript";
+	mimeTypes["pdf"] = "application/pdf";
+	mimeTypes["zip"] = "application/zip";
+	mimeTypes["tar"] = "application/x-tar";
+	mimeTypes["gz"] = "application/gzip";
+	mimeTypes["exe"] = "application/octet-stream";
+	mimeTypes["bin"] = "application/octet-stream";
+
+	// Microsoft formats
+	mimeTypes["doc"] = "application/msword";
+	mimeTypes["docx"] = "application/"
+						"vnd.openxmlformats-officedocument.wordprocessingml."
+						"document";
+	mimeTypes["xls"] = "application/vnd.ms-excel";
+	mimeTypes["xlsx"] = "application/"
+						"vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	mimeTypes["ppt"] = "application/vnd.ms-powerpoint";
+	mimeTypes["pptx"] = "application/"
+						"vnd.openxmlformats-officedocument.presentationml."
+						"presentation";
+
+	// Other formats
+	mimeTypes["svg"] = "image/svg+xml";
+	mimeTypes["woff"] = "font/woff";
+	mimeTypes["woff2"] = "font/woff2";
+
+	return mimeTypes;
+}
+
+/*
+ * @brief Retrieves the last modified date of a file.
+ * @param path The path to the file.
+ * @return A string representing the last modified date in GMT format.
+ *
+ * This method retrieves the last modified date of the specified file
+ * and returns it as a string formatted according to the HTTP-date
+ * specification (RFC 7231), in GMT.
+ */
+std::string AResponse::getLastModifiedDate(const std::string &path) const {
+	struct stat fileStat;
+	if (stat(path.c_str(), &fileStat) != 0)
+		return "";
+	struct tm *tm = gmtime(&fileStat.st_mtime);
+	char dateBuf[30];
+	std::strftime(dateBuf, sizeof(dateBuf), "%a, %d %b %Y %H:%M:%S GMT", tm);
+	return (std::string(dateBuf));
+}
+
+/**
+ * @brief Constructs the HTTP response string.
+ * @return A string representing the complete HTTP response.
+ *
+ * This method constructs and returns the HTTP response string, which includes
+ * the status line, headers, and body. The status line is composed of the HTTP
+ * version, status code, and status message. Headers are appended in the format
+ * "Header-Name: Header-Value", followed by the response body.
+ */
+const std::string AResponse::getResponseStr() const {
+	std::map<short, std::string>::const_iterator itStatus =
+		STATUS_MESSAGES.find(_response.status);
+	std::string msg = (itStatus != STATUS_MESSAGES.end()) ? itStatus->second : "";
+
+	std::string headerStr;
+	std::multimap<std::string, std::string>::const_iterator itH;
+	for (itH = _response.headers.begin(); itH != _response.headers.end(); ++itH) {
+		headerStr += itH->first + ": " + itH->second + "\r\n";
+	}
+
+	return "HTTP/1.1 " + std::to_string(_response.status) + " " + msg + "\r\n" +
+		headerStr + "\r\n" + _response.body;
+}
+
+/* ************************************************************************** */
+/*                                  Setters                                   */
+/* ************************************************************************** */
+
+/**
+ * @brief Sets the MIME  type for the response based on the file extension.
+ * @param path The path to the file whose MIME type is to be determined.
+ *
+ * This method determines the MIME type of a file based on its extension
+ * and sets the "Content-Type" header in the response accordingly. If the
+ * file extension is not recognized, it defaults to "application/octet-stream".
+ *
+ * @note MIME (Multipurpose Internet Mail Extensions) 
+ */
+void AResponse::setMimeType(const std::string &path) {
+	static std::map<std::string, std::string> mimeTs = initMimeTypes();
+
+	std::size_t dotPos = path.find_last_of('.');
+	if (dotPos != std::string::npos) {
+		std::string ext = path.substr(dotPos + 1);
+		std::map<std::string, std::string>::iterator it = mimeTs.find(ext);
+		if (it != mimeTs.end()) {
+			_response.headers.insert(std::make_pair("Content-Type", it->second));
+			return;
+		}
+	}
+	_response.headers.insert( // Nginx Defaults
+		std::make_pair("Content-Type", "application/octet-stream"));
+}
+
 /** @} */

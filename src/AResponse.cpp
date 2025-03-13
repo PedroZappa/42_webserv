@@ -126,7 +126,9 @@ short AResponse::checkMethod() const {
  * status code indicating that the body size is acceptable.
  */
 short AResponse::checkBodySize() const {
-	if (_request.body.size() > _server.getClientMaxBodySize(_locationRoute))
+	std::size_t bodySize = _server.getClientMaxBodySize();
+
+	if (_request.body.size() > bodySize)
 		return (PAYLOAD_TOO_LARGE);
 	return (OK);
 }
@@ -388,7 +390,7 @@ const std::string AResponse::getResponseStr() const {
 		headerStr += itH->first + ": " + itH->second + "\r\n";
 	}
 
-	return "HTTP/1.1 " + std::to_string(_response.status) + " " + msg + "\r\n" +
+	return "HTTP/1.1 " + number2string<short>(_response.status) + " " + msg + "\r\n" +
 		headerStr + "\r\n" + _response.body;
 }
 

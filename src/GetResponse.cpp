@@ -121,7 +121,7 @@ short GetResponse::loadFile(std::string &path) {
 		}
 		setMimeType(path);
 	}
-	loadCommonHeaders();
+	loadHeaders();
 	return (OK);
 }
 /** @} */

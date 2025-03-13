@@ -98,7 +98,7 @@ std::string PostResponse::generateResponse() {
 	} else { //  Trigger CGI
 			 // TODO:
 	}
-	loadCommonHeaders();
+	loadHeaders();
 
 	return (getResponseStr());
 }

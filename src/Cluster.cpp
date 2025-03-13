@@ -549,13 +549,13 @@ bool Cluster::isRequestValid(const std::string &request) const {
 		// Look for end of chunked transfer
 		return (request.find("0\r\n\r\n") != std::string::npos);
 
-	// Assumme request is complete if no `Content-Length` or
-	// `Transfer-Encoding: chunked` is present
-	return (true);
 
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "request is valid");
 #endif
+	// Assumme request is complete if no `Content-Length` or
+	// `Transfer-Encoding: chunked` is present
+	return (true);
 }
 
 /**

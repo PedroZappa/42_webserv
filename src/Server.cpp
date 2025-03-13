@@ -541,9 +541,9 @@ void Server::setErrorPage(std::vector<std::string> &tks)
 #ifdef DEBUG
 	std::stringstream ss;
 	std::map<short, std::string>::const_iterator it;
-	for (it = _errorPage.begin(); it != _errorPage.end(); ++it)
+	for (it = _errorPages.begin(); it != _errorPages.end(); ++it)
 	{
-		if (it != _errorPage.begin())
+		if (it != _errorPages.begin())
 			ss << ", ";
 		ss << it->first << ": " << it->second;
 	}

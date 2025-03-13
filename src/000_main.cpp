@@ -14,8 +14,46 @@
  * @defgroup main
  * @{
  *
- * @brief Brief description of this module or group.
+ * @brief Entry point for the Webserv application.
+ * 
+ * This module contains the main function which initializes and runs the Webserv application.
+ * It handles configuration parsing, signal handling, and server cluster management.
+ * 
  * @version 1.0
+ * @date 2025-01-10
+ * 
+ * @file 000_main.cpp
+ * 
+ * @details
+ * The main function validates input arguments, sets up signal handling, parses the configuration file,
+ * initializes the server cluster, and starts handling requests. It ensures graceful shutdown on receiving
+ * signals and logs the application status.
+ * 
+ * @section usage Usage
+ * 
+ * To run the Webserv application, provide the configuration file as a command-line argument:
+ * 
+ * @code
+ * ./webserv config_file
+ * @endcode
+ * 
+ * If no configuration file is provided, the default configuration file "conf/default.conf" is used.
+ * 
+ * @section signal_handling Signal Handling
+ * 
+ * The application handles SIGINT signals to ensure a graceful shutdown of the server cluster.
+ * 
+ * @section logging Logging
+ * 
+ * The application uses the Logger class to log information, warnings, and errors. In DEBUG mode,
+ * additional debug information is logged.
+ * 
+ * @section configuration Configuration
+ * 
+ * The configuration is parsed using the ConfParser class, and the server cluster is managed using
+ * the Cluster class. The application checks for duplicate server configurations before starting the cluster.
+ * 
+ * @}
  */
 
 /**
@@ -108,7 +146,7 @@ int main(int argc, char **argv)
 		}
 
 #ifdef DEBUG
-		showContainer(__func__, "Initialized Cluster", cluster.getVirtualServers());
+		showContainer(__func__, "Initialized Cluster", cluster->getVirtualServers());
 #endif
 
 		// Attemp to setup Cluster

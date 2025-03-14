@@ -133,6 +133,10 @@ std::string PostResponse::generateResponse() {
 /*                              Private Methods                               */
 /* ************************************************************************** */
 
+/* ************************************************************************** */
+/*                                parseHttp()                                 */
+/* ************************************************************************** */
+
 /**
  * @brief Parses the HTTP request headers.
  * @return An unsigned short representing the response status.
@@ -193,6 +197,10 @@ bool PostResponse::send100continue() {
 
 	return (true);
 }
+
+/* ************************************************************************** */
+/*                                CheckBody()                                 */
+/* ************************************************************************** */
 
 /**
  * @brief Checks the body of the HTTP request for validity.
@@ -255,9 +263,9 @@ const std::string PostResponse::getLimit() {
  * extracting each part into a map of headers and content. It returns a
  * vector of these maps, representing the multipart form data.
  */
-const std::vector<std::multimap<std::string, std::string> >
+const std::vector<std::multimap<std::string, std::string>>
 PostResponse::getBody(const std::string &limit) {
-	std::vector<std::multimap<std::string, std::string> > body;
+	std::vector<std::multimap<std::string, std::string>> body;
 	std::string fullDelimiter = "--" + limit;
 	std::string endDelimiter = fullDelimiter + "--";
 
@@ -330,4 +338,70 @@ PostResponse::getFields(const std::string &str) {
 		std::make_pair("_File Contents", body.substr(0, (body.length() - 2))));
 
 	return (subMap);
+}
+
+/* ************************************************************************** */
+/*                                 getFile()                                  */
+/* ************************************************************************** */
+
+short PostResponse::getFile() {
+	if (_body.empty())
+		return (INTERNAL_SERVER_ERROR);
+
+	std::multimap<std::string, std::string>::iterator contentDispIt =
+
+		_body[0].find("Content-Disposition");
+	if (contentDispIt == _body[0].end())
+		return (INTERNAL_SERVER_ERROR);
+	std::string contentDisp = contentDispIt->second;
+
+	_file2upload.name = getFieldValue(contentDisp, "name");
+	_file2upload.path = getFieldValue(contentDisp, "filename");
+	std::multimap<std::string, std::string>::iterator contentTypeIt =
+		_body[0].find("Content-Type");
+	if (contentTypeIt == _body[0].end())
+		return (INTERNAL_SERVER_ERROR);
+	_file2upload.type = contentTypeIt->second;
+
+	std::multimap<std::string, std::string>::iterator fileContentsIt =
+		_body[0].find("_File Contents");
+	if (fileContentsIt == _body[0].end())
+		return (INTERNAL_SERVER_ERROR);
+	_file2upload.content = fileContentsIt->second;
+
+	return (OK);
+}
+
+std::string PostResponse::getFieldValue(const std::string &header,
+										const std::string &field) {
+	std::string key = (field + "=");
+	std::size_t start = header.find(key);
+
+	if (start == std::string::npos)
+		return ("");
+
+	start += key.length();
+
+	bool quoted = false;
+	if (header[start] == '"') {
+		quoted = true;
+		++start;
+	}
+
+	std::size_t end = start;
+	while (end < header.length()) {
+		if (quoted) {
+			if (header[end] == '"') {
+				quoted = false;
+				break;
+			}
+		} else if (header[end] == ';')
+			break;
+		++end;
+	}
+
+	if (quoted && (end < header.length() && (header[end] == '"')))
+		++end;
+
+	return (header.substr(start, (end - start)));
 }

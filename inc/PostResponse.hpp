@@ -76,6 +76,9 @@ class PostResponse : public AResponse {
 	const std::multimap<std::string, std::string> getFields(const std::string &str);
 
 	short getFile();
+	std::string getFieldValue(const std::string &header,
+							  const std::string &field);
+
 	short uploadFile();
 	short checkForm();
 	//

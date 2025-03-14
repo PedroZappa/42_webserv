@@ -418,3 +418,62 @@ std::string PostResponse::getFieldValue(const std::string &header,
 
   return (header.substr(start, (end - start)));
 }
+
+/* ************************************************************************** */
+/*                                CheckForm()                                 */
+/* ************************************************************************** */
+
+/**
+ * @brief Checks the form data in the HTTP request.
+ * @return A short representing the response status.
+ *
+ * This function verifies the presence and type of the "content-type" header
+ * in the HTTP request. It ensures that the content type is
+ * "multipart/form-data", which is required for processing form data. If the
+ * header is missing or the content type is not supported, it returns an
+ * appropriate error status.
+ */
+short PostResponse::checkForm() {
+  std::map<std::string, std::string>::iterator it =
+      _request.headers.find("content-type");
+
+  if (it == _request.headers.end())
+    return (BAD_REQUEST);
+
+  if (it->second.find("multipart/form-data") == std::string::npos)
+    return (UNSUPPORTED_MEDIA_TYPE);
+
+  return (OK);
+}
+
+/* ************************************************************************** */
+/*                                uploadFile()                                */
+/* ************************************************************************** */
+
+static bool createDirectory(const std::string &path);
+
+short PostResponse::uploadFile() {
+  short staus = getFile();
+  if (staus != OK)
+    return (staus);
+
+  std::string dir = _server.getUploadStore(_locationRoute);
+  {
+    if (dir.empty())
+      dir =
+          getPath(_server.getRoot(_locationRoute), "default_upload_directory");
+    if (!createDirectory(dir))
+      return (INTERNAL_SERVER_ERROR);
+  }
+
+  return (OK);
+}
+
+static bool createDirectory(const std::string &path) {
+  if (mkdir(path.c_str(), 0777) == 0)
+    return (true);
+  else if (errno == EEXIST)
+    return (true);
+  else
+    return (false);
+}

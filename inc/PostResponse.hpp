@@ -23,11 +23,11 @@
  * content type, and content.
  */
 struct File {
-	std::string name;
-	std::string path; // Full Path of File Name
-	std::string type; // Content type
+    std::string name;
+    std::string path; // Full Path of File Name
+    std::string type; // Content type
 
-	std::string content;
+    std::string content;
 };
 
 /**
@@ -40,48 +40,51 @@ struct File {
  */
 class PostResponse : public AResponse {
   public:
-	/**
-	 * @brief Constructors
-	 * */
-	PostResponse(const Server &, const HttpRequest &, int clientFd, int epollFd);
-	PostResponse(const PostResponse &);
-	~PostResponse();
+    /**
+     * @brief Constructors
+     * */
+    PostResponse(const Server &, const HttpRequest &, int clientFd,
+                 int epollFd);
+    PostResponse(const PostResponse &);
+    ~PostResponse();
 
-	// Public Methods
-	std::string generateResponse();
+    // Public Methods
+    std::string generateResponse();
 
   private:
-	std::vector<std::multimap<std::string, std::string> >
-		_body;                              /**< Body of the response */
-	std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
-	std::string _limit;             /**< Boundary limit for the response */
-	struct File _file2upload;       /**< File to be uploaded */
-	int _clientFd;                  /**< Client socket file descriptor */
-	int _epollFd;                   /**< Epoll instance file descriptor */
-	unsigned short _responseStatus; /**< Response status code */
+    std::vector<std::multimap<std::string, std::string> >
+        _body;                              /**< Body of the response */
+    std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
+    std::string _limit;             /**< Boundary limit for the response */
+    struct File _file2upload;       /**< File to be uploaded */
+    int _clientFd;                  /**< Client socket file descriptor */
+    int _epollFd;                   /**< Epoll instance file descriptor */
+    unsigned short _responseStatus; /**< Response status code */
 
-	// Unusable
-	PostResponse();
-	PostResponse &operator=(const PostResponse &);
+    // Unusable
+    PostResponse();
+    PostResponse &operator=(const PostResponse &);
 
-	// Private Methods
-	unsigned short parseHttp();
-	bool hasHeader(const std::string &header) const;
-	bool send100continue();
+    // Private Methods
+    unsigned short parseHttp();
+    bool hasHeader(const std::string &header) const;
+    bool send100continue();
 
-	short checkBody();
-	const std::string getLimit();
-	const std::vector<std::multimap<std::string, std::string> >
-	getBody(const std::string &limit);
-	const std::multimap<std::string, std::string> getFields(const std::string &str);
+    short checkBody();
+    const std::string getLimit();
+    const std::vector<std::multimap<std::string, std::string> >
+    getBody(const std::string &limit);
+    const std::multimap<std::string, std::string>
+    getFields(const std::string &str);
 
-	short getFile();
-	std::string getFieldValue(const std::string &header,
-							  const std::string &field);
+    short getFile();
+    std::string getFieldValue(const std::string &header,
+                              const std::string &field);
 
-	short uploadFile();
-	short checkForm();
-	//
+    short uploadFile();
+
+    short checkForm();
+    //
 };
 
 #endif

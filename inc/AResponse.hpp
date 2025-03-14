@@ -82,7 +82,7 @@ class AResponse {
 	// ErrorResponse
 	const std::string getErrorPage(int errStat);
 	// PostResponse
-	void setLocationRoute(); // TODO:
+	void setLocationRoute();
 };
 
 /**

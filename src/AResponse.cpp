@@ -499,6 +499,16 @@ const std::string AResponse::getPath(const std::string &root,
         return (root + "/" + path);
 }
 
+/**
+ * @brief Sets the location route for the current request.
+ *
+ * This method determines the best matching location route for the current
+ * HTTP request URI from the server's configured locations. It first checks
+ * for an exact match of the request URI in the server's locations. If no
+ * exact match is found, it searches for the longest matching prefix among
+ * the available location routes. The location route is then set to the
+ * best match found.
+ */
 void AResponse::setLocationRoute() {
     std::map<std::string, Location> serverLoci = _server.getLocations();
 

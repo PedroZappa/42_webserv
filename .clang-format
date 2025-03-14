@@ -1,0 +1,6 @@
+---
+# Use C++03-compatible syntax (this will add spaces between '> >')
+Standard: Cpp03
+# Other style options can remain as needed
+---
+

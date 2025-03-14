@@ -34,26 +34,21 @@
  * @param clientFd File descriptor for the client connection.
  * @param epollFd File descriptor for epoll instance.
  */
-PostResponse::PostResponse(const Server &server,
-						   const HttpRequest &request,
-						   int clientFd,
-						   int epollFd)
-	: AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd),
-	  _responseStatus(OK) {
-}
+PostResponse::PostResponse(const Server &server, const HttpRequest &request,
+                           int clientFd, int epollFd)
+    : AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd),
+      _responseStatus(OK) {}
 
 /**
  * @brief Copy constructor for PostResponse.
  * @param other Another PostResponse object to copy from.
  */
-PostResponse::PostResponse(const PostResponse &other) : AResponse(other) {
-}
+PostResponse::PostResponse(const PostResponse &other) : AResponse(other) {}
 
 /**
  * @brief Destructor for PostResponse.
  */
-PostResponse::~PostResponse() {
-}
+PostResponse::~PostResponse() {}
 
 /* ************************************************************************** */
 /*                          Public Member Functions                           */
@@ -67,23 +62,23 @@ PostResponse::~PostResponse() {
  * was successful, with a link to return to the index page.
  */
 static std::string generateDefaultUploadResponse() {
-	return "<!DOCTYPE html>\n"
-		   "<html lang=\"en\">\n"
-		   "<head>\n"
-		   "\t<meta charset=\"UTF-8\">\n"
-		   "\t<meta name=\"viewport\" content=\"width=device-width, "
-		   "initial-scale=1.0\">\n"
-		   "\t<link rel=\"icon\" href=\"assets/favicon.ico\" "
-		   "type=\"image/x-icon\">\n"
-		   "\t<link rel=\"stylesheet\" href=\"assets/css/style.css\">\n"
-		   "\t<title>Upload Successful</title>\n"
-		   "</head>\n"
-		   "<body>\n"
-		   "\t<h1>File Uploaded Successfully!</h1>\n"
-		   "\t<p>Your file has been uploaded.</p>\n"
-		   "\t<a href=\"index.html\">Back to Index</a>\n"
-		   "</body>\n"
-		   "</html>\n";
+  return "<!DOCTYPE html>\n"
+         "<html lang=\"en\">\n"
+         "<head>\n"
+         "\t<meta charset=\"UTF-8\">\n"
+         "\t<meta name=\"viewport\" content=\"width=device-width, "
+         "initial-scale=1.0\">\n"
+         "\t<link rel=\"icon\" href=\"assets/favicon.ico\" "
+         "type=\"image/x-icon\">\n"
+         "\t<link rel=\"stylesheet\" href=\"assets/css/style.css\">\n"
+         "\t<title>Upload Successful</title>\n"
+         "</head>\n"
+         "<body>\n"
+         "\t<h1>File Uploaded Successfully!</h1>\n"
+         "\t<p>Your file has been uploaded.</p>\n"
+         "\t<a href=\"index.html\">Back to Index</a>\n"
+         "</body>\n"
+         "</html>\n";
 }
 
 /**
@@ -97,36 +92,36 @@ static std::string generateDefaultUploadResponse() {
  * If the request is a CGI request, it triggers the CGI script.
  */
 std::string PostResponse::generateResponse() {
-	unsigned short status = OK;
-	setLocationRoute();
+  unsigned short status = OK;
+  setLocationRoute();
 
-	if ((status = checkMethod()) != OK)
-		return getErrorPage(status);
-	if ((status = parseHttp()) != OK)
-		return getErrorPage(status);
-	if ((status = checkBodySize()) != OK)
-		return getErrorPage(status);
+  if ((status = checkMethod()) != OK)
+    return getErrorPage(status);
+  if ((status = parseHttp()) != OK)
+    return getErrorPage(status);
+  if ((status = checkBodySize()) != OK)
+    return getErrorPage(status);
 
-	if (!isCGI()) {
-		if ((status = checkForm()) != OK)
-			return getErrorPage(status);
+  if (!isCGI()) {
+    if ((status = checkForm()) != OK)
+      return getErrorPage(status);
 
-		if ((status = checkBody()) != OK)
-			return getErrorPage(status);
+    if ((status = checkBody()) != OK)
+      return getErrorPage(status);
 
-		if ((status = getFile()) != OK)
-			return getErrorPage(status);
+    if ((status = getFile()) != OK)
+      return getErrorPage(status);
 
-		if ((status = uploadFile()) != OK)
-			return getErrorPage(status);
-		_response.body = generateDefaultUploadResponse();
-		_response.status = CREATED;
-	} else { //  Trigger CGI
-			 // TODO:
-	}
-	loadHeaders();
+    if ((status = uploadFile()) != OK)
+      return getErrorPage(status);
+    _response.body = generateDefaultUploadResponse();
+    _response.status = CREATED;
+  } else { //  Trigger CGI
+           // TODO:
+  }
+  loadHeaders();
 
-	return (getResponseStr());
+  return (getResponseStr());
 }
 
 /* ************************************************************************** */
@@ -146,13 +141,13 @@ std::string PostResponse::generateResponse() {
  * validates the request headers.
  */
 unsigned short PostResponse::parseHttp() {
-	if (hasHeader("expect"))
-		if (!send100continue())
-			return (_responseStatus);
-	if (!hasHeader("content-length") ||
-		(hasHeader("transfer-encoding") && !isCGI()))
-		_responseStatus = BAD_REQUEST;
-	return _responseStatus;
+  if (hasHeader("expect"))
+    if (!send100continue())
+      return (_responseStatus);
+  if (!hasHeader("content-length") ||
+      (hasHeader("transfer-encoding") && !isCGI()))
+    _responseStatus = BAD_REQUEST;
+  return _responseStatus;
 }
 
 /**
@@ -161,9 +156,9 @@ unsigned short PostResponse::parseHttp() {
  * @return True if the header is present, false otherwise.
  */
 bool PostResponse::hasHeader(const std::string &header) const {
-	if (_request.headers.find(header) != _request.headers.end())
-		return (true);
-	return (false);
+  if (_request.headers.find(header) != _request.headers.end())
+    return (true);
+  return (false);
 }
 
 /**
@@ -175,27 +170,27 @@ bool PostResponse::hasHeader(const std::string &header) const {
  * encoding headers to ensure the request is well-formed.
  */
 bool PostResponse::send100continue() {
-	if (_request.headers.find("expect")->second != "100-continue") {
-		_responseStatus = BAD_REQUEST;
-		return (false);
-	}
-	if (!hasHeader("content-length") && !hasHeader("transfer-encoding")) {
-		_responseStatus = BAD_REQUEST;
-		return (false);
-	}
-	if (hasHeader("content-length") &&
-		string2number<ssize_t>(_request.headers.find("content-length")->second) >
-			_server.getClientMaxBodySize()) {
-		_responseStatus = PAYLOAD_TOO_LARGE;
-		return (false);
-	}
-	ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
-	if (sent < 0) {
-		_responseStatus = INTERNAL_SERVER_ERROR;
-		return (false);
-	}
+  if (_request.headers.find("expect")->second != "100-continue") {
+    _responseStatus = BAD_REQUEST;
+    return (false);
+  }
+  if (!hasHeader("content-length") && !hasHeader("transfer-encoding")) {
+    _responseStatus = BAD_REQUEST;
+    return (false);
+  }
+  if (hasHeader("content-length") &&
+      string2number<ssize_t>(_request.headers.find("content-length")->second) >
+          _server.getClientMaxBodySize()) {
+    _responseStatus = PAYLOAD_TOO_LARGE;
+    return (false);
+  }
+  ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
+  if (sent < 0) {
+    _responseStatus = INTERNAL_SERVER_ERROR;
+    return (false);
+  }
 
-	return (true);
+  return (true);
 }
 
 /* ************************************************************************** */
@@ -212,19 +207,19 @@ bool PostResponse::send100continue() {
  * fail, otherwise returns OK.
  */
 short PostResponse::checkBody() {
-	if (hasHeader("content-type") &&
-		_request.headers.find("content-type")->second.find("multipart/") == 0) {
-		_limit = getLimit();
-		if (_limit.empty())
-			return (BAD_REQUEST);
-		return (OK);
-		_body = getBody(_limit);
-		if (_body.empty())
-			return (BAD_REQUEST);
-		return (OK);
-	} else
-		return (BAD_REQUEST);
-	return (OK);
+  if (hasHeader("content-type") &&
+      _request.headers.find("content-type")->second.find("multipart/") == 0) {
+    _limit = getLimit();
+    if (_limit.empty())
+      return (BAD_REQUEST);
+    return (OK);
+    _body = getBody(_limit);
+    if (_body.empty())
+      return (BAD_REQUEST);
+    return (OK);
+  } else
+    return (BAD_REQUEST);
+  return (OK);
 }
 
 /**
@@ -236,22 +231,22 @@ short PostResponse::checkBody() {
  * is not found, it returns an empty string.
  */
 const std::string PostResponse::getLimit() {
-	std::multimap<std::string, std::string>::const_iterator contentTypeHeader =
-		_request.headers.find("content-type");
-	if (contentTypeHeader == _request.headers.end())
-		return "";
+  std::multimap<std::string, std::string>::const_iterator contentTypeHeader =
+      _request.headers.find("content-type");
+  if (contentTypeHeader == _request.headers.end())
+    return "";
 
-	const std::string contentType = contentTypeHeader->second;
-	if (contentType.empty())
-		return "";
+  const std::string contentType = contentTypeHeader->second;
+  if (contentType.empty())
+    return "";
 
-	std::size_t limitPositrion = contentType.find("boundary=");
-	if (limitPositrion == std::string::npos)
-		return "";
+  std::size_t limitPositrion = contentType.find("boundary=");
+  if (limitPositrion == std::string::npos)
+    return "";
 
-	const std::string limit = contentType.substr(limitPositrion + 9);
+  const std::string limit = contentType.substr(limitPositrion + 9);
 
-	return (limit);
+  return (limit);
 }
 
 /**
@@ -263,37 +258,37 @@ const std::string PostResponse::getLimit() {
  * extracting each part into a map of headers and content. It returns a
  * vector of these maps, representing the multipart form data.
  */
-const std::vector<std::multimap<std::string, std::string>>
+const std::vector<std::multimap<std::string, std::string> >
 PostResponse::getBody(const std::string &limit) {
-	std::vector<std::multimap<std::string, std::string>> body;
-	std::string fullDelimiter = "--" + limit;
-	std::string endDelimiter = fullDelimiter + "--";
+  std::vector<std::multimap<std::string, std::string> > body;
+  std::string fullDelimiter = "--" + limit;
+  std::string endDelimiter = fullDelimiter + "--";
 
-	std::size_t startLDelimiterPos = _request.body.find(fullDelimiter);
-	if (startLDelimiterPos == std::string::npos)
-		return (body);
+  std::size_t startLDelimiterPos = _request.body.find(fullDelimiter);
+  if (startLDelimiterPos == std::string::npos)
+    return (body);
 
-	while (startLDelimiterPos != std::string::npos) {
-		startLDelimiterPos += (fullDelimiter.length() + 2);
-		std::size_t endDelimiterPos =
-			_request.body.find(fullDelimiter, startLDelimiterPos);
+  while (startLDelimiterPos != std::string::npos) {
+    startLDelimiterPos += (fullDelimiter.length() + 2);
+    std::size_t endDelimiterPos =
+        _request.body.find(fullDelimiter, startLDelimiterPos);
 
-		if (_request.body.find(endDelimiter, startLDelimiterPos) ==
-			startLDelimiterPos)
-			break;
+    if (_request.body.find(endDelimiter, startLDelimiterPos) ==
+        startLDelimiterPos)
+      break;
 
-		if (endDelimiterPos == std::string::npos)
-			return (body);
+    if (endDelimiterPos == std::string::npos)
+      return (body);
 
-		std::string subStr = _request.body.substr(
-			startLDelimiterPos, (endDelimiterPos - startLDelimiterPos));
-		std::multimap<std::string, std::string> subMap = getFields(subStr);
-		if (subMap.empty())
-			break;
-		body.push_back(subMap);
-		startLDelimiterPos = endDelimiterPos;
-	}
-	return (body);
+    std::string subStr = _request.body.substr(
+        startLDelimiterPos, (endDelimiterPos - startLDelimiterPos));
+    std::multimap<std::string, std::string> subMap = getFields(subStr);
+    if (subMap.empty())
+      break;
+    body.push_back(subMap);
+    startLDelimiterPos = endDelimiterPos;
+  }
+  return (body);
 }
 
 /**
@@ -308,100 +303,118 @@ PostResponse::getBody(const std::string &limit) {
  */
 const std::multimap<std::string, std::string>
 PostResponse::getFields(const std::string &str) {
-	std::multimap<std::string, std::string> subMap;
+  std::multimap<std::string, std::string> subMap;
 
-	std::size_t headerEnd = str.find("\r\n\r\n");
-	if (headerEnd == std::string::npos)
-		return (subMap);
+  std::size_t headerEnd = str.find("\r\n\r\n");
+  if (headerEnd == std::string::npos)
+    return (subMap);
 
-	std::string headers = str.substr(0, (headerEnd + 2));
-	std::string body = str.substr(headerEnd + 4);
+  std::string headers = str.substr(0, (headerEnd + 2));
+  std::string body = str.substr(headerEnd + 4);
 
-	std::size_t startSep = 0;
-	std::size_t endSep = headers.find("\r\n");
+  std::size_t startSep = 0;
+  std::size_t endSep = headers.find("\r\n");
 
-	while (endSep != std::string::npos) {
-		std::string field = headers.substr(startSep, (endSep - startSep));
-		std::size_t colonPos = field.find(":");
-		if (colonPos != std::string::npos) {
-			std::string left = field.substr(0, colonPos);
-			std::string right = field.substr(colonPos + 2);
-			if (!left.empty() && !right.empty())
-				subMap.insert(std::make_pair(left, right));
-		}
+  while (endSep != std::string::npos) {
+    std::string field = headers.substr(startSep, (endSep - startSep));
+    std::size_t colonPos = field.find(":");
+    if (colonPos != std::string::npos) {
+      std::string left = field.substr(0, colonPos);
+      std::string right = field.substr(colonPos + 2);
+      if (!left.empty() && !right.empty())
+        subMap.insert(std::make_pair(left, right));
+    }
 
-		startSep = (endSep + 2);
-		endSep = headers.find("\r\n", startSep);
-	}
+    startSep = (endSep + 2);
+    endSep = headers.find("\r\n", startSep);
+  }
 
-	subMap.insert(
-		std::make_pair("_File Contents", body.substr(0, (body.length() - 2))));
+  subMap.insert(
+      std::make_pair("_File Contents", body.substr(0, (body.length() - 2))));
 
-	return (subMap);
+  return (subMap);
 }
 
 /* ************************************************************************** */
 /*                                 getFile()                                  */
 /* ************************************************************************** */
-
+/**
+ * @brief Extracts file information from the HTTP request body.
+ * @return A short representing the response status.
+ *
+ * This function retrieves the file information from the parsed HTTP request
+ * body, including the file name, path, type, and content. It checks for the
+ * presence of necessary headers and fields, returning INTERNAL_SERVER_ERROR
+ * if any required information is missing.
+ */
 short PostResponse::getFile() {
-	if (_body.empty())
-		return (INTERNAL_SERVER_ERROR);
+  if (_body.empty())
+    return (INTERNAL_SERVER_ERROR);
 
-	std::multimap<std::string, std::string>::iterator contentDispIt =
+  std::multimap<std::string, std::string>::iterator contentDispIt =
 
-		_body[0].find("Content-Disposition");
-	if (contentDispIt == _body[0].end())
-		return (INTERNAL_SERVER_ERROR);
-	std::string contentDisp = contentDispIt->second;
+      _body[0].find("Content-Disposition");
+  if (contentDispIt == _body[0].end())
+    return (INTERNAL_SERVER_ERROR);
+  std::string contentDisp = contentDispIt->second;
 
-	_file2upload.name = getFieldValue(contentDisp, "name");
-	_file2upload.path = getFieldValue(contentDisp, "filename");
-	std::multimap<std::string, std::string>::iterator contentTypeIt =
-		_body[0].find("Content-Type");
-	if (contentTypeIt == _body[0].end())
-		return (INTERNAL_SERVER_ERROR);
-	_file2upload.type = contentTypeIt->second;
+  _file2upload.name = getFieldValue(contentDisp, "name");
+  _file2upload.path = getFieldValue(contentDisp, "filename");
+  std::multimap<std::string, std::string>::iterator contentTypeIt =
+      _body[0].find("Content-Type");
+  if (contentTypeIt == _body[0].end())
+    return (INTERNAL_SERVER_ERROR);
+  _file2upload.type = contentTypeIt->second;
 
-	std::multimap<std::string, std::string>::iterator fileContentsIt =
-		_body[0].find("_File Contents");
-	if (fileContentsIt == _body[0].end())
-		return (INTERNAL_SERVER_ERROR);
-	_file2upload.content = fileContentsIt->second;
+  std::multimap<std::string, std::string>::iterator fileContentsIt =
+      _body[0].find("_File Contents");
+  if (fileContentsIt == _body[0].end())
+    return (INTERNAL_SERVER_ERROR);
+  _file2upload.content = fileContentsIt->second;
 
-	return (OK);
+  return (OK);
 }
 
+/**
+ * @brief Retrieves the value of a specific field from a header string.
+ * @param header The header string to search within.
+ * @param field The field name to retrieve the value for.
+ * @return A string containing the value of the specified field.
+ *
+ * This function searches for a specified field within a header string and
+ * returns its value. It handles both quoted and unquoted field values,
+ * returning an empty string if the field is not found.
+ */
 std::string PostResponse::getFieldValue(const std::string &header,
-										const std::string &field) {
-	std::string key = (field + "=");
-	std::size_t start = header.find(key);
+                                        const std::string &field) {
+  std::string key = (field + "=");
+  std::size_t start = header.find(key);
 
-	if (start == std::string::npos)
-		return ("");
+  if (start == std::string::npos)
+    return ("");
 
-	start += key.length();
+  start += key.length();
 
-	bool quoted = false;
-	if (header[start] == '"') {
-		quoted = true;
-		++start;
-	}
+  bool quoted = false;
+  if (header[start] == '"') {
+    quoted = true;
+    ++start;
+  }
 
-	std::size_t end = start;
-	while (end < header.length()) {
-		if (quoted) {
-			if (header[end] == '"') {
-				quoted = false;
-				break;
-			}
-		} else if (header[end] == ';')
-			break;
-		++end;
-	}
+  std::size_t end = start;
+  while (end < header.length()) {
+    if (quoted) {
+      if (header[end] == '"') {
+        quoted = false;
+        break;
+      }
+    } else if (header[end] == ';')
+      break;
+    ++end;
+  }
 
-	if (quoted && (end < header.length() && (header[end] == '"')))
-		++end;
+  if (quoted && (end < header.length() && (header[end] == '"')))
+    ++end;
 
-	return (header.substr(start, (end - start)));
+  return (header.substr(start, (end - start)));
 }

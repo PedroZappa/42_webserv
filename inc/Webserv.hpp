@@ -74,7 +74,6 @@ static int getMaxClients() {
 #define MB 1048576
 #define GB 1073741824
 
-#define SERVER_NAME "webserv"
 #define SERVER_PORT 8080
 #define TIMEOUT 5
 #define MAX_PORTS ((64 * KB) - 1)

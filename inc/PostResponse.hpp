@@ -51,13 +51,14 @@ class PostResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	std::vector<std::multimap<std::string, std::string> >
+	std::vector<std::multimap<std::string, std::string>>
 		_body;                              /**< Body of the response */
 	std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
-	std::string _limit;       /**< Boundary limit for the response */
-	struct File _file2upload; /**< File to be uploaded */
-	int _clientFd;
-	int _epollFd;
+	std::string _limit;             /**< Boundary limit for the response */
+	struct File _file2upload;       /**< File to be uploaded */
+	int _clientFd;                  /**< Client socket file descriptor */
+	int _epollFd;                   /**< Epoll instance file descriptor */
+	unsigned short _responseStatus; /**< Response status code */
 
 	// Unusable
 	PostResponse();

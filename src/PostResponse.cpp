@@ -23,16 +23,6 @@
  * uploads, and triggering CGI scripts if necessary.
  */
 
-/**
- * @brief Global variable to store the response status.
- *
- * This variable holds the current status of the HTTP response being processed.
- * It is used throughout the PostResponse class to determine the appropriate
- * response to send back to the client based on the outcome of various checks
- * and operations.
- */
-static unsigned short responseStatus = OK;
-
 /* ************************************************************************** */
 /*                                Constructors                                */
 /* ************************************************************************** */
@@ -48,7 +38,8 @@ PostResponse::PostResponse(const Server &server,
 						   const HttpRequest &request,
 						   int clientFd,
 						   int epollFd)
-	: AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd) {
+	: AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd),
+	  _responseStatus(OK) {
 }
 
 /**
@@ -153,11 +144,11 @@ std::string PostResponse::generateResponse() {
 unsigned short PostResponse::parseHttp() {
 	if (hasHeader("expect"))
 		if (!send100continue())
-			return (responseStatus);
+			return (_responseStatus);
 	if (!hasHeader("content-length") ||
 		(hasHeader("transfer-encoding") && !isCGI()))
-		responseStatus = BAD_REQUEST;
-	return responseStatus;
+		_responseStatus = BAD_REQUEST;
+	return _responseStatus;
 }
 
 /**
@@ -181,22 +172,22 @@ bool PostResponse::hasHeader(const std::string &header) const {
  */
 bool PostResponse::send100continue() {
 	if (_request.headers.find("expect")->second != "100-continue") {
-		responseStatus = BAD_REQUEST;
+		_responseStatus = BAD_REQUEST;
 		return (false);
 	}
 	if (!hasHeader("content-length") && !hasHeader("transfer-encoding")) {
-		responseStatus = BAD_REQUEST;
+		_responseStatus = BAD_REQUEST;
 		return (false);
 	}
 	if (hasHeader("content-length") &&
 		string2number<ssize_t>(_request.headers.find("content-length")->second) >
 			_server.getClientMaxBodySize()) {
-		responseStatus = PAYLOAD_TOO_LARGE;
+		_responseStatus = PAYLOAD_TOO_LARGE;
 		return (false);
 	}
 	ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
 	if (sent < 0) {
-		responseStatus = INTERNAL_SERVER_ERROR;
+		_responseStatus = INTERNAL_SERVER_ERROR;
 		return (false);
 	}
 

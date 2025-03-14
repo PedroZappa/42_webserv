@@ -680,7 +680,11 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	}
 
 	// if no server was found, return first server
-	return (validServers.front());
+	// Return a reference to avoid dangling pointer
+	if (!validServers.empty())
+		return *validServers.front();
+	// Add fallback or throw exception if validServers is empty
+	throw std::runtime_error("No valid server found for the request");
 }
 
 /**

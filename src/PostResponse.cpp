@@ -452,6 +452,15 @@ short PostResponse::checkForm() {
 
 static bool createDirectory(const std::string &path);
 
+/**
+ * @brief Uploads a file from the HTTP request to the server.
+ * @return A short representing the response status.
+ *
+ * This function retrieves the file information from the HTTP request and
+ * attempts to upload it to the server. It checks for the presence of an
+ * upload directory and creates it if necessary. Returns an appropriate
+ * error status if the file cannot be uploaded.
+ */
 short PostResponse::uploadFile() {
   short staus = getFile();
   if (staus != OK)
@@ -469,6 +478,16 @@ short PostResponse::uploadFile() {
   return (OK);
 }
 
+/**
+ * @brief Creates a directory at the specified path.
+ * @param path The path where the directory should be created.
+ * @return True if the directory was created successfully or already exists,
+ * false otherwise.
+ *
+ * This function attempts to create a directory at the given path with
+ * permissions set to 0777. If the directory already exists, it returns true.
+ * If the directory cannot be created, it returns false.
+ */
 static bool createDirectory(const std::string &path) {
   if (mkdir(path.c_str(), 0777) == 0)
     return (true);

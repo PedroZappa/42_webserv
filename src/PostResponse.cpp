@@ -193,3 +193,141 @@ bool PostResponse::send100continue() {
 
 	return (true);
 }
+
+/**
+ * @brief Checks the body of the HTTP request for validity.
+ * @return A short representing the response status.
+ *
+ * This function checks if the "content-type" header is present and if it
+ * indicates a multipart form. It retrieves the boundary limit and extracts
+ * the body content based on this limit. Returns BAD_REQUEST if the checks
+ * fail, otherwise returns OK.
+ */
+short PostResponse::checkBody() {
+	if (hasHeader("content-type") &&
+		_request.headers.find("content-type")->second.find("multipart/") == 0) {
+		_limit = getLimit();
+		if (_limit.empty())
+			return (BAD_REQUEST);
+		return (OK);
+		_body = getBody(_limit);
+		if (_body.empty())
+			return (BAD_REQUEST);
+		return (OK);
+	} else
+		return (BAD_REQUEST);
+	return (OK);
+}
+
+/**
+ * @brief Retrieves the boundary limit from the "content-type" header.
+ * @return A string representing the boundary limit.
+ *
+ * This function searches for the "boundary=" parameter within the
+ * "content-type" header and returns its value. If the header or boundary
+ * is not found, it returns an empty string.
+ */
+const std::string PostResponse::getLimit() {
+	std::multimap<std::string, std::string>::const_iterator contentTypeHeader =
+		_request.headers.find("content-type");
+	if (contentTypeHeader == _request.headers.end())
+		return "";
+
+	const std::string contentType = contentTypeHeader->second;
+	if (contentType.empty())
+		return "";
+
+	std::size_t limitPositrion = contentType.find("boundary=");
+	if (limitPositrion == std::string::npos)
+		return "";
+
+	const std::string limit = contentType.substr(limitPositrion + 9);
+
+	return (limit);
+}
+
+/**
+ * @brief Extracts the body content based on the boundary limit.
+ * @param limit The boundary limit used to parse the body.
+ * @return A vector of maps containing the parsed body fields.
+ *
+ * This function parses the request body using the provided boundary limit,
+ * extracting each part into a map of headers and content. It returns a
+ * vector of these maps, representing the multipart form data.
+ */
+const std::vector<std::multimap<std::string, std::string> >
+PostResponse::getBody(const std::string &limit) {
+	std::vector<std::multimap<std::string, std::string> > body;
+	std::string fullDelimiter = "--" + limit;
+	std::string endDelimiter = fullDelimiter + "--";
+
+	std::size_t startLDelimiterPos = _request.body.find(fullDelimiter);
+	if (startLDelimiterPos == std::string::npos)
+		return (body);
+
+	while (startLDelimiterPos != std::string::npos) {
+		startLDelimiterPos += (fullDelimiter.length() + 2);
+		std::size_t endDelimiterPos =
+			_request.body.find(fullDelimiter, startLDelimiterPos);
+
+		if (_request.body.find(endDelimiter, startLDelimiterPos) ==
+			startLDelimiterPos)
+			break;
+
+		if (endDelimiterPos == std::string::npos)
+			return (body);
+
+		std::string subStr = _request.body.substr(
+			startLDelimiterPos, (endDelimiterPos - startLDelimiterPos));
+		std::multimap<std::string, std::string> subMap = getFields(subStr);
+		if (subMap.empty())
+			break;
+		body.push_back(subMap);
+		startLDelimiterPos = endDelimiterPos;
+	}
+	return (body);
+}
+
+/**
+ * @brief Parses individual fields from a multipart body part.
+ * @param str The string containing the multipart body part.
+ * @return A map of headers and their corresponding values.
+ *
+ * This function extracts headers and content from a given multipart body
+ * part string, returning them as a map. It identifies headers by searching
+ * for colon-separated key-value pairs and includes the body content under
+ * the "_File Contents" key.
+ */
+const std::multimap<std::string, std::string>
+PostResponse::getFields(const std::string &str) {
+	std::multimap<std::string, std::string> subMap;
+
+	std::size_t headerEnd = str.find("\r\n\r\n");
+	if (headerEnd == std::string::npos)
+		return (subMap);
+
+	std::string headers = str.substr(0, (headerEnd + 2));
+	std::string body = str.substr(headerEnd + 4);
+
+	std::size_t startSep = 0;
+	std::size_t endSep = headers.find("\r\n");
+
+	while (endSep != std::string::npos) {
+		std::string field = headers.substr(startSep, (endSep - startSep));
+		std::size_t colonPos = field.find(":");
+		if (colonPos != std::string::npos) {
+			std::string left = field.substr(0, colonPos);
+			std::string right = field.substr(colonPos + 2);
+			if (!left.empty() && !right.empty())
+				subMap.insert(std::make_pair(left, right));
+		}
+
+		startSep = (endSep + 2);
+		endSep = headers.find("\r\n", startSep);
+	}
+
+	subMap.insert(
+		std::make_pair("_File Contents", body.substr(0, (body.length() - 2))));
+
+	return (subMap);
+}

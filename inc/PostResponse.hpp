@@ -51,7 +51,7 @@ class PostResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	std::vector<std::multimap<std::string, std::string>>
+	std::vector<std::multimap<std::string, std::string> >
 		_body;                              /**< Body of the response */
 	std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
 	std::string _limit;             /**< Boundary limit for the response */
@@ -70,6 +70,11 @@ class PostResponse : public AResponse {
 	bool send100continue();
 
 	short checkBody();
+	const std::string getLimit();
+	const std::vector<std::multimap<std::string, std::string> >
+	getBody(const std::string &limit);
+	const std::multimap<std::string, std::string> getFields(const std::string &str);
+
 	short getFile();
 	short uploadFile();
 	short checkForm();

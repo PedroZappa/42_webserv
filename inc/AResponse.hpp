@@ -16,6 +16,7 @@
 #include "HttpParser.hpp"
 #include "Location.hpp"
 #include "Server.hpp"
+#include "Utils.hpp"
 #include "Webserv.hpp"
 
 class Server;
@@ -32,7 +33,7 @@ struct HttpResponse {
 	std::multimap<std::string, std::string> headers; /**< HTTP headers. */
 	std::string body;                                /**< HTTP response body. */
 
-	HttpResponse() : status(200) {
+	HttpResponse() : status(OK) {
 	}
 };
 
@@ -48,9 +49,7 @@ class AResponse {
 	// Constructors
 	AResponse(const Server &, const HttpRequest &);
 	AResponse(const AResponse &);
-	// Assignment Operator
 	const AResponse &operator=(const AResponse &);
-	// Destructor
 	virtual ~AResponse();
 
 	// Public Member Functions
@@ -68,16 +67,20 @@ class AResponse {
 	short checkMethod() const;
 	short checkBodySize() const;
 	short checkFile(const std::string &path) const;
+	//
 
-	// Utils
-	std::string getLastModifiedDate(const std::string &path) const; // TODO:
-	const std::string getResponseStr() const; // TODO:
+	// Getters
+	std::string getLastModifiedDate(const std::string &path) const;
+	const std::string getResponseStr() const;
+	const std::string getPath(const std::string &root,
+							  const std::string &path) const;
+	//
 
-	// Response Construction Helpers
-	void setMimeType(const std::string& path); // TODO:
-	void loadCommonHeaders(); // TODO:
+	// Setters
+	void setMimeType(const std::string &path);
+	void loadHeaders();
 	// ErrorResponse
-	const std::string getErrorPage(int errorStatus);// TODO:
+	const std::string getErrorPage(int errStat);
 	// PostResponse
 	void setLocationRoute(); // TODO:
 };

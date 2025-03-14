@@ -36,7 +36,7 @@ Server::Server(void) : _clientMaxBodySize(-1), _autoIndex(FALSE)
 Server::Server(const Server &copy)
 	: _netAddr(copy.getNetAddr()), _serverName(copy.getServerName()),
 	  _clientMaxBodySize(copy.getClientMaxBodySize()),
-	  _errorPage(copy.getErrorPage()), _root(copy.getRoot()),
+	  _errorPages(copy.getErrorPage()), _root(copy.getRoot()),
 	  _locations(copy.getLocations()), _autoIndex(copy.getAutoIdx()),
 	  _return(copy.getReturn()), _cgiExt(copy.getCgiExt())
 {
@@ -53,7 +53,7 @@ Server &Server::operator=(const Server &copy)
 	_netAddr = copy.getNetAddr();
 	_serverName = copy.getServerName();
 	_clientMaxBodySize = copy.getClientMaxBodySize();
-	_errorPage = copy.getErrorPage();
+	_errorPages = copy.getErrorPage();
 	_root = copy.getRoot();
 	_locations = copy.getLocations();
 	_serverIdx = copy.getServerIdx();
@@ -205,20 +205,20 @@ long Server::getClientMaxBodySize(const std::string &route) const
 /// @return The error page.
 std::map<short, std::string> Server::getErrorPage(void) const
 {
-	return (_errorPage);
+	return (_errorPages);
 }
 
 /// @brief Returns the error page.
 /// @param route The route to append to the error page
 /// @return The error page.
-std::map<short, std::string> Server::getErrorPage(const std::string &route) const
+std::map<short, std::string> Server::getErrorPages(const std::string &route) const
 {
 	if (route.empty())
-		return (this->_errorPage);
+		return (this->_errorPages);
 	std::map<std::string, Location>::const_iterator it;
 	it = _locations.find(route);
 	if ((it == _locations.end()) || (it->second.getErrorPage().empty()))
-		return (_errorPage);
+		return (_errorPages);
 	return (it->second.getErrorPage());
 }
 
@@ -535,15 +535,15 @@ void Server::setErrorPage(std::vector<std::string> &tks)
 		if ((*end != '\0') || (code < 300) || (code > 599) ||
 			code != static_cast<short>(code))
 			throw std::runtime_error("Invalid error_page directive: " + tks[i]);
-		_errorPage[static_cast<short>(code)] = page;
+		_errorPages[static_cast<short>(code)] = page;
 	}
 
 #ifdef DEBUG
 	std::stringstream ss;
 	std::map<short, std::string>::const_iterator it;
-	for (it = _errorPage.begin(); it != _errorPage.end(); ++it)
+	for (it = _errorPages.begin(); it != _errorPages.end(); ++it)
 	{
-		if (it != _errorPage.begin())
+		if (it != _errorPages.begin())
 			ss << ", ";
 		ss << it->first << ": " << it->second;
 	}

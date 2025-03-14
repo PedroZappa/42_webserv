@@ -51,7 +51,7 @@ class PostResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	std::vector<std::multimap<std::string, std::string>>
+	std::vector<std::multimap<std::string, std::string> >
 		_body;                              /**< Body of the response */
 	std::map<int, std::string> _fileBuffer; /**< Buffer for file data */
 	std::string _limit;       /**< Boundary limit for the response */
@@ -65,12 +65,14 @@ class PostResponse : public AResponse {
 
 	// Private Methods
 	unsigned short parseHttp();
+	bool hasHeader(const std::string &header) const;
+	bool send100continue();
+
 	short checkBody();
 	short getFile();
 	short uploadFile();
 	short checkForm();
+	//
 };
-
-static std::string generateDefaultUploadResponse();
 
 #endif

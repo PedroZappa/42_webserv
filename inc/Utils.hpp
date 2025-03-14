@@ -67,5 +67,8 @@ time_t getTime(const std::string &httpTime);
 // // for completeness, if uncommented throws error
 // static int getMonthFromStr(const std::string &month_str); 
 
+/// @brief Returns the current date and time in HTTP-date format
+/// @return The current date and time as a string in HTTP-date format
+std::string getHttpDate();
 
 #endif

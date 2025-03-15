@@ -10,6 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+/**
+ * @class ErrorResponse
+ * @brief Handles the generation of error responses for HTTP requests.
+ *
+ * This class is responsible for creating error responses based on the server
+ * configuration, the HTTP request that triggered the error, and the specific
+ * error status code.
+ */
+
 #include "../inc/ErrorResponse.hpp"
 
 /* ************************************************************************** */
@@ -17,42 +26,49 @@
 /* ************************************************************************** */
 
 /**
- * @brief Constructs an ErrorResponse object with the specified server, request, and error status.
- * 
+ * @brief Constructs an ErrorResponse object.
+ *
+ * Initializes the ErrorResponse with the given server configuration, HTTP
+ * request, and error status code.
+ *
  * @param server The server configuration.
  * @param request The HTTP request that triggered the error.
  * @param errorStatus The HTTP error status code.
  */
-ErrorResponse::ErrorResponse(const Server &server,
-							 const HttpRequest &request,
-							 short errorStatus)
-	: AResponse(server, request), _errorStatus(errorStatus) {
-}
+
+ErrorResponse::ErrorResponse(const Server &server, const HttpRequest &request,
+                             short errorStatus)
+    : AResponse(server, request), _errorStatus(errorStatus) {}
 
 /**
- * @brief Copy constructor for ErrorResponse.
- * 
+ * @brief Copy constructor.
+ *
+ * Creates a copy of the given ErrorResponse object.
+ *
  * @param other The ErrorResponse object to copy from.
  */
-ErrorResponse::ErrorResponse(const ErrorResponse &other) : 
-	AResponse(other), _errorStatus(other._errorStatus) {
-}
+ErrorResponse::ErrorResponse(const ErrorResponse &other)
+    : AResponse(other), _errorStatus(other._errorStatus) {}
 
 /**
- * @brief Destructor for ErrorResponse.
+ * @brief Destructor.
+ *
+ * Cleans up resources used by the ErrorResponse object.
  */
-ErrorResponse::~ErrorResponse() {
-}
+ErrorResponse::~ErrorResponse() {}
 
 /* ************************************************************************** */
 /*                              Public Functions                              */
 /* ************************************************************************** */
 
 /**
- * @brief Generates the error response as a string.
- * 
- * @return A string containing the error page corresponding to the error status.
+ * @brief Generates the error response.
+ *
+ * Constructs and returns a string representing the error page corresponding to
+ * the error status.
+ *
+ * @return A string containing the error page.
  */
 std::string ErrorResponse::generateResponse() {
-	return getErrorPage(_errorStatus);
+    return getErrorPage(_errorStatus);
 }

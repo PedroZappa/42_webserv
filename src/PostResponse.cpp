@@ -465,9 +465,9 @@ static long getFileSize(std::string &target);
  * error status if the file cannot be uploaded.
  */
 short PostResponse::uploadFile() {
-    short staus = getFile();
-    if (staus != OK)
-        return (staus);
+    short status = getFile();
+    if (status != OK)
+        return (status);
 
     std::string dir = _server.getUploadStore(_locationRoute);
     if (dir.empty())
@@ -495,6 +495,11 @@ short PostResponse::uploadFile() {
 		close(fd);
 		return (FORBIDDEN);
     }
+
+	if (close(fd) == -1)
+		return (INTERNAL_SERVER_ERROR);
+
+	storageSize += (getFileSize(path) - fileSize);
 
     return (OK);
 }

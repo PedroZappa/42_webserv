@@ -65,7 +65,6 @@ class AResponse {
     // GetResponse
     bool hasReturn() const;
     void loadReturn();
-    const std::string getPath() const;
     bool isDir(const std::string &path) const;
     const std::string getIndexFile(const std::string &path) const;
     bool hasAutoIndex() const;
@@ -80,6 +79,7 @@ class AResponse {
     // Getters
     std::string getLastModifiedDate(const std::string &path) const;
     const std::string getResponseStr() const;
+    const std::string getPath() const;
     const std::string getPath(const std::string &root,
                               const std::string &path) const;
     //

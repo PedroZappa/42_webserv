@@ -134,20 +134,6 @@ void AResponse::loadReturn() {
 }
 
 /**
- * @brief Constructs the full path for the current request.
- * @return A string representing the combined full path.
- *
- * This method retrieves the root directory from the server configuration
- * for the current location route and combines it with the request URI to
- * construct the full path. It ensures that the path is correctly formatted
- * with a single '/' character between the root and the URI.
- */
-const std::string AResponse::getPath() const {
-    std::string root = _server.getRoot(_locationRoute);
-    return (getPath(root, _request.uri));
-}
-
-/**
  * @brief Checks if the HTTP method is allowed.
  * @return A status code indicating if the method is allowed or not.
  *
@@ -410,6 +396,20 @@ static std::string loadDefaultErrorPage(short stat) {
 /*                                  Getters */
 /* **************************************************************************
  */
+
+/**
+ * @brief Constructs the full path for the current request.
+ * @return A string representing the combined full path.
+ *
+ * This method retrieves the root directory from the server configuration
+ * for the current location route and combines it with the request URI to
+ * construct the full path. It ensures that the path is correctly formatted
+ * with a single '/' character between the root and the URI.
+ */
+const std::string AResponse::getPath() const {
+    std::string root = _server.getRoot(_locationRoute);
+    return (getPath(root, _request.uri));
+}
 
 /*
  * @brief Retrieves the last modified date of a file.

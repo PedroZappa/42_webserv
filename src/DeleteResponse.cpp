@@ -116,7 +116,7 @@ short DeleteResponse::deleteFile(const std::string &path) {
             return (FORBIDDEN);
         return (INTERNAL_SERVER_ERROR);
     } else {
-        storeSize -= fileSize;
+        storageSize -= fileSize;
         return (OK);
     }
 }

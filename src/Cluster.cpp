@@ -30,7 +30,7 @@
 /**
  * @brief Global variable to track the total size of files stored on the server.
  */
-std::size_t storeSize = 0;
+std::size_t storageSize = 0;
 bool isRunning = true;
 
 /* ************************************************************************** */

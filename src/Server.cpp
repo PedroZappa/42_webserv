@@ -256,6 +256,35 @@ std::vector<std::string> Server::getServerIdx(void) const {
 /// @return The auto index.
 State Server::getAutoIdx(void) const { return (_autoIndex); }
 
+/**
+ * @brief Returns the server indexes.
+ * 
+ * This function returns a vector of strings representing the server indexes.
+ * 
+ * @return A vector of strings containing the server indexes.
+ */
+std::vector<std::string> Server::getIndex() const { return _serverIdx; }
+
+/**
+ * @brief Returns the server indexes for a specific route.
+ * 
+ * This function returns a vector of strings representing the server indexes
+ * for a given route. If the route is empty or not found, it returns the default
+ * server indexes.
+ * 
+ * @param route The route for which to retrieve the server indexes.
+ * @return A vector of strings containing the server indexes for the specified route.
+ */
+std::vector<std::string> Server::getIndex(const std::string &route) const {
+    if (route.empty())
+        return (_serverIdx);
+
+    std::map<std::string, Location>::const_iterator it = _locations.find(route);
+	if ((it == _locations.end()) || (it->second.getIndex().empty()))
+		return (_serverIdx);
+	return (it->second.getIndex());
+}
+
 /// @brief Returns the upload store.
 /// @param route The route to append to the upload store
 /// @return The upload store.
@@ -321,13 +350,13 @@ std::string Server::getCgiExt(void) const { return (_cgiExt); }
 std::set<Method> Server::getValidMethods() const { return _validMethods; }
 
 std::set<Method> Server::getValidMethods(const std::string &route) const {
-	if (route.empty())
-		return (_validMethods);
-	std::map<std::string, Location>::const_iterator it;
-	it = _locations.find(route);
-	if ((it == _locations.end()) || (it->second.getValidMethods().empty()))
-		return (_validMethods);
-	return (it->second.getValidMethods());
+    if (route.empty())
+        return (_validMethods);
+    std::map<std::string, Location>::const_iterator it;
+    it = _locations.find(route);
+    if ((it == _locations.end()) || (it->second.getValidMethods().empty()))
+        return (_validMethods);
+    return (it->second.getValidMethods());
 }
 
 /* ************************************************************************** */

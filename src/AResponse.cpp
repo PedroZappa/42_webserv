@@ -151,6 +151,16 @@ bool AResponse::isDir(const std::string &path) const {
     return (false);
 }
 
+const std::string AResponse::getIndexFile(const std::string &path) const {
+    std::vector<std::string> indexFiles = _server.getIndex(_locationRoute);
+    std::vector<std::string>::const_iterator it;
+    for (it = indexFiles.begin(); it != indexFiles.end(); it++) {
+        std::string file = getPath(path, *it);
+		if (checkFile(path) == OK)
+			return (file);
+    }
+}
+
 /**
  * @brief Checks if the HTTP method is allowed.
  * @return A status code indicating if the method is allowed or not.

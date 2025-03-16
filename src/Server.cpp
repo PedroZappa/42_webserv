@@ -81,13 +81,13 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
     os << BYEL "Network Addresses:" NC << std::endl;
     std::vector<Socket> netAddrs = ctx.getNetAddr();
     std::vector<Socket>::const_iterator sockit;
-    for (sockit = netAddrs.begin(); sockit != netAddrs.end(); sockit++)
+    for (sockit = netAddrs.begin(); sockit != netAddrs.end(); ++sockit)
         os << sockit->ip << ":" << sockit->port << std::endl;
 
     os << BYEL "Server Name:" NC << std::endl;
     std::vector<std::string> names = ctx.getServerName();
     std::vector<std::string>::const_iterator strit;
-    for (strit = names.begin(); strit != names.end(); strit++)
+    for (strit = names.begin(); strit != names.end(); ++strit)
         os << *strit << std::endl;
 
     os << BYEL "Client Max Body Size:\n" NC << ctx.getClientMaxBodySize()
@@ -96,7 +96,7 @@ std::ostream &operator<<(std::ostream &os, const Server &ctx) {
     os << BYEL "Error Pages:\n" NC;
     std::map<short, std::string> errPages = ctx.getErrorPage();
     std::map<short, std::string>::const_iterator errit;
-    for (errit = errPages.begin(); errit != errPages.end(); errit++)
+    for (errit = errPages.begin(); errit != errPages.end(); ++errit)
         os << errit->first << ": " << errit->second << std::endl;
 
     os << BYEL "Root:\n" NC << ctx.getRoot() << std::endl;

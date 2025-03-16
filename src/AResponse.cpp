@@ -134,6 +134,24 @@ void AResponse::loadReturn() {
 }
 
 /**
+ * @brief Checks if the specified path is a directory.
+ * @param path The path to check.
+ * @return True if the path is a directory, false otherwise.
+ *
+ * This method uses the stat function to determine if the given path
+ * corresponds to a directory. It retrieves the file status information
+ * and checks the file type to see if it is a directory.
+ */
+bool AResponse::isDir(const std::string &path) const {
+    struct stat info;
+
+    stat(path.c_str(), &info);
+    if ((info.st_mode & S_IFMT) == S_IFDIR) // is Directory?
+        return (true);
+    return (false);
+}
+
+/**
  * @brief Checks if the HTTP method is allowed.
  * @return A status code indicating if the method is allowed or not.
  *

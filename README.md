@@ -16,14 +16,14 @@ ___
 
 ## Webserv TODOS
 
-- [ ] Configuration file Parser
-- [ ] Server setup
-    - [ ] Sockets
-    - [ ] Listen loop
-- [ ] Request parser
-    - [ ] URL decoding
-    - [ ] HTTP parser into a struct
-    - [ ] Check for common errors
+- [x] Configuration file Parser
+- [x] Server setup
+    - [x] Sockets
+    - [x] Listen loop
+- [x] Request parser
+    - [x] URL decoding
+    - [x] HTTP parser into a struct
+    - [x] Check for common errors
 - [ ] Generate a Response
     - [ ] Checks and constructs response based on method
 - [ ] CGI

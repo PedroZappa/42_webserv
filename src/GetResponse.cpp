@@ -170,7 +170,7 @@ std::string GetResponse::generateResponse() {
 			if (status != OK)
 				return getErrorPage(status);
 		} else 
-			getErrorPage(FORBIDDEN);
+			return getErrorPage(FORBIDDEN);
 	}
 	return (getResponseStr());
 }

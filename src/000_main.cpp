@@ -93,9 +93,11 @@ void handleSignal(int code);
 /**
  * @brief Main function for the Webserv application.
  *
+
  * This function initializes the Webserv application, parses the configuration
  * file, sets up the server cluster, and starts handling requests. It also
  * manages signal handling for graceful shutdown.
+
  *
  * @param argc The number of command-line arguments.
  * @param argv The array of command-line arguments.
@@ -116,6 +118,7 @@ int main(int argc, char **argv) {
     std::stringstream s;
     s << "MAX_CLIENTS: " << MAX_CLIENTS;
     Logger::debug(s.str());
+
 #endif
 
     // Setup Signal (INT)
@@ -124,6 +127,7 @@ int main(int argc, char **argv) {
     // Parse Config
     std::string configFile = argc > 2 ? argv[1] : "conf/default.conf";
     ConfParser parser(configFile);
+
 
     std::vector<Server> servers;
 
@@ -135,6 +139,7 @@ int main(int argc, char **argv) {
         Logger::error(e.what());
         return (EXIT_FAILURE);
     }
+
 
 #ifdef DEBUG
     showContainer(__func__, "Loaded Servers", servers);
@@ -169,6 +174,7 @@ int main(int argc, char **argv) {
 
     Logger::info("Webserv stopped");
     return (EXIT_SUCCESS);
+
 }
 
 /**
@@ -188,5 +194,6 @@ void handleSignal(int code) {
 
     std::cout << "\n";
     cluster->stop();
+
 }
 /** @} */

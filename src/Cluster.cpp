@@ -27,6 +27,9 @@
 #include "../inc/PostResponse.hpp"
 #include "../inc/Utils.hpp"
 
+/**
+ * @brief Global variable to track the total size of files stored on the server.
+ */
 std::size_t storeSize = 0;
 bool isRunning = true;
 

@@ -20,7 +20,7 @@ SHELL	:= bash --rcfile ~/.bashrc
 # Default test values
 # MODE			= debug
 IN_PATH		?= $(SRC_PATH)
-ARG				=
+ARG				= ./conf/default.conf
 
 #==============================================================================#
 #                                     NAMES                                    #

@@ -65,6 +65,7 @@ class Server {
     std::map<std::string, Location> getLocations(void) const;
     std::vector<std::string> getServerIdx(void) const;
     State getAutoIdx(void) const;
+    State getAutoIdx(const std::string &route) const;
     std::vector<std::string> getIndex() const;
     std::vector<std::string> getIndex(const std::string &route) const;
 

@@ -68,13 +68,16 @@ class AResponse {
     bool isDir(const std::string &path) const;
     const std::string getIndexFile(const std::string &path) const;
     bool hasAutoIndex() const;
+
+	// Utils
     short loadDirectoryListing(const std::string &path);
+	std::string addFileEntry(std::string& name, const std::string& path);
+
 
     // PostRequest
     short checkMethod() const;
     short checkBodySize() const;
     short checkFile(const std::string &path) const;
-    //
 
     // Getters
     std::string getLastModifiedDate(const std::string &path) const;
@@ -82,7 +85,6 @@ class AResponse {
     const std::string getPath() const;
     const std::string getPath(const std::string &root,
                               const std::string &path) const;
-    //
 
     // Setters
     void setMimeType(const std::string &path);

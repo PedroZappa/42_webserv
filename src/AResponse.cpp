@@ -156,9 +156,16 @@ const std::string AResponse::getIndexFile(const std::string &path) const {
     std::vector<std::string>::const_iterator it;
     for (it = indexFiles.begin(); it != indexFiles.end(); it++) {
         std::string file = getPath(path, *it);
-		if (checkFile(path) == OK)
-			return (file);
+        if (checkFile(path) == OK)
+            return (file);
     }
+    return ("");
+}
+
+bool AResponse::hasAutoIndex() const {
+    if (_server.getAutoIdx(_locationRoute) == TRUE)
+        return (true);
+    return (false);
 }
 
 /**
@@ -228,9 +235,68 @@ short AResponse::checkFile(const std::string &path) const {
 
 /* **************************************************************************
  */
-/*                                   Utils */
+/*                                  Getters */
 /* **************************************************************************
  */
+
+/**
+ * @brief Constructs the full path for the current request.
+ * @return A string representing the combined full path.
+ *
+ * This method retrieves the root directory from the server configuration
+ * for the current location route and combines it with the request URI to
+ * construct the full path. It ensures that the path is correctly formatted
+ * with a single '/' character between the root and the URI.
+ */
+const std::string AResponse::getPath() const {
+    std::string root = _server.getRoot(_locationRoute);
+    return (getPath(root, _request.uri));
+}
+
+/**
+ * @brief Constructs the full path by combining the root and relative path.
+ * @param root The root directory path.
+ * @param path The relative path to be appended to the root.
+ * @return A string representing the combined full path.
+ *
+ * This method constructs the full path by appending the relative path to
+ * the root directory. It ensures that there is exactly one '/' character
+ * between the root and the relative path. If the relative path is empty,
+ * the method returns the root directory.
+ */
+const std::string AResponse::getPath(const std::string &root,
+                                     const std::string &path) const {
+    if (path.empty())
+        return (root);
+    if (((path.at(path.size() - 1) == '/') && (root.at(0) != '/')) ||
+        ((path.at(path.size() - 1) != '/') && (root.at(0) == '/')))
+        return (root + path);
+    else
+        return (root + "/" + path);
+}
+
+/*
+ * @brief Retrieves the last modified date of a file.
+ * @param path The path to the file.
+ * @return A string representing the last modified date in GMT format.
+ *
+ * This method retrieves the last modified date of the specified file
+ * and returns it as a string formatted according to the HTTP-date
+ * specification (RFC 7231), in GMT.
+ */
+std::string AResponse::getLastModifiedDate(const std::string &path) const {
+    struct stat fileStat;
+    if (stat(path.c_str(), &fileStat) != 0)
+        return "";
+    struct tm *tm = gmtime(&fileStat.st_mtime);
+    char dateBuf[30];
+    std::strftime(dateBuf, sizeof(dateBuf), "%a, %d %b %Y %H:%M:%S GMT", tm);
+    return (std::string(dateBuf));
+}
+
+/* ************************************************************************** */
+/*                                   Utils */
+/* ************************************************************************** */
 
 /**
  * @brief Initializes a map of HTTP status codes to their corresponding
@@ -305,6 +371,32 @@ static std::map<short, std::string> initStatusMessages() {
  * status code.
  */
 const std::map<short, std::string> STATUS_MESSAGES = initStatusMessages();
+
+/**
+ * @brief Constructs the HTTP response string.
+ * @return A string representing the complete HTTP response.
+ *
+ * This method constructs and returns the HTTP response string, which
+ * includes the status line, headers, and body. The status line is composed
+ * of the HTTP version, status code, and status message. Headers are
+ * appended in the format "Header-Name: Header-Value", followed by the
+ * response body.
+ */
+const std::string AResponse::getResponseStr() const {
+    std::map<short, std::string>::const_iterator itStat =
+        STATUS_MESSAGES.find(_response.status);
+    std::string msg = (itStat != STATUS_MESSAGES.end()) ? itStat->second : "";
+
+    std::string headerStr;
+    std::multimap<std::string, std::string>::const_iterator itH;
+    for (itH = _response.headers.begin(); itH != _response.headers.end();
+         ++itH) {
+        headerStr += itH->first + ": " + itH->second + "\r\n";
+    }
+
+    return "HTTP/1.1 " + number2string<short>(_response.status) + " " + msg +
+           "\r\n" + headerStr + "\r\n" + _response.body;
+}
 
 /**
  * @brief Initializes a map of MIME types to their corresponding content
@@ -419,91 +511,93 @@ static std::string loadDefaultErrorPage(short stat) {
     return res;
 }
 
-/* **************************************************************************
- */
-/*                                  Getters */
-/* **************************************************************************
- */
+static std::string getDirName(const std::string &path) {
+    std::string dirName;
+    std::string::size_type endPos = path.find_last_not_of('/');
+    if (endPos == std::string::npos)
+        dirName = path;
+    std::string::size_type pos = path.find_last_of('/', endPos);
+    if (pos != std::string::npos)
+        dirName = path.substr(pos, (endPos - pos + 1));
 
-/**
- * @brief Constructs the full path for the current request.
- * @return A string representing the combined full path.
- *
- * This method retrieves the root directory from the server configuration
- * for the current location route and combines it with the request URI to
- * construct the full path. It ensures that the path is correctly formatted
- * with a single '/' character between the root and the URI.
- */
-const std::string AResponse::getPath() const {
-    std::string root = _server.getRoot(_locationRoute);
-    return (getPath(root, _request.uri));
+    return (dirName + "/");
 }
 
-/**
- * @brief Constructs the full path by combining the root and relative path.
- * @param root The root directory path.
- * @param path The relative path to be appended to the root.
- * @return A string representing the combined full path.
- *
- * This method constructs the full path by appending the relative path to
- * the root directory. It ensures that there is exactly one '/' character
- * between the root and the relative path. If the relative path is empty,
- * the method returns the root directory.
- */
-const std::string AResponse::getPath(const std::string &root,
-                                     const std::string &path) const {
-    if (path.empty())
-        return (root);
-    if (((path.at(path.size() - 1) == '/') && (root.at(0) != '/')) ||
-        ((path.at(path.size() - 1) != '/') && (root.at(0) == '/')))
-        return (root + path);
-    else
-        return (root + "/" + path);
-}
-
-/*
- * @brief Retrieves the last modified date of a file.
- * @param path The path to the file.
- * @return A string representing the last modified date in GMT format.
- *
- * This method retrieves the last modified date of the specified file
- * and returns it as a string formatted according to the HTTP-date
- * specification (RFC 7231), in GMT.
- */
-std::string AResponse::getLastModifiedDate(const std::string &path) const {
+static std::string getFileSize(const std::string &path) {
     struct stat fileStat;
     if (stat(path.c_str(), &fileStat) != 0)
         return "";
-    struct tm *tm = gmtime(&fileStat.st_mtime);
-    char dateBuf[30];
-    std::strftime(dateBuf, sizeof(dateBuf), "%a, %d %b %Y %H:%M:%S GMT", tm);
-    return (std::string(dateBuf));
+    size_t size = fileStat.st_size;
+    std::string sizeBuffer =
+        (S_ISDIR(fileStat.st_mode) ? "-" : number2string<size_t>(size));
+    return sizeBuffer;
 }
 
-/**
- * @brief Constructs the HTTP response string.
- * @return A string representing the complete HTTP response.
- *
- * This method constructs and returns the HTTP response string, which
- * includes the status line, headers, and body. The status line is composed
- * of the HTTP version, status code, and status message. Headers are
- * appended in the format "Header-Name: Header-Value", followed by the
- * response body.
- */
-const std::string AResponse::getResponseStr() const {
-    std::map<short, std::string>::const_iterator itStat =
-        STATUS_MESSAGES.find(_response.status);
-    std::string msg = (itStat != STATUS_MESSAGES.end()) ? itStat->second : "";
+std::string AResponse::addFileEntry(std::string &name,
+                                    const std::string &path) {
+    std::string fullPath = getPath(path, name);
+    std::string date = getLastModifiedDate(fullPath);
+    std::string size = getFileSize(fullPath);
+    std::string displayName = name;
+    if (isDir(path))
+        displayName += '/';
+    if (displayName.length() > 51)
+        displayName = displayName.substr(0, 48) + "..>";
+    if ((name != "./") && (name != "../"))
+        name = getPath(_request.uri, name);
+    std::string blanksL;
+    if (displayName.length() < 51)
+        blanksL =
+            std::string((51 - displayName.length()), ' '); // Pad with blanks
+    std::stringstream fileEntry;
+    std::string blanksR = "                  ";
+    if (displayName == "../")
+        fileEntry << "<a href=\"" + name + "\">" + displayName + "</a> \n";
+    else
+        fileEntry << "<a href=\"" + name + "\">" + displayName + "</a> " +
+                         blanksL + date + blanksR + size + "\n";
+    return (fileEntry.str());
+}
 
-    std::string headerStr;
-    std::multimap<std::string, std::string>::const_iterator itH;
-    for (itH = _response.headers.begin(); itH != _response.headers.end();
-         ++itH) {
-        headerStr += itH->first + ": " + itH->second + "\r\n";
+short AResponse::loadDirectoryListing(const std::string &path) {
+    DIR *dir = opendir(path.c_str());
+    if (dir == NULL)
+        return (FORBIDDEN);
+
+    std::string dirName = getDirName(path);
+    _response.body = "<!DOCTYPE html>\n<html>\n<head>\n<title>Index of " +
+                     dirName + "</title>\n</head>\n<body>\n<h1>Index of " +
+                     dirName + "</h1>\n<hr>\n<pre>";
+
+    struct dirent *entry;
+    std::vector<std::string> dirs;
+    std::vector<std::string> files;
+    while ((entry = readdir(dir)) != NULL) {
+        if (isDir(getPath(path, entry->d_name)))
+            dirs.push_back(entry->d_name);
+        else
+            files.push_back(entry->d_name);
     }
+    // Sort alphabetically
+    std::sort(dirs.begin(), dirs.end());
+    std::sort(files.begin(), files.end());
+    dirs.erase(dirs.begin()); // delete '.'
 
-    return "HTTP/1.1 " + number2string<short>(_response.status) + " " + msg +
-           "\r\n" + headerStr + "\r\n" + _response.body;
+    std::vector<std::string>::iterator it;
+    for (it = dirs.begin(); it != dirs.end(); it++) {
+        std::string entryName = *it;
+        _response.body += addFileEntry(entryName, path);
+    }
+    for (it = files.begin(); it != files.end(); it++) {
+        std::string entryName = *it;
+        _response.body += addFileEntry(entryName, path);
+    }
+    _response.body += "</pre>\n<hr></body>\n</html>\n";
+    closedir(dir);
+    loadHeaders();
+    _response.headers.insert(std::make_pair("Content-Type", "text/html"));
+
+    return (OK);
 }
 
 /* **************************************************************************

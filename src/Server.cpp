@@ -257,32 +257,54 @@ std::vector<std::string> Server::getServerIdx(void) const {
 State Server::getAutoIdx(void) const { return (_autoIndex); }
 
 /**
+ * @brief Retrieves the auto index state for a specific route.
+ *
+ * This function returns the auto index state for a given route. If the route
+ * is not specified or not found, it returns the default auto index state
+ * of the server.
+ *
+ * @param route The route for which to retrieve the auto index state.
+ * @return The auto index state for the specified route, or the default
+ *         server auto index state if the route is not specified or not found.
+ */
+State Server::getAutoIdx(const std::string &route) const {
+    if (route.empty())
+        return (_autoIndex);
+
+    std::map<std::string, Location>::const_iterator it = _locations.find(route);
+    if ((it == _locations.end()) || (it->second.getAutoIndex() == UNSET))
+        return (_autoIndex);
+    return (it->second.getAutoIndex());
+}
+
+/**
  * @brief Returns the server indexes.
- * 
+ *
  * This function returns a vector of strings representing the server indexes.
- * 
+ *
  * @return A vector of strings containing the server indexes.
  */
 std::vector<std::string> Server::getIndex() const { return _serverIdx; }
 
 /**
  * @brief Returns the server indexes for a specific route.
- * 
+ *
  * This function returns a vector of strings representing the server indexes
  * for a given route. If the route is empty or not found, it returns the default
  * server indexes.
- * 
+ *
  * @param route The route for which to retrieve the server indexes.
- * @return A vector of strings containing the server indexes for the specified route.
+ * @return A vector of strings containing the server indexes for the specified
+ * route.
  */
 std::vector<std::string> Server::getIndex(const std::string &route) const {
     if (route.empty())
         return (_serverIdx);
 
     std::map<std::string, Location>::const_iterator it = _locations.find(route);
-	if ((it == _locations.end()) || (it->second.getIndex().empty()))
-		return (_serverIdx);
-	return (it->second.getIndex());
+    if ((it == _locations.end()) || (it->second.getIndex().empty()))
+        return (_serverIdx);
+    return (it->second.getIndex());
 }
 
 /// @brief Returns the upload store.

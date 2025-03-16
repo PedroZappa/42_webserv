@@ -71,8 +71,8 @@ class Server {
 	std::pair<short, std::string> getReturn(void) const;
 	std::string getCgiExt(const std::string &route) const;
 	std::string getCgiExt(void) const;
-	std::set<Method> getValidMethods(const std::string &route) const;
 	std::set<Method> getValidMethods() const;
+	std::set<Method> getValidMethods(const std::string &route) const;
 
 	// Setters
 	void setDirective(std::string &directive);

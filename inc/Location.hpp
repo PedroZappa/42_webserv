@@ -16,62 +16,63 @@
 #include "Webserv.hpp"
 
 struct MethodMapping {
-	const char *str;
-	Method method;
+    const char *str;
+    Method method;
 };
 
 class Location {
   public:
-	// Constructors
-	Location(void);
-	Location(const Location &copy);
-	~Location(void);
+    // Constructors
+    Location(void);
+    Location(const Location &copy);
+    ~Location(void);
 
-	// Operators
-	Location &operator=(const Location &src);
+    // Operators
+    Location &operator=(const Location &src);
 
-	// Setup
-	void initDirectiveMap(void);
-	void setDirective(std::string &directive);
+    // Setup
+    void initDirectiveMap(void);
+    void setDirective(std::string &directive);
 
-	// Getters
-	std::string getRoot(void) const;
-	std::vector<std::string> getIndex(void) const;
-	std::set<Method> getLimitExcept(void) const;
-	State getAutoIndex(void) const;
-	long getClientMaxBodySize(void) const;
-	std::map<short, std::string> getErrorPage(void) const;
-	std::string getUploadStore(void) const;
-	std::pair<short, std::string> getReturn() const;
-	std::string getCgiExt() const;
+    // Getters
+    std::string getRoot(void) const;
+    std::vector<std::string> getIndex(void) const;
+    std::set<Method> getLimitExcept(void) const;
+    State getAutoIndex(void) const;
+    long getClientMaxBodySize(void) const;
+    std::map<short, std::string> getErrorPage(void) const;
+    std::string getUploadStore(void) const;
+    std::pair<short, std::string> getReturn() const;
+    std::string getCgiExt() const;
+    std::set<Method> getValidMethods() const;
 
-	// Setters Handlers
-	void setRoot(std::string &root);
-	void setRoot(std::vector<std::string> &tks);
-	void setIndex(std::vector<std::string> &tks);
-	void setLimitExcept(std::vector<std::string> &tks);
-	void setAutoIndex(std::vector<std::string> &tks);
-	void setClientMaxBodySize(std::vector<std::string> &tks);
-	void setErrorPage(std::vector<std::string> &tks);
-	void setUploadStore(std::vector<std::string> &tks);
-	void setReturn(std::vector<std::string> &tks);
-	void setCgiExt(std::vector<std::string> &tks);
+    // Setters Handlers
+    void setRoot(std::string &root);
+    void setRoot(std::vector<std::string> &tks);
+    void setIndex(std::vector<std::string> &tks);
+    void setLimitExcept(std::vector<std::string> &tks);
+    void setAutoIndex(std::vector<std::string> &tks);
+    void setClientMaxBodySize(std::vector<std::string> &tks);
+    void setErrorPage(std::vector<std::string> &tks);
+    void setUploadStore(std::vector<std::string> &tks);
+    void setReturn(std::vector<std::string> &tks);
+    void setCgiExt(std::vector<std::string> &tks);
 
-	static const MethodMapping methodMap[];
+    static const MethodMapping methodMap[];
 
   private:
-	std::string _root;
-	std::vector<std::string> _index;
-	State _autoIndex;
-	long _clientMaxBodySize;
-	std::set<Method> _validMethods;
-	std::map<short, std::string> _errorPage;
-	std::string _uploadStore;
-	std::pair<short, std::string> _return;
-	std::string _cgiExt;
+    std::string _root;
+    std::vector<std::string> _index;
+    State _autoIndex;
+    long _clientMaxBodySize;
+    std::set<Method> _validMethods;
+    std::map<short, std::string> _errorPage;
+    std::string _uploadStore;
+    std::pair<short, std::string> _return;
+    std::string _cgiExt;
 
-	typedef void (Location::*DirHandler)(std::vector<std::string> &d);
-	std::map<std::string, DirHandler> _directiveMap;
+    typedef void (Location::*DirHandler)(std::vector<std::string> &d);
+    std::map<std::string, DirHandler> _directiveMap;
 };
 
 std::ostream &operator<<(std::ostream &os, const Location &ctx);

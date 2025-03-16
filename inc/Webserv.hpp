@@ -51,6 +51,7 @@
 /* ************************************************************************** */
 
 #define SERVER_NAME "webserv"
+
 #define URL_MAX_SIZE 8192
 #define MAX_EPOLL_FD_PATH "/proc/sys/fs/epoll/max_user_watches"
 

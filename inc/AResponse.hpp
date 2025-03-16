@@ -62,7 +62,7 @@ class AResponse {
 
     // Checkers
     bool isCGI() const;
-    // GerResponse
+    // GetResponse
     bool hasReturn() const;
     void loadReturn();
     const std::string getPath() const;

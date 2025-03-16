@@ -97,6 +97,57 @@ bool AResponse::isCGI() const {
 }
 
 /**
+ * @brief Checks if there is a return directive for the current location route.
+ * @return True if a return directive is present, false otherwise.
+ *
+ * This method checks if the server configuration for the current location
+ * route includes a return directive, which typically indicates a redirection.
+ * It returns true if a valid return directive is found, otherwise false.
+ */
+bool AResponse::hasReturn() const {
+    std::pair<short, std::string> redir = _server.getReturn(_locationRoute);
+
+    if ((redir.first == -1) || (redir.second.empty()))
+        return (false);
+    return (true);
+}
+
+/**
+ * @brief Loads the return directive into the response.
+ *
+ * This method retrieves the return directive for the current location route
+ * from the server configuration and sets the response body and status code
+ * accordingly. It also loads the necessary HTTP headers, including the
+ * "Location" header for redirection if applicable, and sets the "Content-Type"
+ * header to "application/octet-stream".
+ */
+void AResponse::loadReturn() {
+    std::pair<short, std::string> redir = _server.getReturn(_locationRoute);
+    _response.body = redir.second;
+    _response.status = redir.first;
+    loadHeaders();
+
+    if ((redir.first == MOVED_PERMANENTLY) || (redir.first == FOUND))
+        _response.headers.insert(std::make_pair("Location", redir.second));
+    _response.headers.insert(
+        std::make_pair("Content-Type", "application/octet-stream"));
+}
+
+/**
+ * @brief Constructs the full path for the current request.
+ * @return A string representing the combined full path.
+ *
+ * This method retrieves the root directory from the server configuration
+ * for the current location route and combines it with the request URI to
+ * construct the full path. It ensures that the path is correctly formatted
+ * with a single '/' character between the root and the URI.
+ */
+const std::string AResponse::getPath() const {
+    std::string root = _server.getRoot(_locationRoute);
+    return (getPath(root, _request.uri));
+}
+
+/**
  * @brief Checks if the HTTP method is allowed.
  * @return A status code indicating if the method is allowed or not.
  *
@@ -114,7 +165,8 @@ short AResponse::checkMethod() const {
 
 /**
  * @brief Checks if the request body size exceeds the maximum allowed size.
- * @return A status code indicating if the body size is acceptable or too large.
+ * @return A status code indicating if the body size is acceptable or too
+ * large.
  *
  * This method compares the size of the HTTP request body with the maximum
  * allowed size specified in the server configuration for the current
@@ -135,10 +187,11 @@ short AResponse::checkBodySize() const {
  * @param path The path to the file to check.
  * @return A status code indicating the result of the check.
  *
- * This method checks the status of a file at the specified path. It verifies
- * if the file exists, if it is accessible, and whether it is a directory or
- * a regular file. The method returns a status code indicating whether the
- * file was found, if access is forbidden, or if the file type is incorrect.
+ * This method checks the status of a file at the specified path. It
+ * verifies if the file exists, if it is accessible, and whether it is a
+ * directory or a regular file. The method returns a status code indicating
+ * whether the file was found, if access is forbidden, or if the file type
+ * is incorrect.
  */
 short AResponse::checkFile(const std::string &path) const {
     struct stat info;
@@ -159,9 +212,11 @@ short AResponse::checkFile(const std::string &path) const {
     return (OK);
 }
 
-/* ************************************************************************** */
-/*                                   Utils                                    */
-/* ************************************************************************** */
+/* **************************************************************************
+ */
+/*                                   Utils */
+/* **************************************************************************
+ */
 
 /**
  * @brief Initializes a map of HTTP status codes to their corresponding
@@ -228,17 +283,20 @@ static std::map<short, std::string> initStatusMessages() {
 }
 
 /*
- * @brief A constant map of HTTP status codes to their corresponding messages.
+ * @brief A constant map of HTTP status codes to their corresponding
+ * messages.
  *
- * This map is initialized using the initStatusMessages function and provides
- * a convenient way to look up the textual description of an HTTP status code.
+ * This map is initialized using the initStatusMessages function and
+ * provides a convenient way to look up the textual description of an HTTP
+ * status code.
  */
 const std::map<short, std::string> STATUS_MESSAGES = initStatusMessages();
 
 /**
- * @brief Initializes a map of MIME types to their corresponding content types.
- * @return A map where the key is the file extension and the value is the MIME
- * type.
+ * @brief Initializes a map of MIME types to their corresponding content
+ * types.
+ * @return A map where the key is the file extension and the value is the
+ * MIME type.
  *
  * This function creates and returns a map that associates file extensions
  * with their respective MIME types. The map includes MIME types for text,
@@ -306,11 +364,11 @@ static std::map<std::string, std::string> initMimeTyes() {
  * @param stat The HTTP status code for which the error page is generated.
  * @return A string containing the HTML content of the default error page.
  *
- * This function creates a default error page in HTML format for the specified
- * HTTP status code. It retrieves the status message associated with the code
- * and constructs an HTML page with a title and message indicating the error.
- * The page includes basic styling to center the text and displays the server
- * name at the bottom.
+ * This function creates a default error page in HTML format for the
+ * specified HTTP status code. It retrieves the status message associated
+ * with the code and constructs an HTML page with a title and message
+ * indicating the error. The page includes basic styling to center the text
+ * and displays the server name at the bottom.
  */
 static std::string loadDefaultErrorPage(short stat) {
     std::map<short, std::string>::const_iterator itStat =
@@ -347,9 +405,11 @@ static std::string loadDefaultErrorPage(short stat) {
     return res;
 }
 
-/* ************************************************************************** */
-/*                                  Getters                                   */
-/* ************************************************************************** */
+/* **************************************************************************
+ */
+/*                                  Getters */
+/* **************************************************************************
+ */
 
 /*
  * @brief Retrieves the last modified date of a file.
@@ -374,10 +434,11 @@ std::string AResponse::getLastModifiedDate(const std::string &path) const {
  * @brief Constructs the HTTP response string.
  * @return A string representing the complete HTTP response.
  *
- * This method constructs and returns the HTTP response string, which includes
- * the status line, headers, and body. The status line is composed of the HTTP
- * version, status code, and status message. Headers are appended in the format
- * "Header-Name: Header-Value", followed by the response body.
+ * This method constructs and returns the HTTP response string, which
+ * includes the status line, headers, and body. The status line is composed
+ * of the HTTP version, status code, and status message. Headers are
+ * appended in the format "Header-Name: Header-Value", followed by the
+ * response body.
  */
 const std::string AResponse::getResponseStr() const {
     std::map<short, std::string>::const_iterator itStat =
@@ -395,9 +456,11 @@ const std::string AResponse::getResponseStr() const {
            "\r\n" + headerStr + "\r\n" + _response.body;
 }
 
-/* ************************************************************************** */
-/*                                  Setters                                   */
-/* ************************************************************************** */
+/* **************************************************************************
+ */
+/*                                  Setters */
+/* **************************************************************************
+ */
 
 /**
  * @brief Sets the MIME  type for the response based on the file extension.
@@ -405,7 +468,8 @@ const std::string AResponse::getResponseStr() const {
  *
  * This method determines the MIME type of a file based on its extension
  * and sets the "Content-Type" header in the response accordingly. If the
- * file extension is not recognized, it defaults to "application/octet-stream".
+ * file extension is not recognized, it defaults to
+ * "application/octet-stream".
  *
  * @note MIME (Multipurpose Internet Mail Extensions)
  */
@@ -448,14 +512,17 @@ void AResponse::loadHeaders() {
 
 /**
  * @brief Retrieves the error page for a given HTTP status code.
- * @param errStat The HTTP status code for which the error page is retrieved.
- * @return A string representing the complete HTTP response with the error page.
+ * @param errStat The HTTP status code for which the error page is
+ * retrieved.
+ * @return A string representing the complete HTTP response with the error
+ * page.
  *
  * This method retrieves the error page associated with the specified HTTP
  * status code. It first checks if a custom error page is configured for the
- * status code and attempts to load it. If the custom error page is not found or
- * cannot be loaded, a default error page is generated. The method then loads
- * the necessary HTTP headers and constructs the complete HTTP response string.
+ * status code and attempts to load it. If the custom error page is not
+ * found or cannot be loaded, a default error page is generated. The method
+ * then loads the necessary HTTP headers and constructs the complete HTTP
+ * response string.
  */
 const std::string AResponse::getErrorPage(int errStat) {
     static std::map<short, std::string> errPages =
@@ -483,10 +550,10 @@ const std::string AResponse::getErrorPage(int errStat) {
  * @param path The relative path to be appended to the root.
  * @return A string representing the combined full path.
  *
- * This method constructs the full path by appending the relative path to the
- * root directory. It ensures that there is exactly one '/' character between
- * the root and the relative path. If the relative path is empty, the method
- * returns the root directory.
+ * This method constructs the full path by appending the relative path to
+ * the root directory. It ensures that there is exactly one '/' character
+ * between the root and the relative path. If the relative path is empty,
+ * the method returns the root directory.
  */
 const std::string AResponse::getPath(const std::string &root,
                                      const std::string &path) const {

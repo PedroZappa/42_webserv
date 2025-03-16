@@ -71,18 +71,19 @@ static int getMaxClients() {
     return (val);
 }
 
-// Unit constants
-#define KB 1024
-#define MB 1048576
-#define GB 1073741824
+const int MAX_CLIENTS = getMaxClients();
 
+// Unit constants (cast to unsigned long long to prevent preprocessor overflows)
+#define KB 1024ULL
+#define MB 1048576ULL
+#define GB 1073741824ULL
+
+#define MAX_STORAGE_SIZE (5 * GB)
 #define SERVER_PORT 8080
 #define TIMEOUT 5
 #define MAX_PORTS ((64 * KB) - 1)
 #define MAX_BODY_SIZE MB
 #define REQ_BUFF_SIZE (2 * KB)
-
-const int MAX_CLIENTS = getMaxClients();
 
 /**
  * @brief Global flag indicating if the server is running.
@@ -92,7 +93,7 @@ extern bool isRunning;
 /**
  * @brief Global variable to store the amount of bytes stored in the server.
  */
-extern std::size_t storeSize;
+extern std::size_t storageSize;
 
 /* ************************************************************************** */
 /*                                Enumerations                                */

@@ -411,6 +411,28 @@ const std::string AResponse::getPath() const {
     return (getPath(root, _request.uri));
 }
 
+/**
+ * @brief Constructs the full path by combining the root and relative path.
+ * @param root The root directory path.
+ * @param path The relative path to be appended to the root.
+ * @return A string representing the combined full path.
+ *
+ * This method constructs the full path by appending the relative path to
+ * the root directory. It ensures that there is exactly one '/' character
+ * between the root and the relative path. If the relative path is empty,
+ * the method returns the root directory.
+ */
+const std::string AResponse::getPath(const std::string &root,
+                                     const std::string &path) const {
+    if (path.empty())
+        return (root);
+    if (((path.at(path.size() - 1) == '/') && (root.at(0) != '/')) ||
+        ((path.at(path.size() - 1) != '/') && (root.at(0) == '/')))
+        return (root + path);
+    else
+        return (root + "/" + path);
+}
+
 /*
  * @brief Retrieves the last modified date of a file.
  * @param path The path to the file.
@@ -542,28 +564,6 @@ const std::string AResponse::getErrorPage(int errStat) {
         _response.body = loadDefaultErrorPage(errStat);
     loadHeaders();
     return (getResponseStr());
-}
-
-/**
- * @brief Constructs the full path by combining the root and relative path.
- * @param root The root directory path.
- * @param path The relative path to be appended to the root.
- * @return A string representing the combined full path.
- *
- * This method constructs the full path by appending the relative path to
- * the root directory. It ensures that there is exactly one '/' character
- * between the root and the relative path. If the relative path is empty,
- * the method returns the root directory.
- */
-const std::string AResponse::getPath(const std::string &root,
-                                     const std::string &path) const {
-    if (path.empty())
-        return (root);
-    if (((path.at(path.size() - 1) == '/') && (root.at(0) != '/')) ||
-        ((path.at(path.size() - 1) != '/') && (root.at(0) == '/')))
-        return (root + path);
-    else
-        return (root + "/" + path);
 }
 
 /**

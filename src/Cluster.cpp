@@ -27,9 +27,7 @@
 #include "../inc/PostResponse.hpp"
 #include "../inc/Utils.hpp"
 
-/**
- * @brief Global flag indicating if the server is running.
- */
+std::size_t storeSize = 0;
 bool isRunning = true;
 
 /* ************************************************************************** */

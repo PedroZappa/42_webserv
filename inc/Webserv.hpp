@@ -22,6 +22,7 @@
 
 // C Libraries
 #include <arpa/inet.h> // inet_aton()
+#include <dirent.h>    // DIR , opendir(), readdir(), closedir(),
 #include <fcntl.h>     // O_NONBLOCK F_GETFL F_SETFL
 #include <limits.h>
 #include <netinet/in.h> // struct sockaddr_in INADDR_ANY
@@ -57,17 +58,17 @@
 
 /// @brief Get the maximum number of open fds for epoll
 static int getMaxClients() {
-	// Get the maximum number of open fds for epoll
-	std::ifstream maxClients(MAX_EPOLL_FD_PATH);
-	int val = 666; // Default value
+    // Get the maximum number of open fds for epoll
+    std::ifstream maxClients(MAX_EPOLL_FD_PATH);
+    int val = 666; // Default value
 
-	if (maxClients.is_open()) { // if file opened successfully
-		maxClients >> val;      // Assign first int in file stream to val
-		return (val);
-	}
+    if (maxClients.is_open()) { // if file opened successfully
+        maxClients >> val;      // Assign first int in file stream to val
+        return (val);
+    }
 
-	Logger::error("Failed to open " MAX_EPOLL_FD_PATH);
-	return (val);
+    Logger::error("Failed to open " MAX_EPOLL_FD_PATH);
+    return (val);
 }
 
 // Unit constants
@@ -83,75 +84,85 @@ static int getMaxClients() {
 
 const int MAX_CLIENTS = getMaxClients();
 
+/**
+ * @brief Global flag indicating if the server is running.
+ */
+extern bool isRunning;
+
+/**
+ * @brief Global variable to store the amount of bytes stored in the server.
+ */
+extern std::size_t storeSize;
+
 /* ************************************************************************** */
 /*                                Enumerations                                */
 /* ************************************************************************** */
 
 enum Method { // Keep only the methods that we want to implement
-	GET,
-	HEAD,
-	POST,
-	PUT,
-	DELETE,
-	CONNECT,
-	OPTIONS,
-	TRACE,
-	PATCH,
-	UNKNOWN
+    GET,
+    HEAD,
+    POST,
+    PUT,
+    DELETE,
+    CONNECT,
+    OPTIONS,
+    TRACE,
+    PATCH,
+    UNKNOWN
 };
 
 enum State { TRUE, FALSE, UNSET };
 
 enum ErrCodes {
-	CONTINUE = 100,
-	SWITCHING_PROTOCOLS = 101,
+    CONTINUE = 100,
+    SWITCHING_PROTOCOLS = 101,
 
-	OK = 200,
-	CREATED = 201,
-	ACCEPTED = 202,
-	NON_AUTHORITATIVE_INFORMATION = 203,
-	NO_CONTENT = 204,
-	RESET_CONTENT = 205,
-	PARTIAL_CONTENT = 206,
+    OK = 200,
+    CREATED = 201,
+    ACCEPTED = 202,
+    NON_AUTHORITATIVE_INFORMATION = 203,
+    NO_CONTENT = 204,
+    RESET_CONTENT = 205,
+    PARTIAL_CONTENT = 206,
 
-	MULTIPLE_CHOICES = 300,
-	MOVED_PERMANENTLY = 301,
-	FOUND = 302,
-	SEE_OTHER = 303,
-	NOT_MODIFIED = 304,
-	USE_PROXY = 305,
-	TEMPORARY_REDIRECT = 307,
-	PERMANENT_REDIRECT = 308,
+    MULTIPLE_CHOICES = 300,
+    MOVED_PERMANENTLY = 301,
+    FOUND = 302,
+    SEE_OTHER = 303,
+    NOT_MODIFIED = 304,
+    USE_PROXY = 305,
+    TEMPORARY_REDIRECT = 307,
+    PERMANENT_REDIRECT = 308,
 
-	BAD_REQUEST = 400,
-	UNAUTHORIZED = 401,
-	PAYMENT_REQUIRED = 402,
-	FORBIDDEN = 403,
-	NOT_FOUND = 404,
-	METHOD_NOT_ALLOWED = 405,
-	NOT_ACCEPTABLE = 406,
-	PROXY_AUTHENTICATION_REQUIRED = 407,
-	REQUEST_TIMEOUT = 408,
-	CONFLICT = 409,
-	GONE = 410,
-	LENGTH_REQUIRED = 411,
-	PRECONDITION_FAILED = 412,
-	PAYLOAD_TOO_LARGE = 413,
-	URI_TOO_LONG = 414,
-	UNSUPPORTED_MEDIA_TYPE = 415,
-	RANGE_NOT_SATISFIABLE = 416,
-	EXPECTATION_FAILED = 417,
-	IM_A_TEA_POT = 418,
-	MISDIRECTED_REQUEST = 421,
-	UNPROCESSABLE_ENTITY = 422,
-	UPGRADE_REQUIRED = 426,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    PAYMENT_REQUIRED = 402,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    METHOD_NOT_ALLOWED = 405,
+    NOT_ACCEPTABLE = 406,
+    PROXY_AUTHENTICATION_REQUIRED = 407,
+    REQUEST_TIMEOUT = 408,
+    CONFLICT = 409,
+    GONE = 410,
+    LENGTH_REQUIRED = 411,
+    PRECONDITION_FAILED = 412,
+    PAYLOAD_TOO_LARGE = 413,
+    URI_TOO_LONG = 414,
+    UNSUPPORTED_MEDIA_TYPE = 415,
+    RANGE_NOT_SATISFIABLE = 416,
+    EXPECTATION_FAILED = 417,
+    IM_A_TEA_POT = 418,
+    MISDIRECTED_REQUEST = 421,
+    UNPROCESSABLE_ENTITY = 422,
+    UPGRADE_REQUIRED = 426,
 
-	INTERNAL_SERVER_ERROR = 500,
-	NOT_IMPLEMENTED = 501,
-	BAD_GATEWAY = 502,
-	SERVICE_UNAVAILABLE = 503,
-	GATEWAY_TIMEOUT = 504,
-	HTTP_VERSION_NOT_SUPPORTED = 505
+    INTERNAL_SERVER_ERROR = 500,
+    NOT_IMPLEMENTED = 501,
+    BAD_GATEWAY = 502,
+    SERVICE_UNAVAILABLE = 503,
+    GATEWAY_TIMEOUT = 504,
+    HTTP_VERSION_NOT_SUPPORTED = 505
 };
 
 #endif

@@ -124,5 +124,56 @@ short GetResponse::loadFile(std::string &path) {
 	loadHeaders();
 	return (OK);
 }
+
+/**
+ * @brief Generates the HTTP response based on the request and server configuration.
+ *
+ * This method processes the HTTP request to generate an appropriate response.
+ * It first sets the location route and checks the HTTP method for validity.
+ * If the method is not allowed, it returns an error page. If a redirect is
+ * required, it loads the redirect information and returns the response string.
+ * The method then determines the file path and checks its validity. If the
+ * path is a file, it loads the file content. If the path is a directory, it
+ * attempts to load an index file or generate a directory listing if auto-index
+ * is enabled. If none of these conditions are met, it returns a forbidden error
+ * page.
+ *
+ * @return A string containing the generated HTTP response.
+ */
+std::string GetResponse::generateResponse() {
+	setLocationRoute();
+	short status = checkMethod();
+	if (status != OK)
+		return getErrorPage(status);
+	if (hasReturn()) {
+		loadReturn();
+		return (getResponseStr());
+	}
+	std::string path = getPath();
+
+	status = checkFile(path);
+	if (status != OK)
+		return getErrorPage(status);
+
+	if (!isDir(path)) {
+		status = loadFile(path);
+		if (status != OK)
+			return getErrorPage(status);
+	} else { // Is a directory
+		std::string idxFile = getIndexFile(path);
+		if (!idxFile.empty() && (checkFile(idxFile) == OK)) {
+			status = loadFile(idxFile);
+			if (status != OK)
+				return getErrorPage(status);
+		} else if (hasAutoIndex()) {
+			status = loadDirectoryListing(path);
+			if (status != OK)
+				return getErrorPage(status);
+		} else 
+			return getErrorPage(FORBIDDEN);
+	}
+	return (getResponseStr());
+}
+
 /** @} */
 

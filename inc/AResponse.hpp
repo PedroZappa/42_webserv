@@ -29,12 +29,11 @@ class Location;
  * This structure holds the status code, headers, and body of an HTTP response.
  */
 struct HttpResponse {
-	unsigned short status;                           /**< HTTP status code. */
-	std::multimap<std::string, std::string> headers; /**< HTTP headers. */
-	std::string body;                                /**< HTTP response body. */
+    unsigned short status;                           /**< HTTP status code. */
+    std::multimap<std::string, std::string> headers; /**< HTTP headers. */
+    std::string body;                                /**< HTTP response body. */
 
-	HttpResponse() : status(OK) {
-	}
+    HttpResponse() : status(OK) {}
 };
 
 /**
@@ -46,43 +45,54 @@ struct HttpResponse {
  */
 class AResponse {
   public:
-	// Constructors
-	AResponse(const Server &, const HttpRequest &);
-	AResponse(const AResponse &);
-	const AResponse &operator=(const AResponse &);
-	virtual ~AResponse();
+    // Constructors
+    AResponse(const Server &, const HttpRequest &);
+    AResponse(const AResponse &);
+    const AResponse &operator=(const AResponse &);
+    virtual ~AResponse();
 
-	// Public Member Functions
-	virtual std::string generateResponse() = 0;
+    // Public Member Functions
+    virtual std::string generateResponse() = 0;
 
   protected:
-	HttpRequest _request;       /**< The HTTP request. */
-	HttpResponse _response;     /**< The HTTP response. */
-	const Server &_server;      /**< Reference to the server configuration. */
-	std::string _locationRoute; /**< The location route. */
+    HttpRequest _request;       /**< The HTTP request. */
+    HttpResponse _response;     /**< The HTTP response. */
+    const Server &_server;      /**< Reference to the server configuration. */
+    std::string _locationRoute; /**< The location route. */
 
-	// Checkers
-	bool isCGI() const;
-	// PostRequest
-	short checkMethod() const;
-	short checkBodySize() const;
-	short checkFile(const std::string &path) const;
-	//
+    // Checkers
+    bool isCGI() const;
+    // GetResponse
+    bool hasReturn() const;
+    void loadReturn();
+    bool isDir(const std::string &path) const;
+    const std::string getIndexFile(const std::string &path) const;
+    bool hasAutoIndex() const;
 
-	// Getters
-	std::string getLastModifiedDate(const std::string &path) const;
-	const std::string getResponseStr() const;
-	const std::string getPath(const std::string &root,
-							  const std::string &path) const;
-	//
+	// Utils
+    short loadDirectoryListing(const std::string &path);
+	std::string addFileEntry(std::string& name, const std::string& path);
 
-	// Setters
-	void setMimeType(const std::string &path);
-	void loadHeaders();
-	// ErrorResponse
-	const std::string getErrorPage(int errStat);
-	// PostResponse
-	void setLocationRoute(); // TODO:
+
+    // PostRequest
+    short checkMethod() const;
+    short checkBodySize() const;
+    short checkFile(const std::string &path) const;
+
+    // Getters
+    std::string getLastModifiedDate(const std::string &path) const;
+    const std::string getResponseStr() const;
+    const std::string getPath() const;
+    const std::string getPath(const std::string &root,
+                              const std::string &path) const;
+
+    // Setters
+    void setMimeType(const std::string &path);
+    void loadHeaders();
+    // ErrorResponse
+    const std::string getErrorPage(int errStat);
+    // PostResponse
+    void setLocationRoute();
 };
 
 /**

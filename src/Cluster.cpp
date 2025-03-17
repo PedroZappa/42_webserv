@@ -28,8 +28,9 @@
 #include "../inc/Utils.hpp"
 
 /**
- * @brief Global flag indicating if the server is running.
+ * @brief Global variable to track the total size of files stored on the server.
  */
+std::size_t storageSize = 0;
 bool isRunning = true;
 
 /* ************************************************************************** */
@@ -549,7 +550,6 @@ bool Cluster::isRequestValid(const std::string &request) const {
 		// Look for end of chunked transfer
 		return (request.find("0\r\n\r\n") != std::string::npos);
 
-
 #ifdef DEBUG
 	Logger::debug("Cluster", __func__, "request is valid");
 #endif
@@ -682,8 +682,7 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
 	// if no server was found, return first server
 	// Return a reference to avoid dangling pointer
 	if (!validServers.empty())
-		return *validServers.front();
-	// Add fallback or throw exception if validServers is empty
+		return (validServers.front());
 	throw std::runtime_error("No valid server found for the request");
 }
 

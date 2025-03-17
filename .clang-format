@@ -1,0 +1,13 @@
+---
+# Use C++03-compatible syntax (this will add spaces between '> >')
+Standard: Cpp03
+
+# Set regular indentation to 4 spaces
+IndentWidth: 4
+UseTab: Never
+
+# Make access modifiers (public/private/protected) indented by 2 spaces instead of 4
+AccessModifierOffset: -2
+
+# Other style options as needed
+---

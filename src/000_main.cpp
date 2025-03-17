@@ -93,81 +93,88 @@ void handleSignal(int code);
 /**
  * @brief Main function for the Webserv application.
  *
- * This function initializes the Webserv application, parses the configuration file,
- * sets up the server cluster, and starts handling requests. It also manages signal
- * handling for graceful shutdown.
+
+ * This function initializes the Webserv application, parses the configuration
+ * file, sets up the server cluster, and starts handling requests. It also
+ * manages signal handling for graceful shutdown.
+
  *
  * @param argc The number of command-line arguments.
  * @param argv The array of command-line arguments.
- * @return int Returns EXIT_SUCCESS on successful execution, EXIT_FAILURE otherwise.
+ * @return int Returns EXIT_SUCCESS on successful execution, EXIT_FAILURE
+ * otherwise.
  */
 int main(int argc, char **argv) {
-	// Validate input arguments
-	if (argc != 2) {
-		Logger::error("Missing arguments! Usage: " + std::string(argv[0]) +
-					  " config_file");
-		return (EXIT_FAILURE);
-	}
+    // Validate input arguments
+    if (argc != 2) {
+        Logger::error("Missing arguments! Usage: " + std::string(argv[0]) +
+                      " config_file");
+        return (EXIT_FAILURE);
+    }
 
-	Logger::info("Starting Webserv");
-
-#ifdef DEBUG
-	std::stringstream s;
-	s << "MAX_CLIENTS: " << MAX_CLIENTS;
-	Logger::debug(s.str());
-#endif
-
-	// Setup Signal (INT)
-	signal(SIGINT, &handleSignal);
-
-	// Parse Config
-	std::string configFile = argc > 2 ? argv[1] : "conf/default.conf";
-	ConfParser parser(configFile);
-
-	std::vector<Server> servers;
-
-	// Attempt to load Config
-	try {
-		parser.loadConf();
-		servers = parser.getServers();
-	} catch (std::exception &e) {
-		Logger::error(e.what());
-		return (EXIT_FAILURE);
-	}
+    Logger::info("Starting Webserv");
 
 #ifdef DEBUG
-	showContainer(__func__, "Loaded Servers", servers);
+    std::stringstream s;
+    s << "MAX_CLIENTS: " << MAX_CLIENTS;
+    Logger::debug(s.str());
+
 #endif
 
-	try {
-		// Init Server Cluster & Check for Duplicates
-		cluster = new Cluster(servers);
-		if (cluster->hasDuplicates()) {
-			Logger::error("Server config has duplicates");
-			return (EXIT_FAILURE);
-		}
+    // Setup Signal (INT)
+    signal(SIGINT, &handleSignal);
+
+    // Parse Config
+    std::string configFile = argc > 2 ? argv[1] : "conf/default.conf";
+    ConfParser parser(configFile);
+
+
+    std::vector<Server> servers;
+
+    // Attempt to load Config
+    try {
+        parser.loadConf();
+        servers = parser.getServers();
+    } catch (std::exception &e) {
+        Logger::error(e.what());
+        return (EXIT_FAILURE);
+    }
+
 
 #ifdef DEBUG
-		showContainer(
-			__func__, "Initialized Cluster", cluster->getVirtualServers());
+    showContainer(__func__, "Loaded Servers", servers);
 #endif
 
-		// Attemp to setup Cluster
-		Logger::info("Setting up the cluster");
-		cluster->setup();
+    try {
+        // Init Server Cluster & Check for Duplicates
+        cluster = new Cluster(servers);
+        if (cluster->hasDuplicates()) {
+            Logger::error("Server config has duplicates");
+            return (EXIT_FAILURE);
+        }
 
-		// Start running the cluster
-		Logger::info("Ready to receive requests!");
-		cluster->run();
-		delete cluster;
-	} catch (std::exception &e) {
-		Logger::error(e.what());
-		delete cluster;
-		return (EXIT_FAILURE);
-	}
+#ifdef DEBUG
+        showContainer(__func__, "Initialized Cluster",
+                      cluster->getVirtualServers());
+#endif
 
-	Logger::info("Webserv stopped");
-	return (EXIT_SUCCESS);
+        // Attemp to setup Cluster
+        Logger::info("Setting up the cluster");
+        cluster->setup();
+
+        // Start running the cluster
+        Logger::info("Ready to receive requests!");
+        cluster->run();
+        delete cluster;
+    } catch (std::exception &e) {
+        Logger::error(e.what());
+        delete cluster;
+        return (EXIT_FAILURE);
+    }
+
+    Logger::info("Webserv stopped");
+    return (EXIT_SUCCESS);
+
 }
 
 /**
@@ -179,13 +186,14 @@ int main(int argc, char **argv) {
  * @param code The signal code received.
  */
 void handleSignal(int code) {
-	(void)code;
-	if (cluster == NULL) {
-		Logger::warn("Signal caught, but the cluster is not active");
-		std::exit(0);
-	}
+    (void)code;
+    if (cluster == NULL) {
+        Logger::warn("Signal caught, but the cluster is not active");
+        std::exit(0);
+    }
 
-	std::cout << "\n";
-	cluster->stop();
+    std::cout << "\n";
+    cluster->stop();
+
 }
 /** @} */

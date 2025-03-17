@@ -32,8 +32,15 @@ class DeleteResponse : public AResponse {
 	DeleteResponse(const DeleteResponse &);
 	~DeleteResponse();
 
-	// Public Methods
+	// Getters
 	std::string generateResponse();
+
+	//  Checkers
+	bool isDirEmpty(const std::string &path) const;
+
+	// Actions
+	short deleteFile(const std::string &path);
+	short deleteDir(const std::string &path);
 
   private:
 	// Unusable

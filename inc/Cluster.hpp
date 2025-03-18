@@ -16,6 +16,7 @@
 #include "AResponse.hpp"
 #include "HttpParser.hpp"
 #include "Server.hpp"
+#include "Logger.hpp"
 #include <sys/socket.h>
 
 class Server;

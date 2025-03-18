@@ -158,6 +158,7 @@ int main(int argc, char **argv) {
         // Attemp to setup Cluster
         Logger::info("Setting up the cluster");
         cluster->setup();
+		std::cout << *cluster << std::endl;
 
         // Start running the cluster
         Logger::info("Ready to receive requests!");

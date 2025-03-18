@@ -1,0 +1,5 @@
+name: test-get
+url: https://localhost:1026
+headers:
+- name: Content-Type
+  value: application/json

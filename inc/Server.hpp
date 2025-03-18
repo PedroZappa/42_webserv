@@ -20,8 +20,8 @@
 struct Socket {
     // Constructors
     Socket(void) {};
-    Socket(const std::string &ip, const std::string &port)
-        : ip(ip), port(port) {};
+    Socket(const std::string &socketIp, const std::string &socketPort)
+        : ip(socketIp), port(socketPort) {};
 
     // Operators
     bool operator<(const Socket &rhs) const {

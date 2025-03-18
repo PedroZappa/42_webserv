@@ -118,7 +118,6 @@ int main(int argc, char **argv) {
     std::stringstream s;
     s << "MAX_CLIENTS: " << MAX_CLIENTS;
     Logger::debug(s.str());
-
 #endif
 
     // Setup Signal (INT)
@@ -127,7 +126,6 @@ int main(int argc, char **argv) {
     // Parse Config
     std::string configFile = argc > 2 ? argv[1] : "conf/default.conf";
     ConfParser parser(configFile);
-
 
     std::vector<Server> servers;
 
@@ -139,7 +137,6 @@ int main(int argc, char **argv) {
         Logger::error(e.what());
         return (EXIT_FAILURE);
     }
-
 
 #ifdef DEBUG
     showContainer(__func__, "Loaded Servers", servers);

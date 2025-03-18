@@ -121,10 +121,18 @@ $(TEMP_PATH):
 	$(MKDIR_P) $(TEMP_PATH)
 	@echo "* $(YEL)Creating $(CYA)$(TEMP_PATH)$(YEL) folder:$(D) $(_SUCCESS)"
 
+env:
+	if [ ! -f .env ]; then \
+		touch .env; \
+	fi
+
 ##@ Test Rules 🧪
 
 test_all:						## Run All tests
 	echo "Test!"
+
+posting: env ## Open posting with Webserrv requests
+	posting --collection postings_webserv42  --env .env
 
 ##@ Debug Rules 
 

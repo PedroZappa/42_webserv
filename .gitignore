@@ -37,3 +37,6 @@ gdb.txt
 *.out
 *.app
 webserv
+
+# Secrets
+.env

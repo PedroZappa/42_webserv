@@ -331,8 +331,8 @@ void Location::setClientMaxBodySize(std::vector<std::string> &tks) {
 
     // Overflow checking
     char *endPtr = NULL;
-    long size = std::strtol(maxSize.c_str(), &endPtr, 10);
-    if ((*endPtr != '\0') | (size < 0))
+	std::size_t size = std::strtol(maxSize.c_str(), &endPtr, 10);
+    if (*endPtr != '\0')
         throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
 
     // Applying unit checking for overflow

@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
     signal(SIGINT, &handleSignal);
 
     // Parse Config
-    std::string configFile = argc > 2 ? argv[1] : "conf/default.conf";
+    std::string configFile = argc >= 2 ? argv[1] : "conf/default.conf";
     ConfParser parser(configFile);
 
     std::vector<Server> servers;

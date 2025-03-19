@@ -588,7 +588,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
 	time_t currTime = time(NULL);
 	if (lastTime == -1 || currTime - lastTime > 1) {
 		std::stringstream s;
-		s << CYN << "[" << errorStatus << "] "NC << req.uri;
+		s << CYN << "[" << errorStatus << "] " NC << req.uri;
 		Logger::info(s.str());
 		lastTime = currTime;
 	}

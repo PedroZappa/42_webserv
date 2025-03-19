@@ -36,7 +36,7 @@
  * @param request The HTTP request to be processed.
  */
 GetResponse::GetResponse(const Server &server, const HttpRequest &request)
-	: AResponse(server, request) {};
+	: AResponse(server, request, OK) {};
 
 /**
  * @brief Copy constructor for GetResponse.
@@ -142,35 +142,37 @@ short GetResponse::loadFile(std::string &path) {
  */
 std::string GetResponse::generateResponse() {
 	setLocationRoute();
-	short status = checkMethod();
-	if (status != OK)
-		return getErrorPage(status);
+	_status = checkMethod();
+	if (_status != OK)
+		return getErrorPage();
 	if (hasReturn()) {
 		loadReturn();
 		return (getResponseStr());
 	}
 	std::string path = getPath();
 
-	status = checkFile(path);
-	if (status != OK)
-		return getErrorPage(status);
+	_status = checkFile(path);
+	if (_status != OK)
+		return getErrorPage();
 
 	if (!isDir(path)) {
-		status = loadFile(path);
-		if (status != OK)
-			return getErrorPage(status);
+		_status = loadFile(path);
+		if (_status != OK)
+			return getErrorPage();
 	} else { // Is a directory
 		std::string idxFile = getIndexFile(path);
 		if (!idxFile.empty() && (checkFile(idxFile) == OK)) {
-			status = loadFile(idxFile);
-			if (status != OK)
-				return getErrorPage(status);
+			_status = loadFile(idxFile);
+			if (_status != OK)
+				return getErrorPage();
 		} else if (hasAutoIndex()) {
-			status = loadDirectoryListing(path);
-			if (status != OK)
-				return getErrorPage(status);
-		} else 
-			return getErrorPage(FORBIDDEN);
+			_status = loadDirectoryListing(path);
+			if (_status != OK)
+				return getErrorPage();
+		} else {
+			_status = FORBIDDEN;
+			return getErrorPage();
+		}
 	}
 	return (getResponseStr());
 }

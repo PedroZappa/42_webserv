@@ -47,19 +47,21 @@ struct HttpResponse {
 class AResponse {
   public:
     // Constructors
-    AResponse(const Server &, const HttpRequest &);
+    AResponse(const Server &, const HttpRequest &, const short);
     AResponse(const AResponse &);
     const AResponse &operator=(const AResponse &);
     virtual ~AResponse();
 
     // Public Member Functions
     virtual std::string generateResponse() = 0;
+	short getStatus() const;
 
   protected:
     HttpRequest _request;       /**< The HTTP request. */
     HttpResponse _response;     /**< The HTTP response. */
     const Server &_server;      /**< Reference to the server configuration. */
     std::string _locationRoute; /**< The location route. */
+	short _status;		 		/**< The HTTP status code. */
 
     // Checkers
     bool isCGI() const;
@@ -91,7 +93,7 @@ class AResponse {
     void setMimeType(const std::string &path);
     void loadHeaders();
     // ErrorResponse
-    const std::string getErrorPage(int errStat);
+    const std::string getErrorPage();
     // PostResponse
     void setLocationRoute();
 };

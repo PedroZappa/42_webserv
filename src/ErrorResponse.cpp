@@ -38,7 +38,7 @@
 
 ErrorResponse::ErrorResponse(const Server &server, const HttpRequest &request,
                              short errorStatus)
-    : AResponse(server, request), _errorStatus(errorStatus) {}
+    : AResponse(server, request, errorStatus) {}
 
 /**
  * @brief Copy constructor.
@@ -48,7 +48,7 @@ ErrorResponse::ErrorResponse(const Server &server, const HttpRequest &request,
  * @param other The ErrorResponse object to copy from.
  */
 ErrorResponse::ErrorResponse(const ErrorResponse &other)
-    : AResponse(other), _errorStatus(other._errorStatus) {}
+    : AResponse(other) {}
 
 /**
  * @brief Destructor.
@@ -70,5 +70,5 @@ ErrorResponse::~ErrorResponse() {}
  * @return A string containing the error page.
  */
 std::string ErrorResponse::generateResponse() {
-    return getErrorPage(_errorStatus);
+    return getErrorPage();
 }

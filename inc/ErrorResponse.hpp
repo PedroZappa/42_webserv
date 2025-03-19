@@ -32,8 +32,6 @@ class ErrorResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	short _errorStatus; /**< The HTTP error status code. */
-
 	ErrorResponse();
 	const ErrorResponse &operator=(const ErrorResponse &);
 };

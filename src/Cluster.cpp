@@ -640,6 +640,7 @@ const std::string Cluster::getResponse(HttpRequest &request,
     }
 
     std::string response = responseCtrl->generateResponse();
+	errorStatus = responseCtrl->getStatus();
 
     delete responseCtrl;
     return (response);

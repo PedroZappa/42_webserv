@@ -59,7 +59,6 @@ class PostResponse : public AResponse {
     struct File _file2upload;       /**< File to be uploaded */
     int _clientFd;                  /**< Client socket file descriptor */
     int _epollFd;                   /**< Epoll instance file descriptor */
-    unsigned short _responseStatus; /**< Response status code */
 
     // Unusable
     PostResponse();

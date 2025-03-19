@@ -37,8 +37,7 @@
  */
 PostResponse::PostResponse(const Server &server, const HttpRequest &request,
                            int clientFd, int epollFd)
-    : AResponse(server, request), _clientFd(clientFd), _epollFd(epollFd),
-      _responseStatus(OK) {}
+    : AResponse(server, request, OK), _clientFd(clientFd), _epollFd(epollFd) {}
 
 /**
  * @brief Copy constructor for PostResponse.
@@ -93,29 +92,30 @@ static std::string generateDefaultUploadResponse() {
  * If the request is a CGI request, it triggers the CGI script.
  */
 std::string PostResponse::generateResponse() {
-    unsigned short status = OK;
+    _status = OK;
     setLocationRoute();
 
-    if ((status = checkMethod()) != OK)
-        return getErrorPage(status);
-    if ((status = parseHttp()) != OK)
-        return getErrorPage(status);
-    if ((status = checkBodySize()) != OK)
-        return getErrorPage(status);
+    if ((_status = checkMethod()) != OK)
+        return getErrorPage();
+    if ((_status = parseHttp()) != OK)
+        return getErrorPage();
+    if ((_status = checkBodySize()) != OK)
+        return getErrorPage();
 
     if (!isCGI()) {
-        if ((status = checkForm()) != OK)
-            return getErrorPage(status);
+        if ((_status = checkForm()) != OK)
+            return getErrorPage();
 
-        if ((status = checkBody()) != OK)
-            return getErrorPage(status);
+        if ((_status = checkBody()) != OK)
+            return getErrorPage();
 
-        if ((status = getFile()) != OK)
-            return getErrorPage(status);
+        if ((_status = getFile()) != OK)
+            return getErrorPage();
 
-        if ((status = uploadFile()) != OK)
-            return getErrorPage(status);
+        if ((_status = uploadFile()) != OK)
+            return getErrorPage();
         _response.body = generateDefaultUploadResponse();
+		_status = CREATED;
         _response.status = CREATED;
     } else { //  Trigger CGI
              // TODO:
@@ -144,11 +144,11 @@ std::string PostResponse::generateResponse() {
 unsigned short PostResponse::parseHttp() {
     if (hasHeader("expect"))
         if (!send100continue())
-            return (_responseStatus);
+            return (_status);
     if (!hasHeader("content-length") ||
         (hasHeader("transfer-encoding") && !isCGI()))
-        _responseStatus = BAD_REQUEST;
-    return _responseStatus;
+        _status = BAD_REQUEST;
+    return _status;
 }
 
 /**
@@ -172,23 +172,23 @@ bool PostResponse::hasHeader(const std::string &header) const {
  */
 bool PostResponse::send100continue() {
     if (_request.headers.find("expect")->second != "100-continue") {
-        _responseStatus = BAD_REQUEST;
+        _status = BAD_REQUEST;
         return (false);
     }
     if (!hasHeader("content-length") && !hasHeader("transfer-encoding")) {
-        _responseStatus = BAD_REQUEST;
+        _status = BAD_REQUEST;
         return (false);
     }
     if (hasHeader("content-length") &&
         string2number<ssize_t>(
             _request.headers.find("content-length")->second) >
             _server.getClientMaxBodySize()) {
-        _responseStatus = PAYLOAD_TOO_LARGE;
+        _status = PAYLOAD_TOO_LARGE;
         return (false);
     }
     ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
     if (sent < 0) {
-        _responseStatus = INTERNAL_SERVER_ERROR;
+        _status = INTERNAL_SERVER_ERROR;
         return (false);
     }
 

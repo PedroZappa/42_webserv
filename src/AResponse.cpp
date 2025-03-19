@@ -36,8 +36,8 @@
  * Initializes the AResponse object with the given server configuration
  * and HTTP request.
  */
-AResponse::AResponse(const Server &server, const HttpRequest &request)
-    : _request(request), _server(server) {}
+AResponse::AResponse(const Server &server, const HttpRequest &request, const short errorStatus)
+    : _request(request), _server(server), _status(errorStatus) {}
 
 /**
  * @brief Copy constructor for AResponse.
@@ -668,12 +668,12 @@ void AResponse::loadHeaders() {
  * then loads the necessary HTTP headers and constructs the complete HTTP
  * response string.
  */
-const std::string AResponse::getErrorPage(int errStat) {
+const std::string AResponse::getErrorPage() {
     static std::map<short, std::string> errPages =
         _server.getErrorPages(_locationRoute);
-    _response.status = errStat;
+    _response.status = _status;
 
-    std::map<short, std::string>::const_iterator it = errPages.find(errStat);
+    std::map<short, std::string>::const_iterator it = errPages.find(_status);
     if (it != errPages.end()) {
         std::string path = getPath(_server.getRoot(_locationRoute), it->second);
         if (checkFile(path) == OK) {
@@ -683,7 +683,7 @@ const std::string AResponse::getErrorPage(int errStat) {
         }
     }
     if (_response.body.empty())
-        _response.body = loadDefaultErrorPage(errStat);
+        _response.body = loadDefaultErrorPage(_status);
     loadHeaders();
     return (getResponseStr());
 }
@@ -720,6 +720,10 @@ void AResponse::setLocationRoute() {
         }
     }
     _locationRoute = bestMatchRoute;
+}
+
+short AResponse::getStatus() const {
+	return _status;
 }
 
 /** @} */

@@ -28,7 +28,7 @@
  * @param request Reference to the HTTP request.
  */
 DeleteResponse::DeleteResponse(const Server &server, const HttpRequest &request)
-    : AResponse(server, request) {}
+    : AResponse(server, request, OK) {}
 
 /**
  * @brief Copy constructor for DeleteResponse.
@@ -53,26 +53,29 @@ DeleteResponse::~DeleteResponse() {}
 std::string DeleteResponse::generateResponse() {
     setLocationRoute();
 
-    short status = checkMethod();
-    if (status != OK)
-        return getErrorPage(status);
+    _status = checkMethod();
+    if (_status != OK)
+        return getErrorPage();
     std::string path = getPath();
 
-    status = checkFile(path);
-    if (status != OK)
-        return getErrorPage(status);
+    _status = checkFile(path);
+    if (_status != OK)
+        return getErrorPage();
 
     if (!isDir(path)) { // Delete File
-        status = deleteFile(path);
-        if (status != OK)
-            return getErrorPage(status);
+        _status = deleteFile(path);
+        if (_status != OK)
+            return getErrorPage();
     } else { // Is Directory
         if (isDirEmpty(path)) {
-            status = deleteDir(path);
-            if (status != OK)
-                return getErrorPage(status);
+            _status = deleteDir(path);
+            if (_status != OK)
+                return getErrorPage();
         } else
-            return getErrorPage(CONFLICT); // non-empty directory
+		{
+			_status = CONFLICT;
+            return getErrorPage(); // non-empty directory
+		}
     }
     _response.status = NO_CONTENT; // Nginx status upon successfull deletion
     return (getResponseStr());

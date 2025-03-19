@@ -163,11 +163,15 @@ bool Server::isIpValid(const std::string &ip) const {
 /// @return True if the port number is valid, false otherwise.
 bool Server::isPortValid(const std::string &port) const {
     std::string::size_type i;
-    for (i = 0; i < port.size(); ++i)
+    for (i = 0; i < port.size(); ++i) {
         if (!std::isdigit(port[i])) // Check if the string contains only digits
             return (false);
-    int portN = std::atoi(port.c_str());
-    return ((portN >= 0) && (portN <= MAX_PORTS));
+    }
+    char *endPtr = NULL;
+    std::size_t portN = std::strtoul(port.c_str(), &endPtr, 10);
+    if (*endPtr != '\0')
+        return (false);
+    return (portN <= MAX_PORTS);
 }
 
 /* ************************************************************************** */
@@ -514,8 +518,8 @@ void Server::setClientMaxBodySize(std::vector<std::string> &tks) {
 
     // convert string to long
     char *endPtr = NULL;
-    long size = std::strtol(maxSize.c_str(), &endPtr, 10);
-    if ((*endPtr != '\0') | (size < 0))
+    std::size_t size = std::strtoll(maxSize.c_str(), &endPtr, 10);
+    if (*endPtr != '\0')
         throw std::runtime_error("Invalid max_body_size directive: " + tks[1]);
 
     // Applying unit checking for overflow

@@ -27,12 +27,12 @@
 class Logger
 {
 	private:
-		static const std::string currentTime();
 		static void printLog(const std::string &header,
 							 const std::string &message,
 							 bool err);
 
 	public:
+		static const std::string currentTime();
 		static void debug(const std::string &message);
 		static void debug(const std::string &funcName,
 						  const std::string &message);

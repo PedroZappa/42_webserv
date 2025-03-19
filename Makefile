@@ -20,7 +20,7 @@ SHELL	:= bash --rcfile ~/.bashrc
 # Default test values
 # MODE			= debug
 IN_PATH		?= $(SRC_PATH)
-ARG				= ./conf/default.conf
+ARG				= ./conf/2servers.conf
 
 #==============================================================================#
 #                                     NAMES                                    #
@@ -121,10 +121,25 @@ $(TEMP_PATH):
 	$(MKDIR_P) $(TEMP_PATH)
 	@echo "* $(YEL)Creating $(CYA)$(TEMP_PATH)$(YEL) folder:$(D) $(_SUCCESS)"
 
+env:
+	if [ ! -f .env ]; then \
+		touch .env; \
+		echo "# Webserv Environment Variables" > .env; \
+		echo "# Add your config below" >> .env; \
+	fi
+
 ##@ Test Rules 🧪
 
 test_all:						## Run All tests
 	echo "Test!"
+
+
+posting: env ## Open posting with Webserrv requests
+	@if ! command -v posting &> /dev/null; then \
+		echo "Error: 'posting' command not found. Make sure it's installed."; \
+		exit 1; \
+	fi
+	posting --collection postings_webserv42  --env .env
 
 ##@ Debug Rules 
 

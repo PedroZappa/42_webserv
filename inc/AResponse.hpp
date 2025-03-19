@@ -18,6 +18,7 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 #include "Webserv.hpp"
+#include <vector>
 
 class Server;
 class Location;

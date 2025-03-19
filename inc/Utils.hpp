@@ -32,9 +32,6 @@ std::string method2string(Method method);
 template <typename T> std::string number2string(T num) {
 	std::stringstream ss;
 	ss << num;
-	if (ss.fail() || !ss.eof())
-		throw std::invalid_argument(
-			"Failed to convert " + std::string(typeid(T).name()) + " to string");
 	return (ss.str());
 }
 

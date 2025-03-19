@@ -146,13 +146,16 @@ env:
 test_all:						## Run All tests
 	echo "Test!"
 
-
 posting: env ## Open posting with Webserrv requests
 	@if ! command -v posting &> /dev/null; then \
 		echo "Error: 'posting' command not found. Make sure it's installed."; \
 		exit 1; \
 	fi
 	posting --collection postings_webserv42  --env .env
+
+station: ## Run Webserv w/ posting station
+	tmux split-window -h "make posting"
+	tmux split-window -v "make exec"
 
 ##@ Debug Rules 
 

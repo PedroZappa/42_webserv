@@ -45,7 +45,7 @@ bool isRunning = true;
  * each network address and server name combination.
  *
  * @param servers A vector of Server objects to be managed by the cluster.
- **/
+ */
 Cluster::Cluster(const std::vector<Server> &servers)
     : _servers(), _epollFd(-1) {
     _servers.reserve(servers.size());
@@ -508,6 +508,7 @@ void Cluster::handleRequest(int socket) {
             ee.events = (EPOLLIN | EPOLLOUT | EPOLLHUP);
             ee.data.fd = socket;
 
+            /* Change file descriptor epoll_event structure.  */
             if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, socket, &ee) == -1)
                 killConnection(socket, _epollFd);
         }

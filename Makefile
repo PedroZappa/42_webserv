@@ -158,8 +158,9 @@ station: ## Run Webserv w/ posting station
 		echo "Error: 'tmux' command not found. Make sure it's installed."; \
 		exit 1; \
 	fi
-	tmux split-window -h "make posting"
-	tmux split-window -v "make exec"
+	tmux split-window -h "make exec"
+	tmux split-window -v "make posting"
+	tmux resize-pane -U 10
 
 ##@ Debug Rules 
 

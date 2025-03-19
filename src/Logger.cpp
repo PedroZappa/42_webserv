@@ -95,11 +95,11 @@ void Logger::debug(const std::string &className,
 /// @brief Print a warning log
 /// @param message The message of the log
 void Logger::warn(const std::string &message) {
-	printLog(YEL "WARN", message, false);
+	printLog(BYEL "WARN", message, false);
 }
 
 /// @brief Print a error log
 /// @param message The message of the log
 void Logger::error(const std::string &message) {
-	printLog(RED "ERROR", message, true);
+	printLog(BRED "ERROR", message, true);
 }

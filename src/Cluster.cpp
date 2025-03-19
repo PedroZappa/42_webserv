@@ -580,7 +580,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
     unsigned short errorStatus = HttpRequestParser::parseHttp(request, req);
     std::string response = getResponse(req, errorStatus, socket);
 
-    ssize_t toSend = send(socket, request.c_str(), request.size(), 0);
+    ssize_t toSend = send(socket, response.c_str(), response.size(), 0);
     if (toSend == -1) {
         killConnection(socket, _epollFd);
     }

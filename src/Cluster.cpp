@@ -586,7 +586,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
     std::string response = getResponse(req, errorStatus, socket);
 
 	time_t currTime = time(NULL);
-	if (lastTime == -1 || currTime - lastTime > 1) {
+	if (true) {
 		std::stringstream s;
 		s << CYN << "[" << errorStatus << "] " NC << req.uri;
 		Logger::info(s.str());

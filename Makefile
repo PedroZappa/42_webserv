@@ -106,7 +106,7 @@ exec: local_conf $(NAME)			## Run
 
 debug: CXX = g++
 debug: CXXFLAGS += $(DEBUG_FLAGS) -D DEBUG
-debug: fclean $(NAME) $(CONFIG_FILE)			## Compile w/ debug symbols
+debug: fclean local_conf $(NAME)			## Compile w/ debug symbols
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL) in $(YEL)DEBUG$(D) mode$(D)"
 	./$(NAME) $(CONF_PATH)
 

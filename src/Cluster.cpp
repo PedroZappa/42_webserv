@@ -38,12 +38,14 @@ bool isRunning = true;
 /* ************************************************************************** */
 
 /**
- * @brief Constructs a Cluster with a given set of servers.
+ * @brief Constructs a Cluster with a list of servers.
  *
- * @param servers Vector of servers to add to the cluster.
- * @details Initializes the cluster by adding each server and its associated
- * virtual servers.
- */
+ * @details Initializes the Cluster by reserving memory for the servers vector
+ * and adding each server to the cluster. It also sets up virtual servers for
+ * each network address and server name combination.
+ *
+ * @param servers A vector of Server objects to be managed by the cluster.
+ **/
 Cluster::Cluster(const std::vector<Server> &servers)
     : _servers(), _epollFd(-1) {
     _servers.reserve(servers.size());

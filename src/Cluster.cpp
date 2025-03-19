@@ -579,15 +579,19 @@ void Cluster::processRequest(int socket, const std::string &request) {
 #ifdef DEBUG
     Logger::debug("Cluster", __func__, "processing request");
 #endif
+	static time_t lastTime = -1;
 
     HttpRequest req;
     unsigned short errorStatus = HttpRequestParser::parseHttp(request, req);
     std::string response = getResponse(req, errorStatus, socket);
 
-	// TODO: Limit to only sending log for requests if the last one was more than Xms ago.
-	std::stringstream s;
-	s << CYN << "[" << errorStatus << "] "NC << req.uri;
-	Logger::info(s.str());
+	time_t currTime = time(NULL);
+	if (lastTime == -1 || currTime - lastTime > 1) {
+		std::stringstream s;
+		s << CYN << "[" << errorStatus << "] "NC << req.uri;
+		Logger::info(s.str());
+		lastTime = currTime;
+	}
 
     ssize_t toSend = send(socket, response.c_str(), response.size(), 0);
     if (toSend == -1) {

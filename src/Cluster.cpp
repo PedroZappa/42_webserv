@@ -584,6 +584,11 @@ void Cluster::processRequest(int socket, const std::string &request) {
     unsigned short errorStatus = HttpRequestParser::parseHttp(request, req);
     std::string response = getResponse(req, errorStatus, socket);
 
+	// TODO: Limit to only sending log for requests if the last one was more than Xms ago.
+	std::stringstream s;
+	s << CYN << "[" << errorStatus << "] "NC << req.uri;
+	Logger::info(s.str());
+
     ssize_t toSend = send(socket, response.c_str(), response.size(), 0);
     if (toSend == -1) {
         killConnection(socket, _epollFd);
@@ -764,12 +769,12 @@ void Cluster::killConnection(int socket, int epollFd) {
     Logger::debug("Cluster", __func__, "killing connection");
 #endif
 
-    close(socket);
     if (epoll_ctl(epollFd, EPOLL_CTL_DEL, socket, NULL) == -1) {
         std::string reason = std::strerror(errno);
         throw std::runtime_error("Failed to remove socket from epoll: " +
                                  reason);
     }
+	close(socket);
 
 #ifdef DEBUG
     std::cout << "epoll_event removed with fd: " BLU << socket << NC

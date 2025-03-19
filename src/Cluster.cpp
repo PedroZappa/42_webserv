@@ -46,6 +46,7 @@ bool isRunning = true;
  */
 Cluster::Cluster(const std::vector<Server> &servers)
     : _servers(), _epollFd(-1) {
+    _servers.reserve(servers.size());
     std::vector<Server>::const_iterator serverIt;
     for (serverIt = servers.begin(); serverIt != servers.end(); ++serverIt) {
         _servers.push_back(&(*serverIt)); // Add server to cluster

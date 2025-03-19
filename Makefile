@@ -16,11 +16,11 @@
 
 MAKE	= make -C
 SHELL	:= bash --rcfile ~/.bashrc
+CWD		= $(shell pwd)
 
 # Default test values
-# MODE			= debug
 IN_PATH		?= $(SRC_PATH)
-ARG				= ./conf/2servers.conf
+ARG				?= ./conf/2servers.conf
 
 #==============================================================================#
 #                                     NAMES                                    #
@@ -37,10 +37,11 @@ _SEP	 			= ===================================================
 #                                    PATHS                                     #
 #==============================================================================#
 
-SRC_PATH		= src
-BUILD_PATH	= .build
-TEMP_PATH		= .temp
-INC_PATH		= inc
+SRC_PATH		:= src
+INC_PATH		:= inc
+BUILD_PATH	:= .build
+TEMP_PATH		:= .temp
+CONF_PATH		:= $(TEMP_PATH)/$(notdir $(ARG))
 
 FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
@@ -94,22 +95,24 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): symlink_data $(BUILD_PATH) $(OBJS)			## Compile
+$(NAME): symlink_data $(BUILD_PATH) $(TEMP_PATH) $(OBJS)			## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"
 
-exec: $(NAME) $(TEMP_PATH)			## Run
+exec: local_conf $(NAME)			## Run
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL)$(D)"
-	./$(NAME) $(ARG)
+	./$(NAME) $(CONF_PATH)
 
 debug: CXX = g++
 debug: CXXFLAGS += $(DEBUG_FLAGS) -D DEBUG
-debug: fclean $(NAME) $(TEMP_PATH)			## Compile w/ debug symbols
+debug: fclean $(NAME) $(CONFIG_FILE)			## Compile w/ debug symbols
+	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL) in $(YEL)DEBUG$(D) mode$(D)"
+	./$(NAME) $(CONF_PATH)
 
 symlink_data:
-	@if [ ! -L ./data ]; then \
-		ln -s ~/data ./data; \
+	@if [ ! -h ~/data ]; then \
+		ln -s $(CWD)/data ~/data; \
 		echo "* $(YEL)Creating $(CYA)$(NAME)$(YEL) symlink: $(_SUCCESS)"; \
 	fi
 
@@ -126,6 +129,10 @@ $(BUILD_PATH):
 $(TEMP_PATH):
 	$(MKDIR_P) $(TEMP_PATH)
 	@echo "* $(YEL)Creating $(CYA)$(TEMP_PATH)$(YEL) folder:$(D) $(_SUCCESS)"
+
+local_conf: $(ARG)
+	echo "* $(YEL)Creating Local $(CYA)$(CONF_PATH)$(YEL) file:$(D) $(_SUCCESS)"
+	sed 's/\$$USER/$(USER)/g' $(ARG) > $(CONF_PATH)
 
 env:
 	if [ ! -f .env ]; then \

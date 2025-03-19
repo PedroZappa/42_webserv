@@ -621,8 +621,13 @@ const std::string Cluster::getResponse(HttpRequest &request,
         case DELETE:
             responseCtrl = new DeleteResponse(*server, request);
             break;
+            /// TODO: Add other methods
+
+        default:
+            responseCtrl =
+                new ErrorResponse(*server, request, METHOD_NOT_ALLOWED);
+            break;
         }
-        /// TODO: Add other methods
     }
 
     std::string response = responseCtrl->generateResponse();
@@ -707,10 +712,11 @@ const Socket Cluster::getSocketAddress(int socket) {
     Socket address;
 
     if (getsockname(socket, &addr, &addrLen) == -1) {
-        // Handle error or use a default address
+        std::string reason = std::strerror(errno);
+        Logger::warn("Failed to get socket address: " + reason);
         address.ip = "0.0.0.0";
         address.port = "0";
-        return address;
+        return (address);
     }
     addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
     address.ip = inet_ntoa(addrIn->sin_addr);

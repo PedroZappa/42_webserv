@@ -95,18 +95,18 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): symlink_data $(BUILD_PATH) $(TEMP_PATH) $(OBJS)			## Compile
+$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf			## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"
 
-exec: local_conf $(NAME)			## Run
+exec: $(NAME)			## Run
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL)$(D)"
 	./$(NAME) $(CONF_PATH)
 
 debug: CXX = g++
 debug: CXXFLAGS += $(DEBUG_FLAGS) -D DEBUG
-debug: fclean local_conf $(NAME)			## Compile w/ debug symbols
+debug: fclean $(NAME)			## Compile w/ debug symbols
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL) in $(YEL)DEBUG$(D) mode$(D)"
 	./$(NAME) $(CONF_PATH)
 

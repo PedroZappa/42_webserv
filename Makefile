@@ -94,7 +94,7 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): $(BUILD_PATH) $(OBJS)			## Compile
+$(NAME): symlink_data $(BUILD_PATH) $(OBJS)			## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"
@@ -106,6 +106,12 @@ exec: $(NAME) $(TEMP_PATH)			## Run
 debug: CXX = g++
 debug: CXXFLAGS += $(DEBUG_FLAGS) -D DEBUG
 debug: fclean $(NAME) $(TEMP_PATH)			## Compile w/ debug symbols
+
+symlink_data:
+	@if [ ! -L ./data ]; then \
+		ln -s ~/data ./data; \
+		echo "* $(YEL)Creating $(CYA)$(NAME)$(YEL) symlink: $(_SUCCESS)"; \
+	fi
 
 -include $(BUILD_PATH)/%.d
 
@@ -207,6 +213,7 @@ fclean: clean			## Remove executable and .gdbinit
 	@if [ -f "$(NAME)" ]; then \
 		if [ -f "$(NAME)" ]; then \
 			$(RM) $(NAME); \
+			$(RM) ~/data; \
 			echo "* $(YEL)Removing $(CYA)$(NAME)$(D) file: $(_SUCCESS)"; \
 		fi; \
 	else \

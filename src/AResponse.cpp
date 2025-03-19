@@ -503,7 +503,7 @@ static std::string loadDefaultErrorPage(short stat) {
                       "</h1>\n"
                       "<hr>\n"
                       "\t\t<p>" +
-                      SERVER_NAME +
+                      SERVER_NAME + "err' yo!"
                       "</p>\n"
                       "\t</div>\n"
                       "</body>\n"

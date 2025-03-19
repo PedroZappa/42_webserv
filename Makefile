@@ -124,6 +124,8 @@ $(TEMP_PATH):
 env:
 	if [ ! -f .env ]; then \
 		touch .env; \
+		echo "# Webserv Environment Variables" > .env; \
+		echo "# Add your config below" >> .env; \
 	fi
 
 ##@ Test Rules 🧪

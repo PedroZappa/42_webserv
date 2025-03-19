@@ -154,6 +154,10 @@ posting: env ## Open posting with Webserrv requests
 	posting --collection postings_webserv42  --env .env
 
 station: ## Run Webserv w/ posting station
+	@if ! command -v tmux &> /dev/null; then \
+		echo "Error: 'tmux' command not found. Make sure it's installed."; \
+		exit 1; \
+	fi
 	tmux split-window -h "make posting"
 	tmux split-window -v "make exec"
 

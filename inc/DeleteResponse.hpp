@@ -35,7 +35,7 @@ class DeleteResponse : public AResponse {
 	// Getters
 	std::string generateResponse();
 
-	//  Checkers
+	// Checkers
 	bool isDirEmpty(const std::string &path) const;
 
 	// Actions

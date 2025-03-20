@@ -40,9 +40,7 @@ struct File {
  */
 class PostResponse : public AResponse {
   public:
-    /**
-     * @brief Constructors
-     * */
+	// Constructors
     PostResponse(const Server &, const HttpRequest &, int clientFd,
                  int epollFd);
     PostResponse(const PostResponse &);
@@ -59,10 +57,6 @@ class PostResponse : public AResponse {
     struct File _file2upload;       /**< File to be uploaded */
     int _clientFd;                  /**< Client socket file descriptor */
     int _epollFd;                   /**< Epoll instance file descriptor */
-
-    // Unusable
-    PostResponse();
-    PostResponse &operator=(const PostResponse &);
 
     // Private Methods
     unsigned short parseHttp();
@@ -83,7 +77,11 @@ class PostResponse : public AResponse {
     short uploadFile();
 
     short checkForm();
-    //
+    
+    // Unusable
+    PostResponse();
+    PostResponse &operator=(const PostResponse &);
+
 };
 
 #endif

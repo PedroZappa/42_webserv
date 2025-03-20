@@ -487,37 +487,36 @@ void Cluster::handleRequest(int socket) {
 
     char requestBuf[REQ_BUFF_SIZE] = {};
     ssize_t bytesRead = recv(socket, requestBuf, REQ_BUFF_SIZE, 0);
+    if (bytesRead == 0) { // If the request wasn't valid until closure, discard it. 
+        _requestBuff.erase(socket);
+        return;
+    }
     if (bytesRead < 0) {
         killConnection(socket, _epollFd);
         std::string reason = std::strerror(errno);
         throw std::runtime_error("Failed to read request: " + reason);
-    } else if (bytesRead == 0) {
-        if (!_requestBuff[socket].empty())
-            processRequest(socket, _requestBuff[socket]);
-        killConnection(socket, _epollFd);
-        return;
-    } else { // Handle request
-        _requestBuff[socket].append(requestBuf, bytesRead);
-        if (isRequestValid(_requestBuff[socket])) {
-            processRequest(socket, _requestBuff[socket]);
-            _requestBuff.erase(
-                socket); // clear current connect's request buffer
-        } else {         // If request is not valid, reset the socket
-            struct epoll_event ee;
-            std::memset(&ee, '\0', sizeof(ee));
-            ee.events = (EPOLLIN | EPOLLOUT | EPOLLHUP);
-            ee.data.fd = socket;
-
-            /* Change file descriptor epoll_event structure.  */
-            if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, socket, &ee) == -1)
-                killConnection(socket, _epollFd);
-        }
+    }
+    
+    _requestBuff[socket].append(requestBuf, bytesRead);
+    if (isRequestValid(_requestBuff[socket])) {
+        processRequest(socket, _requestBuff[socket]);
+        _requestBuff.erase(socket); // clear current connect's request buffer
+#ifdef DEBUG
+            std::cout << "handling request on fd: " BLU << socket << NC << std::endl;
+            Logger::debug("Cluster", __func__, "request handled");
+#endif
+      return;               
     }
 
-#ifdef DEBUG
-    std::cout << "handling request on fd: " BLU << socket << NC << std::endl;
-    Logger::debug("Cluster", __func__, "request handled");
-#endif
+    // If request is not valid, reset the socket
+    struct epoll_event ee;
+    std::memset(&ee, '\0', sizeof(ee));
+    ee.events = (EPOLLIN | EPOLLOUT | EPOLLHUP);
+    ee.data.fd = socket;
+
+    /* Change file descriptor epoll_event structure.  */
+    if (epoll_ctl(_epollFd, EPOLL_CTL_MOD, socket, &ee) == -1)
+        killConnection(socket, _epollFd);
 }
 
 /**

@@ -1,0 +1,6 @@
+name: localhost:8080/uploads
+method: POST
+url: http://localhost:8080/uploads
+headers:
+- name: Content-Type
+  value: image/png

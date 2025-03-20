@@ -503,12 +503,12 @@ static std::string loadDefaultErrorPage(short stat) {
                       "</h1>\n"
                       "<hr>\n"
                       "\t\t<p>" +
-                      SERVER_NAME + "err' yo!"
+                      SERVER_NAME + "Err' yo!"
                       "</p>\n"
                       "\t</div>\n"
                       "</body>\n"
                       "</html>";
-    return res;
+    return (res);
 }
 
 static std::string getDirName(const std::string &path) {
@@ -530,7 +530,7 @@ static std::string getFileSize(const std::string &path) {
     size_t size = fileStat.st_size;
     std::string sizeBuffer =
         (S_ISDIR(fileStat.st_mode) ? "-" : number2string<size_t>(size));
-    return sizeBuffer;
+    return (sizeBuffer);
 }
 
 std::string AResponse::addFileEntry(std::string &name,
@@ -723,7 +723,7 @@ void AResponse::setLocationRoute() {
 }
 
 short AResponse::getStatus() const {
-	return _status;
+	return (_status);
 }
 
 /** @} */

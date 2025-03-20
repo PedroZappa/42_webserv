@@ -18,6 +18,8 @@ MAKE	= make -C
 SHELL	:= bash --rcfile ~/.bashrc
 CWD		= $(shell pwd)
 
+# .ONESHELL:              # Run all lines in single shell
+
 # Default test values
 IN_PATH		?= $(SRC_PATH)
 ARG				?= ./conf/2servers.conf
@@ -133,6 +135,15 @@ $(TEMP_PATH):
 local_conf: $(ARG)
 	echo "* $(YEL)Creating Local $(CYA)$(CONF_PATH)$(YEL) file:$(D) $(_SUCCESS)"
 	sed 's/\$$USER/$(USER)/g' $(ARG) > $(CONF_PATH)
+
+
+set_localhosts:
+	if ! grep -q "^127\.0\.0\.1[[:space:]]\+localghost$$" /etc/hosts; then \
+		echo "127.0.0.1   localghost" | sudo tee -a /etc/hosts > /dev/null; \
+		echo "Entry added to /etc/hosts"; \
+	else \
+		echo "Entry already exists in /etc/hosts"; \
+	fi
 
 env:
 	if [ ! -f .env ]; then \

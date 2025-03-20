@@ -1,0 +1,5 @@
+name: localghost:6666
+url: https://localghost:6666/
+headers:
+- name: Content-Type
+  value: application/json

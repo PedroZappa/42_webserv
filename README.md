@@ -95,6 +95,7 @@ ___
 ### Tools
 
 - [Nginx Config Chcker](https://www.getpagespeed.com/check-nginx-config)
+- [Siege Stress Testing Tool](https://testdev.tools/siege/)
 
 ### Study Articles
 

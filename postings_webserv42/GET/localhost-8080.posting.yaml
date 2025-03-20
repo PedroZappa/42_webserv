@@ -1,5 +1,5 @@
 name: localhost:8080
-url: https://localhost:8080/
+url: http://localhost:8080/
 headers:
 - name: Content-Type
   value: application/json

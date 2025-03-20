@@ -679,7 +679,7 @@ const Server *Cluster::getContext(const HttpRequest &request, int socket) {
                 validServers.push_back(*it);
     }
 
-    // If no address was found, check matching piort
+    // If no address was found, check matching port
     if (validServers.empty()) {
         std::vector<const Server *>::const_iterator it;
         for (it = _servers.begin(); it != _servers.end(); ++it) {
@@ -723,6 +723,7 @@ const Socket Cluster::getSocketAddress(int socket) {
     struct sockaddr addr;
     socklen_t addrLen = sizeof(addr);
     struct sockaddr_in *addrIn;
+    std::stringstream portBuf;
     Socket address;
 
     if (getsockname(socket, &addr, &addrLen) == -1) {
@@ -732,9 +733,12 @@ const Socket Cluster::getSocketAddress(int socket) {
         address.port = "0";
         return (address);
     }
+    
     addrIn = reinterpret_cast<struct sockaddr_in *>(&addr);
     address.ip = inet_ntoa(addrIn->sin_addr);
-    address.port = ntohs(addrIn->sin_port);
+    
+    portBuf << ntohs(addrIn->sin_port);
+    address.port = portBuf.str();
 
     return (address);
 }

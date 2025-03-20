@@ -249,7 +249,7 @@ short AResponse::checkFile(const std::string &path) const {
  * with a single '/' character between the root and the URI.
  */
 const std::string AResponse::getPath() const {
-    std::string root = _server.getRoot(_locationRoute);
+    std::string root = _server.getRoot();
     return (getPath(root, _request.uri));
 }
 

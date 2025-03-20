@@ -249,7 +249,7 @@ short AResponse::checkFile(const std::string &path) const {
  * with a single '/' character between the root and the URI.
  */
 const std::string AResponse::getPath() const {
-    std::string root = _server.getRoot();
+    std::string root = _server.getRoot(_locationRoute);
     return (getPath(root, _request.uri));
 }
 
@@ -675,7 +675,7 @@ const std::string AResponse::getErrorPage() {
 
     std::map<short, std::string>::const_iterator it = errPages.find(_status);
     if (it != errPages.end()) {
-        std::string path = getPath(_server.getRoot(_locationRoute), it->second);
+        std::string path = getPath(_server.getRoot(), it->second);
         if (checkFile(path) == OK) {
             std::ifstream file(path.c_str());
             _response.body.assign(std::istreambuf_iterator<char>(file),

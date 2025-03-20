@@ -639,7 +639,6 @@ void Server::setLocation(std::string block, size_t start, size_t end) {
 
     location >> route; // Skip 'location'
     location >> route; // Get route
-    locInfo.setRoot(route);
     if (route == "{")
         throw std::runtime_error("Invalid location route");
     location >> line; // Skip opening "{"

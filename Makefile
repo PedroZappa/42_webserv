@@ -97,7 +97,7 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf			## Compile
+$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf	set_localhosts		## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"

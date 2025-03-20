@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+setup.py
+postings_webserv42/scripts/run.sh
+src/Webserv.egg-info/PKG-INFO
+src/Webserv.egg-info/SOURCES.txt
+src/Webserv.egg-info/dependency_links.txt
+src/Webserv.egg-info/requires.txt
+src/Webserv.egg-info/top_level.txt

@@ -152,17 +152,24 @@ env:
 		echo "# Add your config below" >> .env; \
 	fi
 
+POSTING=postings_webserv42
+
+run:
+	@echo "* $(MAG)$(NAME) $(YEL)preparing python helpers$(D): $(_SUCCESS)"
+	source ./$(POSTING)/scripts/run.sh
+
+
 ##@ Test Rules 🧪
 
 test_all:						## Run All tests
 	echo "Test!"
 
-posting: env ## Open posting with Webserrv requests
+posting: env run ## Open posting with Webserrv requests
 	@if ! command -v posting &> /dev/null; then \
 		echo "Error: 'posting' command not found. Make sure it's installed."; \
 		exit 1; \
 	fi
-	posting --collection postings_webserv42  --env .env
+	posting --collection $(POSTING)  --env .env
 
 station: ## Run Webserv w/ posting station
 	@if ! command -v tmux &> /dev/null; then \

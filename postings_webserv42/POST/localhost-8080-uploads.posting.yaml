@@ -1,6 +1,8 @@
-name: localhost:8080/uploads
+name: localhost:8080/upload
 method: POST
-url: http://localhost:8080/uploads
+url: http://localhost:8080/upload
 headers:
 - name: Content-Type
   value: image/png
+scripts:
+  setup: scripts/upload-png.py

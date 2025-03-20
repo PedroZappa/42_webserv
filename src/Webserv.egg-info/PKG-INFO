@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: Webserv
+Version: 0.1.0
+Summary: Python Request Test Helpers
+Author: Zedr0
+Requires-Dist: setuptools
+Requires-Dist: requests
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: summary

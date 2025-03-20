@@ -3,5 +3,7 @@ url: https://localhost:8080/index.html
 headers:
 - name: Content-Type
   value: application/json
+- name: Host
+  value: localhost
 - name: Referer
   value: https://localhost

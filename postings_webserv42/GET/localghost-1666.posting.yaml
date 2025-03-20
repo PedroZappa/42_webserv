@@ -1,5 +1,5 @@
-name: localghost:6666
-url: http://localghost:6666/
+name: localghost:1666
+url: http://localghost:1666/
 headers:
 - name: Content-Type
   value: application/json

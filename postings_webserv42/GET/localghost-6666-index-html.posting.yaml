@@ -1,5 +1,0 @@
-name: localghost:6666/index.html
-url: http://localghost:6666/index.html
-headers:
-- name: Content-Type
-  value: application/json

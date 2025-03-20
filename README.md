@@ -103,3 +103,5 @@ ___
 - [Proxie Server Explained](https://www.perplexity.ai/page/proxies-intermediary-network-g-xzxUjZ2sRo2Bb2hb9tn.XQ)
 - [Network Tunneling Explained](https://www.perplexity.ai/page/network-tunneling-explained-s67CGOFmTriHHnQeoHmAlw)
 - [I/O Multiplexing](https://www.perplexity.ai/page/i-o-multiplexing-techniques-oREJI81rRkOcrpuO1M.2IQ)
+- [GET Request Explored](https://www.perplexity.ai/page/get-requests-explored-bq2vkEQ.R5eJsgSm8DfW.A)
+

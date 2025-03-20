@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="icon" type="image/png" href="http://localhost:8080/favicon.png">
+</head>
+
+<body>
+    <main class="grid h-screen place-items-center">
+        <div class="flex flex-col items-center">
+            <section class="min-w-[40vw] lg:min-w-[25vw] mt-4 p-[1em]
+                        shadow-lg border border-gray-200 rounded">
+                <form method="POST" action="http://localhost:8080/upload"
+                    enctype="multipart/form-data" class="flex flex-col space-y-4" >
+                    <legend class="text-2xl font-bold">Upload a file</legend>
+                    <input type="file" name="file"/>
+                    <div class="flex justify-between">
+                        <a href="http://localhost:8080/"
+                            class="font-bold text-blue-500 hover:text-blue-700 
+                                py-2 px-2 rounded cursor-pointer">
+                            Go back
+                        </a>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-700 text-white
+                                font-bold py-2 px-4 rounded cursor-pointer
+                                focus:outline-none focus:shadow-outline">
+                            Submit file
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+</body>
+
+</html>

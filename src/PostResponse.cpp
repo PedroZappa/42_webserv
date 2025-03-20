@@ -214,7 +214,6 @@ short PostResponse::checkBody() {
         _limit = getLimit();
         if (_limit.empty())
             return (BAD_REQUEST);
-        return (OK);
         _body = getBody(_limit);
         if (_body.empty())
             return (BAD_REQUEST);
@@ -354,7 +353,6 @@ short PostResponse::getFile() {
         return (INTERNAL_SERVER_ERROR);
 
     std::multimap<std::string, std::string>::iterator contentDispIt =
-
         _body[0].find("Content-Disposition");
     if (contentDispIt == _body[0].end())
         return (INTERNAL_SERVER_ERROR);
@@ -477,7 +475,7 @@ short PostResponse::uploadFile() {
         dir += "/";
     if (!createDirectory(dir))
         return (INTERNAL_SERVER_ERROR);
-    std::string path = (dir + _file2upload.name);
+    std::string path = (dir + _file2upload.path);
     long fileSize = getFileSize(path);
 
     int fd =

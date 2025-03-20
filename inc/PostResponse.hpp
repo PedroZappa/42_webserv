@@ -81,7 +81,6 @@ class PostResponse : public AResponse {
     // Unusable
     PostResponse();
     PostResponse &operator=(const PostResponse &);
-
 };
 
 #endif

@@ -2,26 +2,39 @@
 <html>
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link rel="icon" type="image/png" href="http://localhost:8080/favicon.png">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="icon" type="image/png" href="http://localhost:8080/favicon.png">
 </head>
 
 <body>
-  <main class="grid h-screen place-items-center">
-    <div class="flex flex-col items-center">
-      <section id="content" class="min-w-[40vw] lg:min-w-[25vw] mt-4 p-[1em] shadow-lg border border-gray-200 rounded">
-        <legend class="text-2xl font-bold">Webserv</legend>
-        <p class="color-gray-200 my-2">Not an NGINX copy btw</p>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-          <button
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer focus:outline-none focus:shadow-outline">Special
-            Link</button>
-        </a>
-      </section>
-    </div>
-  </main>
+    <main class="grid h-screen place-items-center">
+        <div class="flex flex-col items-center">
+            <section id="content" class="min-w-[40vw] lg:min-w-[25vw] mt-4 p-[1em]
+                                        shadow-lg border border-gray-200 rounded">
+                <legend class="text-2xl font-bold">Webserv</legend>
+                <p class="color-gray-200 my-2">Not an NGINX copy btw</p>
+                <div class="flex flex-col mt-4 space-y-2">
+                    <h2 class="font-semibold mb-4">Testing Utilities</h2> 
+                    <a href="http://localhost:8080/upl.html">
+                        <button class="bg-green-500 hover:bg-green-700 text-white
+                                    font-bold py-2 px-4 rounded cursor-pointer
+                                    focus:outline-none focus:shadow-outline">
+                            Upload files
+                        </button>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white
+                                    font-bold py-2 px-4 rounded cursor-pointer
+                                    focus:outline-none focus:shadow-outline">
+                            Special Link
+                        </button>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
 </body>
 
 </html>

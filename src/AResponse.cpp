@@ -178,6 +178,8 @@ bool AResponse::hasAutoIndex() const {
 short AResponse::checkMethod() const {
     const std::set<Method> allowedMethods =
         _server.getValidMethods(_locationRoute);
+    if (allowedMethods.empty())
+        return (OK);
     std::set<Method>::const_iterator it = allowedMethods.find(_request.method);
     if (it == allowedMethods.end())
         return (METHOD_NOT_ALLOWED);

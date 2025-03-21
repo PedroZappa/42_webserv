@@ -164,9 +164,16 @@ run:
 test_all:						## Run All tests
 	echo "Test!"
 
-siege:	## Run siege
-	@echo "* $(MAG)$(NAME) $(YEL)under $(BLU)siege$(D):"
+siege_bench:	## Run siege benchmark
+	@echo "* $(MAG)$(NAME) $(YEL)under $(BLU)siege$(D) benchmark:"
 	siege -b http://localhost:8080
+
+N_USERS ?= 255
+
+siege_concurrent:
+	@echo "* $(MAG)$(NAME) $(YEL)under $(BLU)siege$(D) by $(N_USERS) users:"
+	siege -c $(N_USERS) http://localhost:8080
+
 
 posting: env run ## Open posting with Webserrv requests
 	@if ! command -v posting &> /dev/null; then \

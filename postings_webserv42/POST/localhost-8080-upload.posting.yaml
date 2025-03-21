@@ -1,0 +1,9 @@
+name: localhost:8080/ text
+method: POST
+url: http://localhost:8080/test
+body:
+  content: yo yo yo
+  content_type: application/json
+headers:
+- name: Content-Type
+  value: text/plain

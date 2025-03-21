@@ -164,6 +164,10 @@ run:
 test_all:						## Run All tests
 	echo "Test!"
 
+siege:	## Run siege
+	@echo "* $(MAG)$(NAME) $(YEL)under $(BLU)siege$(D):"
+	siege -c 5 http://localhost:8080
+
 posting: env run ## Open posting with Webserrv requests
 	@if ! command -v posting &> /dev/null; then \
 		echo "Error: 'posting' command not found. Make sure it's installed."; \

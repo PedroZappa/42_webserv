@@ -90,10 +90,8 @@ const AResponse &AResponse::operator=(const AResponse &other) {
  */
 bool AResponse::isCGI() const {
     std::string cgiExt = _server.getCgiExt(_locationRoute);
-    size_t dotPos = cgiExt.find_last_of('.');
-    if ((!cgiExt.empty()) && (_request.uri.substr(dotPos) == cgiExt))
-        return (true);
-    return (false);
+    size_t dotPos = _request.uri.find_last_of('.');
+    return ((!cgiExt.empty()) && (_request.uri.substr(dotPos) == cgiExt));
 }
 
 /**

@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 22:37:32 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/03/22 23:41:10 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,13 +148,13 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
     short status = setCGIenv();
     if (status != OK)
         exit(EXIT_FAILURE);
-    { 
-        // Set Child Memory Space Limit
-        struct rlimit lim;
-        lim.rlim_cur = (200 * KB * KB);
-        lim.rlim_max = (200 * KB * KB);
-        setrlimit(RLIMIT_AS, &lim);
-    }
+    
+    // Set Child Memory Space Limit
+    rlimit lim;
+    lim.rlim_cur = (200 * KB * KB);
+    lim.rlim_max = (200 * KB * KB);
+    setrlimit(RLIMIT_AS, &lim);
+    
     std::string dir = script.substr(0, script.find_last_of("/"));
     if (chdir(dir.c_str()) == -1)
         exit(EXIT_FAILURE);
@@ -319,7 +319,7 @@ std::string CGI::getCookies() {
 char **CGI::vec2charArr(const std::vector<std::string> &env) {
     char **charArr = new char *[env.size() + 1];
 
-    for (std::size_t i = 0; i < env.size() + 1; ++i) {
+    for (std::size_t i = 0; i < env.size(); ++i) {
         charArr[i] = new char[env[i].size() + 1];
         std::strcpy(charArr[i], env[i].c_str());
     }
@@ -346,7 +346,7 @@ std::pair<short, std::string> CGI::getOutput(pid_t pid, int *pipeOut) {
 
     gettimeofday(&startTime, NULL);
     currTime = startTime;
-    while ((currTime.tv_sec - startTime.tv_sec) > TIMEOUT) {
+    while ((currTime.tv_sec - startTime.tv_sec) <= TIMEOUT) {
         gettimeofday(&currTime, NULL);
         int status;
 

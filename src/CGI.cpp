@@ -157,6 +157,17 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
         exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief Set up the CGI environment variables.
+ *
+ * This function initializes the environment variables required for executing
+ * a CGI script. It checks for necessary POST request headers and populates
+ * a vector with key-value pairs representing the CGI environment. The
+ * environment variables are then converted to a format suitable for execve.
+ *
+ * @return A status code indicating success or failure. Returns OK on success,
+ * or INTERNAL_SERVER_ERROR if required headers are missing.
+ */
 short CGI::setCGIenv() {
     if (((_request.method == POST) && (getEnvVal("content-type").empty())) ||
         ((_request.method == POST) && (getEnvVal("content-length").empty())))
@@ -184,11 +195,31 @@ short CGI::setCGIenv() {
     return (OK);
 }
 
+/**
+ * @brief Add an environment variable to the CGI environment vector.
+ *
+ * This function constructs a key-value pair string in the format "key=value"
+ * and appends it to the provided environment vector.
+ *
+ * @param env The vector to which the environment variable will be added.
+ * @param key The key of the environment variable.
+ * @param varToAdd The value of the environment variable.
+ */
 void CGI::setEnvVar(std::vector<std::string> &env, std::string key,
                     std::string varToAdd) {
     env.push_back(key + "=" + varToAdd);
 }
 
+/**
+ * @brief Retrieve the server name from the request headers.
+ *
+ * This function extracts the server name from the "host" header in the
+ * request. If the header contains a port number, it is removed from the
+ * returned server name.
+ *
+ * @return A string containing the server name, or an empty string if the
+ * "host" header is not present.
+ */
 std::string CGI::getServerName() {
     std::multimap<std::string, std::string>::const_iterator it =
         _request.headers.find("host");
@@ -203,6 +234,16 @@ std::string CGI::getServerName() {
     return (hostname);
 }
 
+/**
+ * @brief Retrieve the server port from the request headers.
+ *
+ * This function extracts the server port from the "host" header in the
+ * request. If the header does not contain a port number, an empty string
+ * is returned.
+ *
+ * @return A string containing the server port, or an empty string if the
+ * "host" header is not present or does not include a port number.
+ */
 std::string CGI::getServerPort() {
     std::multimap<std::string, std::string>::const_iterator it =
         _request.headers.find("host");
@@ -210,12 +251,20 @@ std::string CGI::getServerPort() {
         return ("");
 
     std::string port = it->second;
-    std::size_t colonPos = port.find_first_of(':');
+std::size_t colonPos = port.find_first_of(':');
     if (colonPos != std::string::npos)
         port = port.substr(colonPos + 1);
     return (port);
 }
 
+/**
+ * @brief Construct a query string from the request's query parameters.
+ *
+ * This function iterates over the query parameters in the request and
+ * constructs a query string in the format "key1=value1&key2=value2".
+ *
+ * @return A string containing the constructed query string.
+ */
 std::string CGI::getQueryFields() {
     std::string queryStr;
     std::multimap<std::string, std::string>::const_iterator it;
@@ -228,6 +277,15 @@ std::string CGI::getQueryFields() {
     return (queryStr);
 }
 
+/**
+ * @brief Retrieve cookies from the request headers.
+ *
+ * This function extracts cookies from the "cookie" headers in the request
+ * and concatenates them into a single string, separated by semicolons.
+ *
+ * @return A string containing the concatenated cookies, or an empty string
+ * if no "cookie" headers are present.
+ */
 std::string CGI::getCookies() {
     std::string cookies;
     std::multimap<std::string, std::string>::const_iterator it;
@@ -241,6 +299,16 @@ std::string CGI::getCookies() {
     return (cookies);
 }
 
+/**
+ * @brief Convert a vector of strings to an array of C-style strings.
+ *
+ * This function allocates memory for an array of C-style strings and
+ * copies the contents of the provided vector into the array. The array
+ * is terminated with a NULL pointer.
+ *
+ * @param env The vector of strings to be converted.
+ * @return A pointer to the newly allocated array of C-style strings.
+ */
 char **vec2charArr(const std::vector<std::string> &env) {
     char **charArr = new char *[env.size() + 1];
 

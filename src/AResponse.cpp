@@ -673,9 +673,9 @@ void AResponse::loadHeaders() {
 const std::string AResponse::getErrorPage(short status) {
     static std::map<short, std::string> errPages =
         _server.getErrorPages(_locationRoute);
-    _response.status = _status;
+    _response.status = status;
 
-    std::map<short, std::string>::const_iterator it = errPages.find(_status);
+    std::map<short, std::string>::const_iterator it = errPages.find(status);
     if (it != errPages.end()) {
         std::string path = getPath(_server.getRoot(), it->second);
         if (checkFile(path) == OK) {
@@ -685,7 +685,7 @@ const std::string AResponse::getErrorPage(short status) {
         }
     }
     if (_response.body.empty())
-        _response.body = loadDefaultErrorPage(_status);
+        _response.body = loadDefaultErrorPage(status);
     loadHeaders();
     return (getResponseStr());
 }

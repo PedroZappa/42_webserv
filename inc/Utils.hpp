@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 15:18:14 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 18:30:59 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 11:34:58 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 std::string toLower(const std::string &str);
 Method string2method(const std::string &str);
 std::string method2string(Method method);
+std::string err2string(ErrCodes code);
 
 /// @brief Converts a number to a string
 /// @param num The number to be converted

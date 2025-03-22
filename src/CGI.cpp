@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 11:20:47 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 12:26:43 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "../inc/AResponse.hpp"
 #include <cstddef>
 #include <map>
+#include <sys/resource.h>
+#include <unistd.h>
 
 /* ************************************************************************** */
 /*                                Constructors                                */
@@ -76,9 +78,67 @@ void CGI::handleCGIresponse() {
         _response.status = INTERNAL_SERVER_ERROR;
 }
 
+std::string CGI::execCGI(const std::string &script) {
+    int pipeIn[2];
+    int pipeOut[2];
+    std::string cgiOut;
+
+    if (pipe(pipeIn) == -1 || pipe(pipeOut) == -1)
+        return (err2string(INTERNAL_SERVER_ERROR));
+
+    pid_t pid = fork();
+    if (pid == -1)
+        return (err2string(INTERNAL_SERVER_ERROR));
+
+    if (pid == 0)
+        runScript(pipeIn, pipeOut, script);
+    else {
+        close(pipeIn[0]);
+        close(pipeOut[1]);
+        if (!_request.body.empty())
+            write(pipeIn[1], _request.body.c_str(), _request.body.length());
+        close(pipeIn[1]);
+
+        cgiOut = getCGIout(pid, pipeOut);
+    }
+    close(pipeOut[0]);
+    return (cgiOut);
+}
+
+void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
+	dup2(pipeIn[0],STDIN_FILENO);
+	close(pipeIn[1]);
+	dup2(pipeOut[1],STDOUT_FILENO);
+	close(pipeIn[0]);
+
+	short status = setCGIenv();
+	if (status != OK)
+		exit(EXIT_FAILURE);
+	{ // Set Child Memory Space Limit
+		struct rlimit lim;
+		lim.rlim_cur = (200 * KB * KB);
+		lim.rlim_max = (200 * KB * KB);
+		setrlimit(RLIMIT_AS, &lim);
+	}
+
+	std::string dir = script.substr(0, script.find_last_of("/"));
+	if (chdir(dir.c_str()) == -1)
+		exit(EXIT_FAILURE);
+
+	char *argv[] = { const_cast<char *>(script.c_str()), NULL };
+	if (execve(script.c_str(), argv, _cgiEnv) == -1)
+		exit(EXIT_FAILURE);
+}
+
+
+
+std::string CGI::getCGIout(pid_t, int *pipOut) {
+
+}
+
 /**
  * @brief Parse CGI headers from a string and return them as a multimap.
- * 
+ *
  * @param headers The string containing CGI headers.
  * @return A multimap of header key-value pairs.
  */

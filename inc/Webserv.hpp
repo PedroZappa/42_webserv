@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 18:38:28 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 12:21:04 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <sys/epoll.h>  // epoll_create()
 #include <sys/socket.h> // SOMAXCONN
 #include <sys/stat.h>   // stat()
+#include <sys/resource.h>   // struct rlimit
 #include <unistd.h>     // close()
 
 // C++ Libraries
@@ -84,6 +85,7 @@ const int MAX_CLIENTS = getMaxClients();
 #define MAX_PORTS ((64 * KB) - 1)
 #define MAX_BODY_SIZE MB
 #define REQ_BUFF_SIZE (2 * KB)
+#define CHILD_MAX_MEMORY (200 * MB)
 
 /**
  * @brief Global flag indicating if the server is running.

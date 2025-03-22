@@ -93,7 +93,7 @@ class AResponse {
     void setMimeType(const std::string &path);
     void loadHeaders();
     // ErrorResponse
-    const std::string getErrorPage();
+    const std::string getErrorPage(short status);
     // PostResponse
     void setLocationRoute();
 };
@@ -107,3 +107,4 @@ class AResponse {
 std::ostream &operator<<(std::ostream &, const AResponse &);
 
 #endif
+

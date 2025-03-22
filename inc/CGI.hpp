@@ -3,38 +3,57 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
+
+/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/21 23:25:28 by gfragoso          #+#    #+#             */
-/*   Updated: 2025/03/22 00:41:52 by gfragoso         ###   ########.fr       */
+/*   Created: 2025/03/22 10:49:33 by passunca          #+#    #+#             */
+/*   Updated: 2025/03/22 12:35:27 by passunca         ###   ########.fr       */
+
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGI_HPP
 #define CGI_HPP
 
-#include "../inc/HttpParser.hpp"
-#include "../inc/AResponse.hpp"
-#include <string>
-#include <map>
-#include <sys/time.h>
-#include <sys/wait.h>
+#include "AResponse.hpp"
+#include "HttpParser.hpp"
+#include <vector>
 
 class CGI {
-  private:
-    HttpRequest _request;
-    HttpResponse _response;
-    const std::string _path;
-    char **_cgiEnv;
-
-    std::string run();
-    std::string createOutput(pid_t, int *);
-    
   public:
-    CGI(HttpRequest &, HttpResponse &, const std::string &_path);
+    CGI(HttpRequest &, HttpResponse &, const std::string &paqth);
     ~CGI();
 
-    short execute();
+    // Public Methods
+    void handleCGIresponse();
+    std::string execCGI(const std::string &script);
+    std::string getEnvVal(std::string key);
+
+  private:
+    const HttpRequest &_request;
+    HttpResponse &_response;
+    const std::string &_path;
+    char **_cgiEnv;
+
+    // Private Methods
+    // /// execCGI()
+    void runScript(int *pipeIn, int *pipeOut, const std::string &script);
+    short setCGIenv();
+    void setEnvVar(std::vector<std::string> &env, std::string key,
+                   std::string varToAdd);
+	std::string getServerName();
+	std::string getServerPort();
+	std::string getQueryFields();
+	std::string getCookies();
+	char **vec2charArr(const std::vector<std::string> &);
+
+    std::string getCGIout(pid_t, int *pipeOut);
+    // Parse
+    std::multimap<std::string, std::string>
+    parseCGIheaders(const std::string &headers);
+
+    // /// getEnvVal()
+    bool hasSingleValue(std::string &key);
 };
 
 #endif

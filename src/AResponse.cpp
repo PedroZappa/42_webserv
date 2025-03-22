@@ -670,12 +670,12 @@ void AResponse::loadHeaders() {
  * then loads the necessary HTTP headers and constructs the complete HTTP
  * response string.
  */
-const std::string AResponse::getErrorPage() {
+const std::string AResponse::getErrorPage(short status) {
     static std::map<short, std::string> errPages =
         _server.getErrorPages(_locationRoute);
-    _response.status = _status;
+    _response.status = status;
 
-    std::map<short, std::string>::const_iterator it = errPages.find(_status);
+    std::map<short, std::string>::const_iterator it = errPages.find(status);
     if (it != errPages.end()) {
         std::string path = getPath(_server.getRoot(), it->second);
         if (checkFile(path) == OK) {
@@ -685,7 +685,7 @@ const std::string AResponse::getErrorPage() {
         }
     }
     if (_response.body.empty())
-        _response.body = loadDefaultErrorPage(_status);
+        _response.body = loadDefaultErrorPage(status);
     loadHeaders();
     return (getResponseStr());
 }

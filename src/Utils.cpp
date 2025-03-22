@@ -110,6 +110,19 @@ Method string2method(const std::string &str) {
 		return (UNKNOWN);
 }
 
+/**
+ * @brief Converts an error code to its string representation.
+ *
+ * This function takes an error code of type ErrCodes and converts it to a string
+ * representation using the number2string function.
+ *
+ * @param code The error code to be converted.
+ * @return A string representing the error code.
+ */
+std::string err2string(ErrCodes code) {
+    return number2string<int>(code);
+}
+
 /* ************************************************************************** */
 /*                                    Time                                    */
 /* ************************************************************************** */

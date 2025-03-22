@@ -53,28 +53,28 @@ DeleteResponse::~DeleteResponse() {}
 std::string DeleteResponse::generateResponse() {
     setLocationRoute();
 
-    _status = checkMethod();
+    short status = checkMethod();
     if (_status != OK)
-        return getErrorPage();
+        return getErrorPage(status);
     std::string path = getPath();
 
     _status = checkFile(path);
     if (_status != OK)
-        return getErrorPage();
+        return getErrorPage(status);
 
     if (!isDir(path)) { // Delete File
         _status = deleteFile(path);
         if (_status != OK)
-            return getErrorPage();
+            return getErrorPage(status);
     } else { // Is Directory
         if (isDirEmpty(path)) {
             _status = deleteDir(path);
             if (_status != OK)
-                return getErrorPage();
+                return getErrorPage(status);
         } else
 		{
 			_status = CONFLICT;
-            return getErrorPage(); // non-empty directory
+            return getErrorPage(status); // non-empty directory
 		}
     }
     _response.status = NO_CONTENT; // Nginx status upon successfull deletion

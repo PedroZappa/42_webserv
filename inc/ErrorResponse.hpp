@@ -32,6 +32,8 @@ class ErrorResponse : public AResponse {
 	std::string generateResponse();
 
   private:
+	short _status;
+
 	ErrorResponse();
 	const ErrorResponse &operator=(const ErrorResponse &);
 };

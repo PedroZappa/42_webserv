@@ -33,13 +33,16 @@ class CGI {
     char **_cgiEnv;
 
     // Private Methods
+    // /// execCGI()
+    void runScript(int *pipeIn, int *pipeOut, const std::string &script);
+    short setCGIenv();
+    std::string getCGIout(pid_t, int *pipeOut);
     // Parse
     std::multimap<std::string, std::string>
     parseCGIheaders(const std::string &headers);
 
-    void runScript(int *pipeIn, int *pipeOut, const std::string &script);
-	short setCGIenv();
-    std::string getCGIout(pid_t, int *pipeOut);
+    // /// getEnvVal()
+    bool hasSingleValue(std::string &key);
 };
 
 #endif

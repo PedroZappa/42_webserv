@@ -23,6 +23,9 @@
 
 #include "../inc/GetResponse.hpp"
 
+#include "../inc/AResponse.hpp"
+#include "../inc/CGI.hpp"
+
 /* ************************************************************************** */
 /*                                Constructors                                */
 /* ************************************************************************** */
@@ -78,7 +81,10 @@ GetResponse::~GetResponse() {
  */
 short GetResponse::loadFile(std::string &path) {
 	if (isCGI()) {
-		// TODO: Handle CGI Response
+		CGI cgi(_request, _response, path);
+		cgi.handleCGIresponse();
+		if (_response.status != OK)
+			getErrorPage(_response.status);
 	} else {
 		std::ifstream file(path.c_str());
 		if (!file.is_open())

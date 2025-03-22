@@ -45,7 +45,7 @@ CGI::~CGI() {
 }
 
 /* ************************************************************************** */
-/*                               Public Methods                               */
+/*                                   Methods                                  */
 /* ************************************************************************** */
 
 /**
@@ -80,6 +80,18 @@ void CGI::handleCGIresponse() {
         _response.status = INTERNAL_SERVER_ERROR;
 }
 
+/**
+ * @brief Execute a CGI script and retrieve its output.
+ *
+ * This function sets up pipes for inter-process communication and forks a child
+ * process to execute the CGI script. The script's output is captured and
+ * returned as a string. If any errors occur during the setup or execution, an
+ * appropriate error message is returned.
+ *
+ * @param script The path to the CGI script to be executed.
+ * @return A string containing the output from the CGI script, or an error
+ * message if the script fails.
+ */
 std::string CGI::execCGI(const std::string &script) {
     int pipeIn[2];
     int pipeOut[2];
@@ -145,6 +157,19 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
         exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief Retrieve the output from a CGI script.
+ *
+ * This function reads the output from a CGI script executed in a child process.
+ * It waits for the child process to complete and reads the data from the output
+ * pipe. If the child process does not complete within the specified timeout, it
+ * is terminated.
+ *
+ * @param pid The process ID of the child process running the CGI script.
+ * @param pipeOut An array of two integers representing the output pipe.
+ * @return A string containing the output from the CGI script, or an error
+ * message if the script fails.
+ */
 std::string CGI::getCGIout(pid_t pid, int *pipeOut) {
     std::string cgiOut;
     std::size_t bytesRead;
@@ -164,13 +189,71 @@ std::string CGI::getCGIout(pid_t pid, int *pipeOut) {
                 cgiOut.append(buff, bytesRead);
             break;
         }
-		if (currTime.tv_sec - startTime.tv_sec > TIMEOUT) {
-			kill(pid, SIGKILL);
-			return (err2string(GATEWAY_TIMEOUT));
-		}
+        if ((currTime.tv_sec - startTime.tv_sec) > TIMEOUT) {
+            kill(pid, SIGKILL);
+            return (err2string(GATEWAY_TIMEOUT));
+        }
     }
-	return (cgiOut);
+    return (cgiOut);
 }
+
+/**
+ * @brief Retrieve the value of an environment variable from the request
+ * headers.
+ *
+ * This function searches for the specified key in the request headers and
+ * returns its associated value. If the key has multiple values, they are
+ * concatenated into a single string, separated by commas.
+ *
+ * @param key The key of the environment variable to retrieve.
+ * @return A string containing the value of the environment variable, or an
+ * empty string if the key is not found.
+ */
+std::string CGI::getEnvVal(std::string key) {
+    std::pair<std::multimap<std::string, std::string>::const_iterator,
+              std::multimap<std::string, std::string>::const_iterator>
+        range = _request.headers.equal_range(key);
+    if (hasSingleValue(key)) {
+        if (range.first != range.second)
+            return (range.first->second);
+    } else {
+        std::string val;
+        std::multimap<std::string, std::string>::const_iterator it;
+        for (it = range.first; it != range.second; ++it) {
+            if (!val.empty())
+                val += ", ";
+            val += it->second;
+        }
+        return (val);
+    }
+    return ("");
+}
+
+/**
+ * @brief Check if a header key is expected to have a single value.
+ *
+ * This function determines whether a given HTTP header key is expected
+ * to have a single value or multiple values. It uses a static list of
+ * known headers that can have multiple values to make this determination.
+ *
+ * @param key The header key to check.
+ * @return True if the header is expected to have a single value, false if it
+ * can have multiple values.
+ */
+bool CGI::hasSingleValue(std::string &key) {
+    // Static list of headers that are not single-value
+    static const std::vector<std::string> headers = {
+        "Accept", "Accept-Encoding", "Cache-Control", "Set-Cookie",
+        "Via",    "Forewarded"};
+    // Use std::find to check if the key exists in the list
+    if (std::find(headers.begin(), headers.end(), key) != headers.end())
+        return (false);
+    return (true);
+}
+
+/* ************************************************************************** */
+/*                                   Parse                                    */
+/* ************************************************************************** */
 
 /**
  * @brief Parse CGI headers from a string and return them as a multimap.

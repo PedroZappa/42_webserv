@@ -670,7 +670,7 @@ void AResponse::loadHeaders() {
  * then loads the necessary HTTP headers and constructs the complete HTTP
  * response string.
  */
-const std::string AResponse::getErrorPage() {
+const std::string AResponse::getErrorPage(short status) {
     static std::map<short, std::string> errPages =
         _server.getErrorPages(_locationRoute);
     _response.status = _status;

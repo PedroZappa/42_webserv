@@ -78,7 +78,9 @@ GetResponse::~GetResponse() {
  */
 short GetResponse::loadFile(std::string &path) {
 	if (isCGI()) {
-		// TODO: Handle CGI Response
+        CGI cgi(_request, _response, path);
+        if (cgi.execute() != OK)
+            return _response.status;
 	} else {
 		std::ifstream file(path.c_str());
 		if (!file.is_open())
@@ -121,6 +123,7 @@ short GetResponse::loadFile(std::string &path) {
 		}
 		setMimeType(path);
 	}
+
 	loadHeaders();
 	return (OK);
 }

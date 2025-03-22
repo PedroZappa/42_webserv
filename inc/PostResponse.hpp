@@ -14,6 +14,7 @@
 #define POSTRESPONSE_HPP
 
 #include "../inc/AResponse.hpp"
+#include "../inc/CGI.hpp"
 
 /**
  * @struct File

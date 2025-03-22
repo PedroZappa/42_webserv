@@ -58,6 +58,7 @@ FILES			+= GetResponse.cpp
 FILES			+= PostResponse.cpp
 FILES			+= DeleteResponse.cpp
 FILES			+= ErrorResponse.cpp
+FILES			+= CGI.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))
 OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)

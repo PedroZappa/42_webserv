@@ -102,7 +102,11 @@ std::string PostResponse::generateResponse() {
     if ((_status = checkBodySize()) != OK)
         return getErrorPage();
 
-    if (!isCGI()) {
+    if (isCGI()) {
+        CGI cgi(_request, _response, getPath());
+        if (cgi.execute() != OK)
+            return getErrorPage();
+    } else {
         if ((_status = checkForm()) != OK)
             return getErrorPage();
 
@@ -117,9 +121,8 @@ std::string PostResponse::generateResponse() {
         _response.body = generateDefaultUploadResponse();
 		_status = CREATED;
         _response.status = CREATED;
-    } else { //  Trigger CGI
-             // TODO:
     }
+
     loadHeaders();
 
     return (getResponseStr());

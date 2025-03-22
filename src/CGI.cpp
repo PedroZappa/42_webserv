@@ -6,13 +6,15 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 12:26:43 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 12:36:30 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/CGI.hpp"
 #include "../inc/AResponse.hpp"
 #include <cstddef>
+#include <cstdlib>
+#include <iterator>
 #include <map>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -105,35 +107,69 @@ std::string CGI::execCGI(const std::string &script) {
     return (cgiOut);
 }
 
+/**
+ * @brief Executes the CGI script in a child process.
+ *
+ * This function sets up the necessary environment and file descriptors
+ * for executing a CGI script. It duplicates the input and output pipes
+ * to the standard input and output, sets environment variables, and
+ * applies memory limits to the child process. It then changes the
+ * working directory to the script's directory and executes the script
+ * using execve.
+ *
+ * @param pipeIn An array of two integers representing the input pipe.
+ * @param pipeOut An array of two integers representing the output pipe.
+ * @param script The path to the CGI script to be executed.
+ */
 void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
-	dup2(pipeIn[0],STDIN_FILENO);
-	close(pipeIn[1]);
-	dup2(pipeOut[1],STDOUT_FILENO);
-	close(pipeIn[0]);
+    dup2(pipeIn[0], STDIN_FILENO);
+    close(pipeIn[1]);
+    dup2(pipeOut[1], STDOUT_FILENO);
+    close(pipeIn[0]);
 
-	short status = setCGIenv();
-	if (status != OK)
-		exit(EXIT_FAILURE);
-	{ // Set Child Memory Space Limit
-		struct rlimit lim;
-		lim.rlim_cur = (200 * KB * KB);
-		lim.rlim_max = (200 * KB * KB);
-		setrlimit(RLIMIT_AS, &lim);
-	}
+    short status = setCGIenv();
+    if (status != OK)
+        exit(EXIT_FAILURE);
+    { // Set Child Memory Space Limit
+        struct rlimit lim;
+        lim.rlim_cur = (200 * KB * KB);
+        lim.rlim_max = (200 * KB * KB);
+        setrlimit(RLIMIT_AS, &lim);
+    }
+    std::string dir = script.substr(0, script.find_last_of("/"));
+    if (chdir(dir.c_str()) == -1)
+        exit(EXIT_FAILURE);
 
-	std::string dir = script.substr(0, script.find_last_of("/"));
-	if (chdir(dir.c_str()) == -1)
-		exit(EXIT_FAILURE);
-
-	char *argv[] = { const_cast<char *>(script.c_str()), NULL };
-	if (execve(script.c_str(), argv, _cgiEnv) == -1)
-		exit(EXIT_FAILURE);
+    char *argv[] = {const_cast<char *>(script.c_str()), NULL};
+    if (execve(script.c_str(), argv, _cgiEnv) == -1)
+        exit(EXIT_FAILURE);
 }
 
+std::string CGI::getCGIout(pid_t pid, int *pipeOut) {
+    std::string cgiOut;
+    std::size_t bytesRead;
+    char buff[1024];
+    struct timeval startTime;
+    struct timeval currTime;
 
+    gettimeofday(&startTime, NULL);
+    while (true) {
+        gettimeofday(&currTime, NULL);
+        int status;
 
-std::string CGI::getCGIout(pid_t, int *pipOut) {
-
+        if (waitpid(pid, &status, WNOHANG) != 0) {
+            if (WEXITSTATUS(status) != 0)
+                return (err2string(INTERNAL_SERVER_ERROR));
+            while ((bytesRead = read(pipeOut[0], buff, sizeof(buff)) > 0))
+                cgiOut.append(buff, bytesRead);
+            break;
+        }
+		if (currTime.tv_sec - startTime.tv_sec > TIMEOUT) {
+			kill(pid, SIGKILL);
+			return (err2string(GATEWAY_TIMEOUT));
+		}
+    }
+	return (cgiOut);
 }
 
 /**

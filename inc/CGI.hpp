@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:49:33 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 12:15:45 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 12:35:27 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class CGI {
 
     void runScript(int *pipeIn, int *pipeOut, const std::string &script);
 	short setCGIenv();
-    std::string getCGIout(pid_t, int *pipOut);
+    std::string getCGIout(pid_t, int *pipeOut);
 };
 
 #endif

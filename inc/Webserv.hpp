@@ -6,7 +6,7 @@
 /*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 09:43:06 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 12:21:04 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 12:32:55 by passunca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,15 @@
 #include <dirent.h>    // DIR , opendir(), readdir(), closedir(),
 #include <fcntl.h>     // O_NONBLOCK F_GETFL F_SETFL
 #include <limits.h>
-#include <netinet/in.h> // struct sockaddr_in INADDR_ANY
-#include <signal.h>     // signal
-#include <sys/epoll.h>  // epoll_create()
-#include <sys/socket.h> // SOMAXCONN
-#include <sys/stat.h>   // stat()
-#include <sys/resource.h>   // struct rlimit
-#include <unistd.h>     // close()
+#include <netinet/in.h>   // struct sockaddr_in INADDR_ANY
+#include <signal.h>       // signal
+#include <sys/epoll.h>    // epoll_create()
+#include <sys/resource.h> // struct rlimit
+#include <sys/socket.h>   // SOMAXCONN
+#include <sys/stat.h>     // stat()
+#include <sys/time.h>     // gettimeofday()
+#include <sys/wait.h>     // waitpid()
+#include <unistd.h>       // close()
 
 // C++ Libraries
 #include <climits>  // LONG_MAX

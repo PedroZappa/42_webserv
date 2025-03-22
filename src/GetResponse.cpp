@@ -39,7 +39,7 @@
  * @param request The HTTP request to be processed.
  */
 GetResponse::GetResponse(const Server &server, const HttpRequest &request)
-	: AResponse(server, request, OK) {};
+    : AResponse(server, request, OK) {};
 
 /**
  * @brief Copy constructor for GetResponse.
@@ -48,16 +48,14 @@ GetResponse::GetResponse(const Server &server, const HttpRequest &request)
  *
  * @param obj The GetResponse object to copy.
  */
-GetResponse::GetResponse(const GetResponse &obj) : AResponse(obj) {
-}
+GetResponse::GetResponse(const GetResponse &obj) : AResponse(obj) {}
 
 /**
  * @brief Destructor for GetResponse.
  *
  * Cleans up resources used by the GetResponse object.
  */
-GetResponse::~GetResponse() {
-}
+GetResponse::~GetResponse() {}
 
 /* ************************************************************************** */
 /*                               Public Methods                               */
@@ -77,62 +75,63 @@ GetResponse::~GetResponse() {
  * @return A status code indicating the result of the operation.
  *         - OK if the file is successfully loaded.
  *         - INTERNAL_SERVER_ERROR if the file cannot be opened.
- *         - NOT_MODIFIED if the file has not been modified since the last request.
+ *         - NOT_MODIFIED if the file has not been modified since the last
+ * request.
  */
 short GetResponse::loadFile(std::string &path) {
-	if (isCGI()) {
-		CGI cgi(_request, _response, path);
-		cgi.handleCGIresponse();
-		if (_response.status != OK)
-			getErrorPage(_response.status);
-	} else {
-		std::ifstream file(path.c_str());
-		if (!file.is_open())
-			return (INTERNAL_SERVER_ERROR);
+    if (isCGI()) {
+        CGI cgi(_request, _response, path);
+        cgi.handleCGIresponse();
+        if (_response.status != OK)
+            getErrorPage(_response.status);
+    } else {
+        std::ifstream file(path.c_str());
+        if (!file.is_open())
+            return (INTERNAL_SERVER_ERROR);
 
-		// Check for "If-Modified-Since Header"
-		std::multimap<std::string, std::string> headers = _request.headers;
-		std::multimap<std::string, std::string>::iterator it;
-		it = headers.find("If-Modified-Since");
-		if (it != headers.end()) {
-			std::string lastModified = getLastModifiedDate(path);
-			try {
-				time_t requestTime = getTime(it->second);
-				time_t fileTime = getTime(lastModified);
-				if (requestTime <= fileTime)
-					return (NOT_MODIFIED);
-			} catch (const std::exception& e) {
-				// Log error parsing the date
-				std::stringstream s; s << "Error parsing date headers: " << e.what();
-				Logger::error(s.str());
+        // Check for "If-Modified-Since Header"
+        std::multimap<std::string, std::string> headers = _request.headers;
+        std::multimap<std::string, std::string>::iterator it;
+        it = headers.find("If-Modified-Since");
+        if (it != headers.end()) {
+            std::string lastModified = getLastModifiedDate(path);
+            try {
+                time_t requestTime = getTime(it->second);
+                time_t fileTime = getTime(lastModified);
+                if (requestTime <= fileTime)
+                    return (NOT_MODIFIED);
+            } catch (const std::exception &e) {
+                // Log error parsing the date
+                std::stringstream s;
+                s << "Error parsing date headers: " << e.what();
+                Logger::error(s.str());
+            }
+        }
+        // Load file content into the response body
+        _response.body.assign((std::istreambuf_iterator<char>(file)),
+                              (std::istreambuf_iterator<char>()));
+        file.close();
 
-			}
-		}
-		// Load file content into the response body
-		_response.body.assign((std::istreambuf_iterator<char>(file)),
-							  (std::istreambuf_iterator<char>()));
-		file.close();
-
-		// Check for specific download path pattern
-		if (_request.uri.compare(0, 10, "/download/") == 0 || 
-		    _request.uri == "/download") {
-			size_t lastSlash = _request.uri.find_last_of('/');
-			std::string filename = _request.uri.substr(lastSlash + 1);
-			if (filename.empty()) 
-				filename = "download";
-			_response.headers.insert(std::make_pair(
-				std::string("Content-Disposition"),
-				std::string("attachment; filename=\"" + filename + "\"")
-			));
-		}
-		setMimeType(path);
-	}
-	loadHeaders();
-	return (OK);
+        // Check for specific download path pattern
+        if (_request.uri.compare(0, 10, "/download/") == 0 ||
+            _request.uri == "/download") {
+            size_t lastSlash = _request.uri.find_last_of('/');
+            std::string filename = _request.uri.substr(lastSlash + 1);
+            if (filename.empty())
+                filename = "download";
+            _response.headers.insert(std::make_pair(
+                std::string("Content-Disposition"),
+                std::string("attachment; filename=\"" + filename + "\"")));
+        }
+        setMimeType(path);
+    }
+    loadHeaders();
+    return (OK);
 }
 
 /**
- * @brief Generates the HTTP response based on the request and server configuration.
+ * @brief Generates the HTTP response based on the request and server
+ * configuration.
  *
  * This method processes the HTTP request to generate an appropriate response.
  * It first sets the location route and checks the HTTP method for validity.
@@ -147,41 +146,38 @@ short GetResponse::loadFile(std::string &path) {
  * @return A string containing the generated HTTP response.
  */
 std::string GetResponse::generateResponse() {
-	setLocationRoute();
-	_status = checkMethod();
-	if (_status != OK)
-		return getErrorPage();
-	if (hasReturn()) {
-		loadReturn();
-		return (getResponseStr());
-	}
-	std::string path = getPath();
+    setLocationRoute();
+    short status = checkMethod();
+    if (status != OK)
+        return getErrorPage(status);
+    if (hasReturn()) {
+        loadReturn();
+        return (getResponseStr());
+    }
+    std::string path = getPath();
 
-	_status = checkFile(path);
-	if (_status != OK)
-		return getErrorPage();
+    status = checkFile(path);
+    if (status != OK)
+        return getErrorPage(status);
 
-	if (!isDir(path)) {
-		_status = loadFile(path);
-		if (_status != OK)
-			return getErrorPage();
-	} else { // Is a directory
-		std::string idxFile = getIndexFile(path);
-		if (!idxFile.empty() && (checkFile(idxFile) == OK)) {
-			_status = loadFile(idxFile);
-			if (_status != OK)
-				return getErrorPage();
-		} else if (hasAutoIndex()) {
-			_status = loadDirectoryListing(path);
-			if (_status != OK)
-				return getErrorPage();
-		} else {
-			_status = FORBIDDEN;
-			return getErrorPage();
-		}
-	}
-	return (getResponseStr());
+    if (!isDir(path)) {
+        status = loadFile(path);
+        if (status != OK)
+            return getErrorPage(status);
+    } else { // Is a directory
+        std::string idxFile = getIndexFile(path);
+        if (!idxFile.empty() && (checkFile(idxFile) == OK)) {
+            status = loadFile(idxFile);
+            if (status != OK)
+                return getErrorPage(status);
+        } else if (hasAutoIndex()) {
+            status = loadDirectoryListing(path);
+            if (status != OK)
+                return getErrorPage(status);
+        } else
+            return getErrorPage(FORBIDDEN);
+    }
+    return (getResponseStr());
 }
 
 /** @} */
-

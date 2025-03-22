@@ -13,7 +13,7 @@
 #include "../inc/PostResponse.hpp"
 #include "../inc/Utils.hpp"
 #include "../inc/Webserv.hpp"
-#include <fcntl.h>
+#include "../inc/CGI.hpp"
 
 /**
  * @class PostResponse
@@ -92,33 +92,38 @@ static std::string generateDefaultUploadResponse() {
  * If the request is a CGI request, it triggers the CGI script.
  */
 std::string PostResponse::generateResponse() {
-    _status = OK;
+    short status = OK;
     setLocationRoute();
 
     if ((_status = checkMethod()) != OK)
-        return getErrorPage();
+        return getErrorPage(status);
     if ((_status = parseHttp()) != OK)
-        return getErrorPage();
+        return getErrorPage(status);
     if ((_status = checkBodySize()) != OK)
-        return getErrorPage();
+        return getErrorPage(status);
 
     if (!isCGI()) {
         if ((_status = checkForm()) != OK)
-            return getErrorPage();
+            return getErrorPage(status);
 
         if ((_status = checkBody()) != OK)
-            return getErrorPage();
+            return getErrorPage(status);
 
         if ((_status = getFile()) != OK)
-            return getErrorPage();
+            return getErrorPage(status);
 
         if ((_status = uploadFile()) != OK)
-            return getErrorPage();
+            return getErrorPage(status);
         _response.body = generateDefaultUploadResponse();
 		_status = CREATED;
         _response.status = CREATED;
     } else { //  Trigger CGI
-             // TODO:
+		std::string path = getPath();
+
+		CGI cgi(_request, _response, path);
+		cgi.handleCGIresponse();
+		if (_response.status != OK)
+			getErrorPage(_response.status);
     }
     loadHeaders();
 

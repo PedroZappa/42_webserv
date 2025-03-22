@@ -70,5 +70,5 @@ ErrorResponse::~ErrorResponse() {}
  * @return A string containing the error page.
  */
 std::string ErrorResponse::generateResponse() {
-    return getErrorPage();
+    return getErrorPage(_status);
 }

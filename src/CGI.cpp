@@ -251,7 +251,7 @@ std::string CGI::getServerPort() {
         return ("");
 
     std::string port = it->second;
-std::size_t colonPos = port.find_first_of(':');
+    std::size_t colonPos = port.find_first_of(':');
     if (colonPos != std::string::npos)
         port = port.substr(colonPos + 1);
     return (port);
@@ -309,16 +309,16 @@ std::string CGI::getCookies() {
  * @param env The vector of strings to be converted.
  * @return A pointer to the newly allocated array of C-style strings.
  */
-char **vec2charArr(const std::vector<std::string> &env) {
+char **CGI::vec2charArr(const std::vector<std::string> &env) {
     char **charArr = new char *[env.size() + 1];
 
     for (std::size_t i = 0; i < env.size() + 1; ++i) {
         charArr[i] = new char[env[i].size() + 1];
         std::strcpy(charArr[i], env[i].c_str());
     }
-	charArr[env.size()] = NULL;
+    charArr[env.size()] = NULL;
 
-	return (charArr);
+    return (charArr);
 }
 
 /**
@@ -406,9 +406,17 @@ std::string CGI::getEnvVal(std::string key) {
  */
 bool CGI::hasSingleValue(std::string &key) {
     // Static list of headers that are not single-value
-    static const std::vector<std::string> headers = {
-        "Accept", "Accept-Encoding", "Cache-Control", "Set-Cookie",
-        "Via",    "Forewarded"};
+    static std::vector<std::string> headers = std::vector<std::string>(6, "");
+    headers.push_back("Accept");
+    headers.push_back("Accept-Encoding");
+    headers.push_back("Cache-Control");
+    headers.push_back("Set-Cookie");
+    headers.push_back("Via");
+    headers.push_back("Forewarded");
+
+    // static const std::vector<std::string> headers = {
+    //     "Accept", "Accept-Encoding", "Cache-Control", "Set-Cookie",
+    //     "Via",    "Forewarded"};
     // Use std::find to check if the key exists in the list
     if (std::find(headers.begin(), headers.end(), key) != headers.end())
         return (false);

@@ -58,6 +58,7 @@ FILES			+= GetResponse.cpp
 FILES			+= PostResponse.cpp
 FILES			+= DeleteResponse.cpp
 FILES			+= ErrorResponse.cpp
+FILES			+= CGI.cpp
 
 SRC				= $(addprefix $(SRC_PATH)/, $(FILES))
 OBJS			= $(SRC:$(SRC_PATH)/%.cpp=$(BUILD_PATH)/%.o)
@@ -97,7 +98,7 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf	set_localhosts		## Compile
+$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf	## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"

@@ -15,6 +15,7 @@
 
 #include "AResponse.hpp"
 #include "HttpParser.hpp"
+#include <vector>
 
 class CGI {
   public:
@@ -36,6 +37,14 @@ class CGI {
     // /// execCGI()
     void runScript(int *pipeIn, int *pipeOut, const std::string &script);
     short setCGIenv();
+    void setEnvVar(std::vector<std::string> &env, std::string key,
+                   std::string varToAdd);
+	std::string getServerName();
+	std::string getServerPort();
+	std::string getQueryFields();
+	std::string getCookies();
+	char **vec2charArr(const std::vector<std::string> &);
+
     std::string getCGIout(pid_t, int *pipeOut);
     // Parse
     std::multimap<std::string, std::string>

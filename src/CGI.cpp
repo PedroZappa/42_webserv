@@ -157,6 +157,102 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
         exit(EXIT_FAILURE);
 }
 
+short CGI::setCGIenv() {
+    if (((_request.method == POST) && (getEnvVal("content-type").empty())) ||
+        ((_request.method == POST) && (getEnvVal("content-length").empty())))
+        return (INTERNAL_SERVER_ERROR);
+
+    std::vector<std::string> cgiEnv;
+
+    setEnvVar(cgiEnv, "REQUEST_METHOD", method2string(_request.method).c_str());
+    setEnvVar(cgiEnv, "CONTENT_TYPE", getEnvVal("content-type").c_str());
+    setEnvVar(cgiEnv, "SERVER_NAME", getServerName().c_str());
+    setEnvVar(cgiEnv, "SERVER_PORT", getServerPort().c_str());
+    setEnvVar(cgiEnv, "GATEWAY_INTERFACE", "CGI/1.1");
+    setEnvVar(cgiEnv, "PATH_INFO", _path.c_str());
+    setEnvVar(cgiEnv, "CONTENT_LENGTH", getEnvVal("content-length").c_str());
+    setEnvVar(cgiEnv, "QUERY_STRING", getQueryFields().c_str());
+    setEnvVar(cgiEnv, "SCRIPT_NAME", _request.uri.c_str());
+    setEnvVar(cgiEnv, "SERVER_PROTOCOL", _request.protocolVersion.c_str());
+    setEnvVar(cgiEnv, "SERVER_SOFTWARE", SERVER_NAME);
+
+    std::string cookies = getCookies();
+    if (!cookies.empty())
+        setEnvVar(cgiEnv, "HTTP_COOKIE", cookies.c_str());
+
+    _cgiEnv = vec2charArr(cgiEnv);
+    return (OK);
+}
+
+void CGI::setEnvVar(std::vector<std::string> &env, std::string key,
+                    std::string varToAdd) {
+    env.push_back(key + "=" + varToAdd);
+}
+
+std::string CGI::getServerName() {
+    std::multimap<std::string, std::string>::const_iterator it =
+        _request.headers.find("host");
+    if (it == _request.headers.end())
+        return ("");
+
+    std::string hostname = it->second;
+    std::size_t colonPos = hostname.find_first_of(':');
+    if (colonPos != std::string::npos)
+        hostname = hostname.substr(0, colonPos);
+
+    return (hostname);
+}
+
+std::string CGI::getServerPort() {
+    std::multimap<std::string, std::string>::const_iterator it =
+        _request.headers.find("host");
+    if (it == _request.headers.end())
+        return ("");
+
+    std::string port = it->second;
+    std::size_t colonPos = port.find_first_of(':');
+    if (colonPos != std::string::npos)
+        port = port.substr(colonPos + 1);
+    return (port);
+}
+
+std::string CGI::getQueryFields() {
+    std::string queryStr;
+    std::multimap<std::string, std::string>::const_iterator it;
+    for (it = _request.queryParams.begin(); it != _request.queryParams.end();
+         ++it) {
+        if (!queryStr.empty())
+            queryStr += "&";
+        queryStr += it->first + "=" + it->second;
+    }
+    return (queryStr);
+}
+
+std::string CGI::getCookies() {
+    std::string cookies;
+    std::multimap<std::string, std::string>::const_iterator it;
+    for (it = _request.headers.begin(); it != _request.headers.end(); ++it) {
+        if (it->first == "cookie") {
+            if (!cookies.empty())
+                cookies += "; ";
+            cookies += it->second;
+        }
+    }
+    return (cookies);
+}
+
+char **vec2charArr(const std::vector<std::string> &env) {
+    char **charArr = new char *[env.size() + 1];
+
+    for (std::size_t i = 0; i < env.size() + 1; ++i) {
+        charArr[i] = new char[env[i].size() + 1];
+        std::strcpy(charArr[i], env[i].c_str());
+    }
+	charArr[env.size()] = NULL;
+
+	return (charArr);
+}
+
 /**
  * @brief Retrieve the output from a CGI script.
  *

@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 18:06:31 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 21:55:05 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:25:32 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,8 @@ GetResponse::~GetResponse() {}
 short GetResponse::loadFile(std::string &path) {
     if (isCGI()) {
         CGI cgi(_request, _response, path);
-        cgi.handleCGIresponse();
-        if (_response.status != OK)
-            getErrorPage(_response.status);
+        if ((_status = cgi.generateResponse()) != OK)
+            getErrorPage();
     } else {
         std::ifstream file(path.c_str());
         if (!file.is_open())
@@ -147,35 +146,33 @@ short GetResponse::loadFile(std::string &path) {
  */
 std::string GetResponse::generateResponse() {
     setLocationRoute();
-    short status = checkMethod();
-    if (status != OK)
-        return getErrorPage(status);
+    if ((_status = checkMethod()) != OK)
+        return getErrorPage();
     if (hasReturn()) {
         loadReturn();
         return (getResponseStr());
     }
     std::string path = getPath();
 
-    status = checkFile(path);
-    if (status != OK)
-        return getErrorPage(status);
+    if ((_status = checkFile(path)) != OK)
+        return getErrorPage();
 
     if (!isDir(path)) {
-        status = loadFile(path);
-        if (status != OK)
-            return getErrorPage(status);
-    } else { // Is a directory
+        if ((_status = loadFile(path)) != OK)
+            return getErrorPage();
+    } else {
+        // Is a directory
         std::string idxFile = getIndexFile(path);
         if (!idxFile.empty() && (checkFile(idxFile) == OK)) {
-            status = loadFile(idxFile);
-            if (status != OK)
-                return getErrorPage(status);
+            if ((_status = loadFile(idxFile)) != OK)
+                return getErrorPage();
         } else if (hasAutoIndex()) {
-            status = loadDirectoryListing(path);
-            if (status != OK)
-                return getErrorPage(status);
-        } else
-            return getErrorPage(FORBIDDEN);
+            if ((_status = loadDirectoryListing(path)) != OK)
+                return getErrorPage();
+        } else {
+            _status = FORBIDDEN;
+            return getErrorPage();
+        }
     }
     return (getResponseStr());
 }

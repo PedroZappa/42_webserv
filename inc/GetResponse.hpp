@@ -39,7 +39,6 @@ class GetResponse : public AResponse {
 	short loadFile(std::string &path);
 	std::string generateResponse();
 
-
   private:
 	// Uninstantiable
 	GetResponse();

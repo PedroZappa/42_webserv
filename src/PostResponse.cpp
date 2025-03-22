@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:19:52 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 21:54:24 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:05:23 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,38 +92,35 @@ static std::string generateDefaultUploadResponse() {
  * If the request is a CGI request, it triggers the CGI script.
  */
 std::string PostResponse::generateResponse() {
-    short status = OK;
     setLocationRoute();
 
     if ((_status = checkMethod()) != OK)
-        return getErrorPage(status);
+        return getErrorPage();
     if ((_status = parseHttp()) != OK)
-        return getErrorPage(status);
+        return getErrorPage();
     if ((_status = checkBodySize()) != OK)
-        return getErrorPage(status);
+        return getErrorPage();
 
     if (!isCGI()) {
         if ((_status = checkForm()) != OK)
-            return getErrorPage(status);
+            return getErrorPage();
 
         if ((_status = checkBody()) != OK)
-            return getErrorPage(status);
+            return getErrorPage();
 
         if ((_status = getFile()) != OK)
-            return getErrorPage(status);
+            return getErrorPage();
 
         if ((_status = uploadFile()) != OK)
-            return getErrorPage(status);
+            return getErrorPage();
         _response.body = generateDefaultUploadResponse();
 		_status = CREATED;
         _response.status = CREATED;
-    } else { //  Trigger CGI
-		std::string path = getPath();
-
-		CGI cgi(_request, _response, path);
-		cgi.handleCGIresponse();
-		if (_response.status != OK)
-			getErrorPage(_response.status);
+    } else {
+        //  Trigger CGI
+		CGI cgi(_request, _response, getPath());
+		if ((_status = cgi.generateResponse()) != OK)
+			getErrorPage();
     }
     loadHeaders();
 
@@ -223,9 +220,9 @@ short PostResponse::checkBody() {
         if (_body.empty())
             return (BAD_REQUEST);
         return (OK);
-    } else
-        return (BAD_REQUEST);
-    return (OK);
+    }
+    
+    return (BAD_REQUEST);
 }
 
 /**
@@ -514,16 +511,15 @@ short PostResponse::uploadFile() {
  * false otherwise.
  *
  * This function attempts to create a directory at the given path with
- * permissions set to 0777. If the directory already exists, it returns true.
+ * permissions set to 777. If the directory already exists, it returns true.
  * If the directory cannot be created, it returns false.
  */
 static bool createDirectory(const std::string &path) {
-    if (mkdir(path.c_str(), 0777) == 0)
+    if (mkdir(path.c_str(), 777) == 0)
         return (true);
-    else if (errno == EEXIST)
+    if (errno == EEXIST)
         return (true);
-    else
-        return (false);
+    return (false);
 }
 
 /**

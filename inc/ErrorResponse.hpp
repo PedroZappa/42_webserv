@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 19:31:05 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/10 16:45:55 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:21:06 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ class ErrorResponse : public AResponse {
 	std::string generateResponse();
 
   private:
-	short _status;
-
 	ErrorResponse();
-	const ErrorResponse &operator=(const ErrorResponse &);
 };
 
 #endif

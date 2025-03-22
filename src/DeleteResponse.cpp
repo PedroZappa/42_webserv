@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteResponse.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:20:33 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/11 18:20:34 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:31:32 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,28 +53,25 @@ DeleteResponse::~DeleteResponse() {}
 std::string DeleteResponse::generateResponse() {
     setLocationRoute();
 
-    short status = checkMethod();
-    if (_status != OK)
-        return getErrorPage(status);
+    if ((_status = checkMethod()) != OK)
+        return getErrorPage();
     std::string path = getPath();
 
-    _status = checkFile(path);
-    if (_status != OK)
-        return getErrorPage(status);
+    if ((_status = checkFile(path)) != OK)
+        return getErrorPage();
 
-    if (!isDir(path)) { // Delete File
-        _status = deleteFile(path);
-        if (_status != OK)
-            return getErrorPage(status);
-    } else { // Is Directory
+    if (!isDir(path)) {
+        // Delete File
+        if ((_status = deleteFile(path)) != OK)
+            return getErrorPage();
+    } else {
+        // Is Directory
         if (isDirEmpty(path)) {
-            _status = deleteDir(path);
-            if (_status != OK)
-                return getErrorPage(status);
-        } else
-		{
+            if ((_status = deleteDir(path)) != OK)
+                return getErrorPage();
+        } else {
 			_status = CONFLICT;
-            return getErrorPage(status); // non-empty directory
+            return getErrorPage(); // non-empty directory
 		}
     }
     _response.status = NO_CONTENT; // Nginx status upon successfull deletion

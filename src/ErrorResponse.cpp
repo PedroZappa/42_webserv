@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:22:17 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/11 18:25:57 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:20:51 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,5 @@ ErrorResponse::~ErrorResponse() {}
  * @return A string containing the error page.
  */
 std::string ErrorResponse::generateResponse() {
-    return getErrorPage(_status);
+    return getErrorPage();
 }

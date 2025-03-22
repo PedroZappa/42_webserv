@@ -16,6 +16,7 @@
 #include "../inc/AResponse.hpp"
 #include "../inc/Webserv.hpp"
 #include "../inc/Utils.hpp"
+#include "../inc/CGI.hpp"
 
 /**
  * @class GetResponse

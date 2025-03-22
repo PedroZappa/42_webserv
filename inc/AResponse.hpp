@@ -107,3 +107,4 @@ class AResponse {
 std::ostream &operator<<(std::ostream &, const AResponse &);
 
 #endif
+

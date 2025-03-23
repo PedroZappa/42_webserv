@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 23:41:10 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/03/23 15:29:43 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
     dup2(pipeIn[0], STDIN_FILENO);
     close(pipeIn[1]);
     dup2(pipeOut[1], STDOUT_FILENO);
-    close(pipeIn[0]);
+    close(pipeOut[0]);
 
     short status = setCGIenv();
     if (status != OK)
@@ -154,10 +154,6 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
     lim.rlim_cur = (200 * KB * KB);
     lim.rlim_max = (200 * KB * KB);
     setrlimit(RLIMIT_AS, &lim);
-    
-    std::string dir = script.substr(0, script.find_last_of("/"));
-    if (chdir(dir.c_str()) == -1)
-        exit(EXIT_FAILURE);
 
     char *argv[] = {const_cast<char *>(script.c_str()), NULL};
     if (execve(script.c_str(), argv, _cgiEnv) == -1)
@@ -354,7 +350,7 @@ std::pair<short, std::string> CGI::getOutput(pid_t pid, int *pipeOut) {
             if (WEXITSTATUS(status) != 0)
                 return (std::make_pair(INTERNAL_SERVER_ERROR, "Child didn't exit correctly."));
             
-            std::size_t bytesRead;
+            ssize_t bytesRead;
             char buff[1024];
             std::string output;
             while ((bytesRead = read(pipeOut[0], buff, sizeof(buff)) > 0))

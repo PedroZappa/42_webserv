@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/22 12:36:30 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 23:41:10 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ CGI::CGI(HttpRequest &request, HttpResponse &response, const std::string &path)
  * @brief Destroy the CGI object and clean up resources.
  */
 CGI::~CGI() {
-    if (_cgiEnv) {
-        for (std::size_t i = 0; _cgiEnv[i] != NULL; ++i)
-            delete[] _cgiEnv[i];
-        delete[] _cgiEnv;
-    }
+    if (_cgiEnv == NULL) return;
+    
+    for (std::size_t i = 0; _cgiEnv[i] != NULL; ++i)
+        delete[] _cgiEnv[i];
+    delete[] _cgiEnv;
 }
 
 /* ************************************************************************** */
@@ -53,32 +53,37 @@ CGI::~CGI() {
  * @brief Handle the CGI response by executing the CGI script and processing its
  * output.
  */
-void CGI::handleCGIresponse() {
-    std::string cgiOut = execCGI(_path);
-    if (std::atoi(cgiOut.c_str()) != 0) {
-        _response.status = std::atoi(cgiOut.c_str());
-        return;
+short CGI::generateResponse() {
+    std::pair<short, std::string> result = execute(_path);
+    if (result.first != OK) {
+        _response.status = result.first;
+        Logger::warn(result.second);
+        return result.first;
     }
 
-    std::size_t pos = cgiOut.find("\r\n\r\n");
-    if (pos != std::string::npos) {
-        std::string headers = cgiOut.substr(0, pos);
-        std::string body = cgiOut.substr(pos + 4);
-        std::multimap<std::string, std::string> headerEnv =
-            parseCGIheaders(headers);
-
-        // Keep existing Headers
-        std::multimap<std::string, std::string>::const_iterator it;
-        for (it = headerEnv.begin(); it != headerEnv.end(); ++it) {
-            // Check if header is set
-            std::multimap<std::string, std::string>::iterator resIt =
-                _response.headers.find(it->first);
-            if (resIt == _response.headers.end())
-                _response.headers.insert(*it);
-        }
-        _response.body = body;
-    } else
+    std::string &output = result.second;
+    std::size_t pos = output.find("\r\n\r\n");
+    if (pos == std::string::npos) {
         _response.status = INTERNAL_SERVER_ERROR;
+        return (INTERNAL_SERVER_ERROR);
+    }
+    
+    std::string headers = output.substr(0, pos);
+    std::string body = output.substr(pos + 4);
+    std::multimap<std::string, std::string> headerEnv =
+        parseCGIheaders(headers);
+
+    // Keep existing Headers
+    std::multimap<std::string, std::string>::const_iterator it;
+    for (it = headerEnv.begin(); it != headerEnv.end(); ++it) {
+        // Check if header is set
+        std::multimap<std::string, std::string>::iterator resIt =
+            _response.headers.find(it->first);
+        if (resIt == _response.headers.end())
+            _response.headers.insert(*it);
+    }
+    _response.body = body;
+    return (OK);
 }
 
 /**
@@ -93,31 +98,31 @@ void CGI::handleCGIresponse() {
  * @return A string containing the output from the CGI script, or an error
  * message if the script fails.
  */
-std::string CGI::execCGI(const std::string &script) {
-    int pipeIn[2];
-    int pipeOut[2];
-    std::string cgiOut;
+std::pair<short, std::string> CGI::execute(const std::string &script) {
+    int pipeIn[2], pipeOut[2];
 
     if (pipe(pipeIn) == -1 || pipe(pipeOut) == -1)
-        return (err2string(INTERNAL_SERVER_ERROR));
+        return (std::make_pair(INTERNAL_SERVER_ERROR, "Couldn't open pipes"));
 
     pid_t pid = fork();
     if (pid == -1)
-        return (err2string(INTERNAL_SERVER_ERROR));
+        return (std::make_pair(INTERNAL_SERVER_ERROR, "Couldn't fork process"));
 
-    if (pid == 0)
+    if (pid == 0) {
         runScript(pipeIn, pipeOut, script);
-    else {
-        close(pipeIn[0]);
-        close(pipeOut[1]);
-        if (!_request.body.empty())
-            write(pipeIn[1], _request.body.c_str(), _request.body.length());
-        close(pipeIn[1]);
-
-        cgiOut = getCGIout(pid, pipeOut);
+        exit(0);
     }
+
+    close(pipeIn[0]);
+    close(pipeOut[1]);
+    if (!_request.body.empty())
+        write(pipeIn[1], _request.body.c_str(), _request.body.length());
+    close(pipeIn[1]);
+
+    std::pair<short, std::string> output = getOutput(pid, pipeOut);
+    
     close(pipeOut[0]);
-    return (cgiOut);
+    return (output);
 }
 
 /**
@@ -143,12 +148,13 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
     short status = setCGIenv();
     if (status != OK)
         exit(EXIT_FAILURE);
-    { // Set Child Memory Space Limit
-        struct rlimit lim;
-        lim.rlim_cur = (200 * KB * KB);
-        lim.rlim_max = (200 * KB * KB);
-        setrlimit(RLIMIT_AS, &lim);
-    }
+    
+    // Set Child Memory Space Limit
+    rlimit lim;
+    lim.rlim_cur = (200 * KB * KB);
+    lim.rlim_max = (200 * KB * KB);
+    setrlimit(RLIMIT_AS, &lim);
+    
     std::string dir = script.substr(0, script.find_last_of("/"));
     if (chdir(dir.c_str()) == -1)
         exit(EXIT_FAILURE);
@@ -313,7 +319,7 @@ std::string CGI::getCookies() {
 char **CGI::vec2charArr(const std::vector<std::string> &env) {
     char **charArr = new char *[env.size() + 1];
 
-    for (std::size_t i = 0; i < env.size() + 1; ++i) {
+    for (std::size_t i = 0; i < env.size(); ++i) {
         charArr[i] = new char[env[i].size() + 1];
         std::strcpy(charArr[i], env[i].c_str());
     }
@@ -335,31 +341,30 @@ char **CGI::vec2charArr(const std::vector<std::string> &env) {
  * @return A string containing the output from the CGI script, or an error
  * message if the script fails.
  */
-std::string CGI::getCGIout(pid_t pid, int *pipeOut) {
-    std::string cgiOut;
-    std::size_t bytesRead;
-    char buff[1024];
-    struct timeval startTime;
-    struct timeval currTime;
+std::pair<short, std::string> CGI::getOutput(pid_t pid, int *pipeOut) {
+    timeval startTime, currTime;
 
     gettimeofday(&startTime, NULL);
-    while (true) {
+    currTime = startTime;
+    while ((currTime.tv_sec - startTime.tv_sec) <= TIMEOUT) {
         gettimeofday(&currTime, NULL);
         int status;
 
         if (waitpid(pid, &status, WNOHANG) != 0) {
             if (WEXITSTATUS(status) != 0)
-                return (err2string(INTERNAL_SERVER_ERROR));
+                return (std::make_pair(INTERNAL_SERVER_ERROR, "Child didn't exit correctly."));
+            
+            std::size_t bytesRead;
+            char buff[1024];
+            std::string output;
             while ((bytesRead = read(pipeOut[0], buff, sizeof(buff)) > 0))
-                cgiOut.append(buff, bytesRead);
-            break;
-        }
-        if ((currTime.tv_sec - startTime.tv_sec) > TIMEOUT) {
-            kill(pid, SIGKILL);
-            return (err2string(GATEWAY_TIMEOUT));
+                output.append(buff, bytesRead);
+            return (std::make_pair(OK, output));
         }
     }
-    return (cgiOut);
+    
+    kill(pid, SIGKILL);
+    return (std::make_pair(GATEWAY_TIMEOUT, "Child took too long to exit."));
 }
 
 /**
@@ -419,9 +424,7 @@ bool CGI::hasSingleValue(std::string &key) {
     //     "Accept", "Accept-Encoding", "Cache-Control", "Set-Cookie",
     //     "Via",    "Forewarded"};
     // Use std::find to check if the key exists in the list
-    if (std::find(headers.begin(), headers.end(), key) != headers.end())
-        return (false);
-    return (true);
+    return (std::find(headers.begin(), headers.end(), key) == headers.end());
 }
 
 /* ************************************************************************** */
@@ -450,91 +453,4 @@ CGI::parseCGIheaders(const std::string &headers) {
     }
     return (headerEnv);
     ;
-}
-=======
-
-CGI::CGI(HttpRequest &request, HttpResponse &response, const std::string &path)
-    : _request(request), _response(response), _path(path), _cgiEnv(NULL) {}
-
-CGI::~CGI() {
-    if (_cgiEnv == NULL) return;
-    for (size_t i = 0; _cgiEnv[i] != NULL; i++)
-        delete[] _cgiEnv[i];
-    delete[] _cgiEnv;
-}
-
-std::string CGI::createOutput(pid_t pid, int *pipe) {
-    timeval start, curr;
-    int status;
-    
-    gettimeofday(&start, NULL);
-    gettimeofday(&curr, NULL);
-
-    while (curr.tv_sec - start.tv_sec < TIMEOUT) {
-        gettimeofday(&curr, NULL);
-        
-        if (waitpid(pid, &status, WNOHANG) != 0) {
-            if (WEXITSTATUS(status) != 0)
-                throw std::runtime_error("500 - CGI didn't exit correctly");
-            
-            char buffer[4096];
-            ssize_t bytes;
-            std::string output;
-            while ((bytes = read(pipe[0], buffer, sizeof(buffer))) > 0) {
-                output.append(buffer, bytes);
-            }
-        }
-    }
-
-    kill(pid, SIGKILL);
-    throw std::runtime_error("504 - Timed Out");
-}
-
-std::string CGI::run() {
-    int in[2], out[2];
-    
-    if (pipe(in) == -1 || pipe(out) == -1)
-        throw std::runtime_error("Pipes failed to create");
-
-    pid_t pid = fork();
-    if (pid == -1)
-        throw std::runtime_error("Fork failed");
-    
-    if (pid == 0) {
-        // TODO: CGI runner
-    }
-    
-    close(in[0]);
-    close(out[1]);
-    
-    if (!_request.body.empty()) {
-        write(in[1], _request.body.c_str(), _request.body.size());
-    }
-    
-    close(in[1]);
-
-    return createOutput(pid, out);
-}
-
-short CGI::execute()
-{
-    std::string output;
-    try {
-        output = run();
-    } catch (const std::exception &e) {
-        int status = std::atoi(e.what());
-        Logger::error(e.what());
-        return status;
-    }
-
-    size_t pos = output.find("\r\n\r\n");
-    if (pos == std::string::npos) {
-        _response.status = INTERNAL_SERVER_ERROR;
-        return (INTERNAL_SERVER_ERROR);
-    }
-
-    std::string body = output.substr(pos + 4);
-    // TODO: Headers
-    _response.body = body;
-    return (OK);
 }

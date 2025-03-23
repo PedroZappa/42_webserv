@@ -25,8 +25,8 @@ class CGI {
     ~CGI();
 
     // Public Methods
-    void handleCGIresponse();
-    std::string execCGI(const std::string &script);
+    short generateResponse();
+    std::pair<short, std::string> execute(const std::string &script);
     std::string getEnvVal(std::string key);
 
   private:
@@ -36,7 +36,6 @@ class CGI {
     char **_cgiEnv;
 
     // Private Methods
-    // /// execCGI()
     void runScript(int *pipeIn, int *pipeOut, const std::string &script);
     short setCGIenv();
     void setEnvVar(std::vector<std::string> &env, std::string key,
@@ -47,12 +46,11 @@ class CGI {
 	std::string getCookies();
 	char **vec2charArr(const std::vector<std::string> &);
 
-    std::string getCGIout(pid_t, int *pipeOut);
+    std::pair<short, std::string> getOutput(pid_t, int *pipeOut);
     // Parse
     std::multimap<std::string, std::string>
     parseCGIheaders(const std::string &headers);
 
-    // /// getEnvVal()
     bool hasSingleValue(std::string &key);
 };
 

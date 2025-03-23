@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AResponse.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: passunca <passunca@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 19:00:04 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/11 18:26:42 by passunca         ###   ########.fr       */
+/*   Updated: 2025/03/22 22:26:59 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ class AResponse {
     HttpResponse _response;     /**< The HTTP response. */
     const Server &_server;      /**< Reference to the server configuration. */
     std::string _locationRoute; /**< The location route. */
-	short _status;		 		/**< The HTTP status code. */
+	unsigned short _status; 	/**< The HTTP status code. */
 
     // Checkers
     bool isCGI() const;
@@ -93,7 +93,7 @@ class AResponse {
     void setMimeType(const std::string &path);
     void loadHeaders();
     // ErrorResponse
-    const std::string getErrorPage(short status);
+    const std::string getErrorPage();
     // PostResponse
     void setLocationRoute();
 };

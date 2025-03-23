@@ -6,7 +6,7 @@
 /*   By: gfragoso <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 10:54:11 by passunca          #+#    #+#             */
-/*   Updated: 2025/03/23 15:29:43 by gfragoso         ###   ########.fr       */
+/*   Updated: 2025/03/23 15:38:36 by gfragoso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -350,11 +350,15 @@ std::pair<short, std::string> CGI::getOutput(pid_t pid, int *pipeOut) {
             if (WEXITSTATUS(status) != 0)
                 return (std::make_pair(INTERNAL_SERVER_ERROR, "Child didn't exit correctly."));
             
-            ssize_t bytesRead;
             char buff[1024];
             std::string output;
-            while ((bytesRead = read(pipeOut[0], buff, sizeof(buff)) > 0))
+            ssize_t bytesRead = read(pipeOut[0], buff, sizeof(buff));
+            while (bytesRead > 0) {
                 output.append(buff, bytesRead);
+                bytesRead = read(pipeOut[0], buff, sizeof(buff));
+            }
+            if (bytesRead < 0)
+                return (std::make_pair(INTERNAL_SERVER_ERROR, std::strerror(errno)));
             return (std::make_pair(OK, output));
         }
     }

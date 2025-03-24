@@ -143,10 +143,9 @@ void AResponse::loadReturn() {
 bool AResponse::isDir(const std::string &path) const {
     struct stat info;
 
-    stat(path.c_str(), &info);
-    if ((info.st_mode & S_IFMT) == S_IFDIR) // is Directory?
-        return (true);
-    return (false);
+    if (stat(path.c_str(), &info) == -1)
+        return (false);
+    return ((info.st_mode & S_IFMT) == S_IFDIR); // is Directory?
 }
 
 const std::string AResponse::getIndexFile(const std::string &path) const {

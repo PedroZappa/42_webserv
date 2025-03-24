@@ -32,7 +32,7 @@
  * @param path The path to the CGI script.
  */
 CGI::CGI(HttpRequest &request, HttpResponse &response, const std::string &path)
-    : _request(request), _response(response), _path(path) {}
+    : _request(request), _response(response), _path(path), _cgiEnv(NULL) {}
 
 /**
  * @brief Destroy the CGI object and clean up resources.
@@ -54,6 +54,12 @@ CGI::~CGI() {
  * output.
  */
 short CGI::generateResponse() {
+    if (access(_path.c_str(), X_OK) == -1) {
+        _response.status = INTERNAL_SERVER_ERROR;
+        Logger::warn("File might exist, but is not executable.");
+        return (INTERNAL_SERVER_ERROR);
+    }
+
     std::pair<short, std::string> result = execute(_path);
     if (result.first != OK) {
         _response.status = result.first;

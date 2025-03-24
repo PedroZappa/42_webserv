@@ -125,7 +125,7 @@ short GetResponse::loadFile(std::string &path) {
         setMimeType(path);
     }
     loadHeaders();
-    return (OK);
+    return (_status);
 }
 
 /**

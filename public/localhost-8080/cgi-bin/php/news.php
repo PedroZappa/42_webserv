@@ -1,15 +1,14 @@
-#!/usr/bin/env php-cgi
+#!/usr/bin/env php
+
 <?php
-header("Content-Type: text/html; charset=UTF-8");
+
+echo "Content-Type: text/html";
+echo"\r\n\r\n";
 
 // https://newsapi.org
 $apiKey = '8e144a93da4d4d18920df83f8580c7a7';
 $newsSource = 'bbc-news';
 $pageSize = 10;
-
-if (isset($_GET['source']) && !empty($_GET['source'])) {
-    $newsSource = htmlspecialchars($_GET['source']);
-}
 
 function fetchNews($apiKey, $source, $pageSize) {
     $url = "https://newsapi.org/v2/top-headlines?sources=$source&pageSize=$pageSize&apiKey=$apiKey";
@@ -96,19 +95,6 @@ $newsData = fetchNews($apiKey, $newsSource, $pageSize);
         <h1>Dynamic News Reader</h1>
         <p>Latest headlines from <?php echo htmlspecialchars($newsSource); ?></p>
     </header>
-
-    <div class="source-selector">
-        <form method="get" action="">
-            <select name="source">
-                <option value="bbc-news" <?php echo $newsSource === 'bbc-news' ? 'selected' : ''; ?>>BBC News</option>
-                <option value="cnn" <?php echo $newsSource === 'cnn' ? 'selected' : ''; ?>>CNN</option>
-                <option value="the-verge" <?php echo $newsSource === 'the-verge' ? 'selected' : ''; ?>>The Verge</option>
-                <option value="techcrunch" <?php echo $newsSource === 'techcrunch' ? 'selected' : ''; ?>>TechCrunch</option>
-                <option value="reuters" <?php echo $newsSource === 'reuters' ? 'selected' : ''; ?>>Reuters</option>
-            </select>
-            <button type="submit">Change Source</button>
-        </form>
-    </div>
 
     <?php if (isset($newsData['articles']) && count($newsData['articles']) > 0): ?>
         <?php foreach ($newsData['articles'] as $article): ?>

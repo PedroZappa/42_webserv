@@ -162,8 +162,10 @@ void CGI::runScript(int *pipeIn, int *pipeOut, const std::string &script) {
     setrlimit(RLIMIT_AS, &lim);
 
     char *argv[] = {const_cast<char *>(script.c_str()), NULL};
-    if (execve(script.c_str(), argv, _cgiEnv) == -1)
+    if (execve(script.c_str(), argv, _cgiEnv) == -1) {
+        std::string reason = std::strerror(errno);
         exit(EXIT_FAILURE);
+    } 
 }
 
 /**
@@ -353,8 +355,11 @@ std::pair<short, std::string> CGI::getOutput(pid_t pid, int *pipeOut) {
         int status;
 
         if (waitpid(pid, &status, WNOHANG) != 0) {
-            if (WEXITSTATUS(status) != 0)
-                return (std::make_pair(INTERNAL_SERVER_ERROR, "Child didn't exit correctly."));
+            if (WEXITSTATUS(status) != 0) {
+                std::stringstream s;
+                s << "Child didn't exit correctly. [" << WEXITSTATUS(status) << "]";
+                return (std::make_pair(INTERNAL_SERVER_ERROR, s.str()));
+            }
             
             char buff[1024];
             std::string output;

@@ -538,23 +538,24 @@ std::string AResponse::addFileEntry(std::string &name,
     std::string date = getLastModifiedDate(fullPath);
     std::string size = getFileSize(fullPath);
     std::string displayName = name;
-    if (isDir(path))
+    if (isDir(fullPath))
         displayName += '/';
     if (displayName.length() > 51)
         displayName = displayName.substr(0, 48) + "..>";
     if ((name != "./") && (name != "../"))
         name = getPath(_request.uri, name);
+    if (isDir(fullPath))
+        name += '/';
     std::string blanksL;
     if (displayName.length() < 51)
         blanksL =
             std::string((51 - displayName.length()), ' '); // Pad with blanks
     std::stringstream fileEntry;
     std::string blanksR = "                  ";
-    if (displayName == "../")
-        fileEntry << "<a href=\"" + name + "\">" + displayName + "</a> \n";
-    else
-        fileEntry << "<a href=\"" + name + "\">" + displayName + "</a> " +
-                         blanksL + date + blanksR + size + "\n";
+    fileEntry << "<a href=\"" + name + "\">" + displayName + "</a>";
+    if (displayName != "../")
+        fileEntry << blanksL << date << blanksR << size;
+    fileEntry << "\n";
     return (fileEntry.str());
 }
 

@@ -140,11 +140,11 @@ void AResponse::loadReturn() {
  * corresponds to a directory. It retrieves the file status information
  * and checks the file type to see if it is a directory.
  */
-bool AResponse::isDir(const std::string &path) const {
+int8_t AResponse::isDir(const std::string &path) const {
     struct stat info;
 
     if (stat(path.c_str(), &info) == -1)
-        return (false);
+        return (-1);
     return ((info.st_mode & S_IFMT) == S_IFDIR); // is Directory?
 }
 
@@ -573,15 +573,25 @@ short AResponse::loadDirectoryListing(const std::string &path) {
     std::vector<std::string> dirs;
     std::vector<std::string> files;
     while ((entry = readdir(dir)) != NULL) {
-        if (isDir(getPath(path, entry->d_name)))
-            dirs.push_back(entry->d_name);
-        else
-            files.push_back(entry->d_name);
+        switch (isDir(getPath(path, entry->d_name))) {
+            case 1:
+                dirs.push_back(entry->d_name);
+                break;
+            case 0:
+                files.push_back(entry->d_name);
+                break;
+            default:
+                break;   
+        }
     }
+
     // Sort alphabetically
     std::sort(dirs.begin(), dirs.end());
     std::sort(files.begin(), files.end());
-    dirs.erase(dirs.begin()); // delete '.'
+    if (dirs.size() > 0)
+        dirs.erase(dirs.begin()); // delete '.'
+    else
+        dirs.push_back("..");
 
     std::vector<std::string>::iterator it;
     for (it = dirs.begin(); it != dirs.end(); it++) {

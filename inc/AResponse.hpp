@@ -68,7 +68,7 @@ class AResponse {
     // GetResponse
     bool hasReturn() const;
     void loadReturn();
-    bool isDir(const std::string &path) const;
+    int8_t isDir(const std::string &path) const;
     const std::string getIndexFile(const std::string &path) const;
     bool hasAutoIndex() const;
 

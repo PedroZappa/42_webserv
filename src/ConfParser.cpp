@@ -313,7 +313,7 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 			else server.setDirective(line); // Get server directive
 			startPos = block.tellg();
 		}
-		// TODO: Check for duplicates
+		// TODO Check for duplicates
 		if (server.getRoot().empty())
 			throw std::runtime_error("Invalid server block: no root");
 		_servers.push_back(server);

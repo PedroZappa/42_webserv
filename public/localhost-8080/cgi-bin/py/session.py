@@ -22,23 +22,27 @@ else:
 cookie.clear()
 cookie['sid'] = sid
 
-os.chmod('%s/sess_%s' % (path, sid), 0o777)
 data = shelve.open(
 	'%s/sess_%s' % (path, sid), 
 	writeback=True
 )
+os.chmod('%s/sess_%s' % (path, sid), 0o777)
 
 if not data.get('cookie'):
     data['cookie'] = {'expires':''}
 
 lastvisit = data.get('lastVisit')
 if lastvisit:
-    message = time.asctime(time.gmtime(float(lastvisit)))
+    message = 'on ' + time.asctime(time.gmtime(float(lastvisit)))
 else:
     message = 'never'
+visitCount = data.get('visitCount')
+if not visitCount:
+    visitCount = 0
 
 # Save the current time in the session
 data['lastVisit'] = repr(time.time())
+data['visitCount'] = visitCount + 1
 data.sync()
 
 print("\r\n\r\n")
@@ -52,7 +56,8 @@ html = f"""
 	<title>Session</title>
 </head>
 <body>
-	<h2>Your last visit was on {message} </h2>
+	<h2>Your last visit was {message} </h2>
+    <h2>You visited this page {visitCount} times </h2>
 </body>
 </html>
 """

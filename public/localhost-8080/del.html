@@ -46,7 +46,7 @@ function submitDelete() {
     .then(res => res.status)
     .then(res => {
         box.textContent = "Result code: " + res;
-        box.classList.toggle("hidden");
+        box.classList.remove("hidden");
     });
 }
 </script>

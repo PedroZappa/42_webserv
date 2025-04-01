@@ -31,8 +31,9 @@
  * @param response The HTTP response object.
  * @param path The path to the CGI script.
  */
-CGI::CGI(HttpRequest &request, HttpResponse &response, const std::string &path)
-    : _request(request), _response(response), _path(path), _cgiEnv(NULL) {}
+CGI::CGI(HttpRequest &request, HttpResponse &response,
+        const std::string &root, const std::string &path)
+    : _request(request), _response(response), _root(root), _path(path), _cgiEnv(NULL) {}
 
 /**
  * @brief Destroy the CGI object and clean up resources.
@@ -192,6 +193,7 @@ short CGI::setCGIenv() {
     setEnvVar(cgiEnv, "SERVER_PORT", getServerPort().c_str());
     setEnvVar(cgiEnv, "GATEWAY_INTERFACE", "CGI/1.1");
     setEnvVar(cgiEnv, "PATH_INFO", _path.c_str());
+    setEnvVar(cgiEnv, "DOCUMENT_ROOT", _root.c_str());
     setEnvVar(cgiEnv, "CONTENT_LENGTH", getEnvVal("content-length").c_str());
     setEnvVar(cgiEnv, "QUERY_STRING", getQueryFields().c_str());
     setEnvVar(cgiEnv, "SCRIPT_NAME", _request.uri.c_str());

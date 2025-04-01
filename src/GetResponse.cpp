@@ -80,7 +80,13 @@ GetResponse::~GetResponse() {}
  */
 short GetResponse::loadFile(std::string &path) {
     if (isCGI()) {
-        CGI cgi(_request, _response, path);
+        std::string root = _server.getRoot(_locationRoute);
+        CGI cgi(
+            _request,
+            _response,
+            root,
+            path
+        );
         if ((_status = cgi.generateResponse()) != OK)
             getErrorPage();
     } else {

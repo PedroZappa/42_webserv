@@ -21,37 +21,38 @@
 
 class CGI {
   public:
-    CGI(HttpRequest &, HttpResponse &, const std::string &paqth);
+    CGI(HttpRequest &, HttpResponse &, const std::string &, const std::string &);
     ~CGI();
 
     // Public Methods
     short generateResponse();
-    std::pair<short, std::string> execute(const std::string &script);
+    std::pair<short, std::string> execute(const std::string &);
     std::string getEnvVal(std::string key);
 
   private:
     const HttpRequest &_request;
     HttpResponse &_response;
+    const std::string &_root;
     const std::string &_path;
     char **_cgiEnv;
 
     // Private Methods
-    void runScript(int *pipeIn, int *pipeOut, const std::string &script);
+    void runScript(int *, int *, const std::string &);
     short setCGIenv();
-    void setEnvVar(std::vector<std::string> &env, std::string key,
-                   std::string varToAdd);
+    void setEnvVar(std::vector<std::string> &, std::string,
+                   std::string);
 	std::string getServerName();
 	std::string getServerPort();
 	std::string getQueryFields();
 	std::string getCookies();
 	char **vec2charArr(const std::vector<std::string> &);
 
-    std::pair<short, std::string> getOutput(pid_t, int *pipeOut);
+    std::pair<short, std::string> getOutput(pid_t, int *);
     // Parse
     std::multimap<std::string, std::string>
-    parseCGIheaders(const std::string &headers);
+    parseCGIheaders(const std::string &);
 
-    bool hasSingleValue(std::string &key);
+    bool hasSingleValue(std::string &);
 };
 
 #endif

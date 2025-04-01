@@ -17,36 +17,37 @@ function print_cookies() {
 
 echo "Content-Type: text/html";
 echo"\r\n\r\n";
+?>
+<html>
+<head>
+    <title>CGI Test Script</title>
+</head>
+<body>
+    <h1>CGI Environment Variables</h1>
+    <h2>Environment Variables</h2>
+        <ul>
+        <?php foreach ($_SERVER as $key => $value) {
+            echo "<li>";
+            echo "<strong>$key:</strong>";
+            echo (is_array($value) ? implode(", ", $value) : $value);
+            echo "</li>";
+        } ?>
+        </ul>
+    <h2>Form Data</h2>"
 
-echo "<html>";
-echo "<head>";
-echo "  <title>CGI Test Script</title>";
-echo "</head>";
-echo "<body>";
-echo "  <h1>CGI Environment Variables</h1>";
-
-echo "  <h2>Environment Variables</h2>";
-echo "      <ul>";
-foreach ($_SERVER as $key => $value) {
-    echo "      <li><strong>$key:</strong> ";
-    echo (is_array($value) ? implode(", ", $value) : $value);
-    echo "      </li>";
-}
-echo "      </ul>";
-
-echo "  <h2>Form Data</h2>";
-
+<?php
 $method = $_SERVER['REQUEST_METHOD'];
-echo "  <h3>$method Data</h3>";
+?>
+    <h3><? $method ?> Data</h3>
+        <ul>
 
+<?php
 if ($method == 'POST' && !empty($_POST)) {
-    echo "<ul>";
 	$post_data = $_POST;
     foreach ($post_data as $key => $value) {
         echo "<li><strong>$key:</strong> $value</li>";
     }
-} else if (!empty($_SERVER['QUERY_STRING'])){
-    echo "<ul>";
+} else if (!empty($_SERVER['QUERY_STRING'])) {
 	$query_string = $_SERVER['QUERY_STRING'];
     parse_str($query_string, $params);
     foreach ($params as $key => $values) {
@@ -54,12 +55,10 @@ if ($method == 'POST' && !empty($_POST)) {
             echo "<li><strong>$key:</strong> $value</li>";
         }
     }
-    echo "</ul>";
 }
-
-echo "  <h2>Cookies</h2>";
-print_cookies();
-
-echo "</body>";
-echo "</html>";
 ?>
+        </ul>
+    <h2>Cookies</h2>
+        <?php print_cookies(); ?>
+</body>
+</html>

@@ -50,3 +50,4 @@ webserv
 
 # Temp
 .DS_Store
+tmp/

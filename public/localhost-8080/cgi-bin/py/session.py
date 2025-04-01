@@ -3,12 +3,11 @@
 import os, hashlib, time, shelve
 import http.cookies as Cookie
 
-SESSION_PATH = "./tmp/"
-
-if not os.path.exists(SESSION_PATH):
-    os.makedirs(SESSION_PATH)
-
 print("Content-Type: text/html")
+
+path = os.environ.get('DOCUMENT_ROOT', '.') + '/tmp'
+if not os.path.exists(path):
+    os.makedirs(path)
 
 # Inspired in https://cgi.tutorial.codepoint.net/a-session-class
 str_cookie = os.environ.get('HTTP_COOKIE', '')
@@ -22,12 +21,13 @@ else:
 		
 cookie.clear()
 cookie['sid'] = sid
+
+os.chmod('%s/sess_%s' % (path, sid), 0o777)
 data = shelve.open(
-	'%s/sess_%s' % (SESSION_PATH, sid), 
+	'%s/sess_%s' % (path, sid), 
 	writeback=True
 )
 
-os.chmod('%s/sess_%s' % (SESSION_PATH, sid), 777)
 if not data.get('cookie'):
     data['cookie'] = {'expires':''}
 

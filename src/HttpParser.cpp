@@ -147,8 +147,8 @@ bool HttpRequestParser::getRequestLine(HttpRequest &httpReq,
 	}
 
 	httpReq.method = string2method(method);
-	httpReq.uri = trim(url);
-	httpReq.decodedUri = decodedUrl;
+	httpReq.uri = decodedUrl;
+	httpReq.encodedUri =  trim(url);
 	httpReq.protocolVersion = trim(protocolVersion);
 
 	return true;

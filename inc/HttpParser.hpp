@@ -28,7 +28,7 @@ struct HttpRequest {
 	// Request Line
 	enum Method method;
 	std::string uri;
-	std::string decodedUri;
+	std::string encodedUri;
 	std::string protocolVersion;
 
 	// Header

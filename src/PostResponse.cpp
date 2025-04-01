@@ -118,10 +118,11 @@ std::string PostResponse::generateResponse() {
         _response.status = CREATED;
     } else {
         std::string root = _server.getRoot(_locationRoute);
+        std::string path = getPath();
 		CGI cgi(_request,
             _response,
             root,
-            getPath()
+            path
         );
 		if ((_status = cgi.generateResponse()) != OK)
 			getErrorPage();

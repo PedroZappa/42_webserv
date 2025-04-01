@@ -4,23 +4,38 @@
 
 echo "Content-Type: text/html";
 echo "\r\n";
-echo "Set-Cookie: name=Jane Doe; Max-Age=60; HttpOnly";
-echo"\r\n\r\n";
 
-$cookie_name = 'name'
+if (!empty($_SERVER['QUERY_STRING'])){
+	$query_string = $_SERVER['QUERY_STRING'];
+    parse_str($query_string, $params);
+    foreach ($params as $key => $values) {
+        foreach ((array)$values as $value) {
+            echo "Set-Cookie: $key=$value; HttpOnly";
+			echo "\r\n";
+        }
+	}
+}
+
+echo "\r\n";
+
+$cookie_name = 'name';
+
+function print_cookies() {
+	if (empty($_SERVER['HTTP_COOKIE'])) return;
+
+	$cookies = $_SERVER['HTTP_COOKIE'];
+	parse_str($cookies, $params);
+	foreach ($params as $key => $values) {
+    	foreach ((array)$values as $value)
+        	echo "<li><strong>$key:</strong> $value</li>";
+	}
+}
 ?>
 <html>
 <body>
-<ul>
-<?php
-$cookies = $_SERVER['HTTP_COOKIE'];
-parse_str($cookies, $params);
-foreach ($params as $key => $values) {
-    foreach ((array)$values as $value) {
-        echo "<li><strong>$key:</strong> $value</li>";
-    }
-}
-?>
-</ul>
+	<h1>Current cookies</h1>
+	<ul>
+		<?php print_cookies(); ?>
+	</ul>
 </body>
 </html> 

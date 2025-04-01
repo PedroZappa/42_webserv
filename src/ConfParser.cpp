@@ -284,6 +284,8 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 	std::vector<std::string>::iterator it;
 	std::string line;
 	std::string brace;
+    std::set<std::string> portSet;
+    size_t portNum = 0;
 
 	for (it = blocks.begin(); it != blocks.end(); it++)
 	{
@@ -316,6 +318,12 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 		// TODO Check for duplicates
 		if (server.getRoot().empty())
 			throw std::runtime_error("Invalid server block: no root");
+
+        std::vector<Socket> addrs = server.getNetAddr();
+        std::vector<Socket>::const_iterator i;
+        for (i = addrs.begin(); i != addrs.end(); i++)
+            portSet.insert((*i).port);
+        portNum += addrs.size();
 		_servers.push_back(server);
 
 #ifdef DEBUG
@@ -327,6 +335,15 @@ void ConfParser::loadContext(std::vector<std::string> &blocks)
 		Logger::debug("ConfParser", __func__, "Loaded context from config file " NC + _confFile);
 #endif
 	}
+
+    if (portNum != portSet.size())
+    {
+        std::stringstream s;
+        s << "Number of ports (" << portNum
+            << ") vs Size of Port Set (" << portSet.size() << ")";
+        Logger::debug("ConfParser", __func__, s.str());
+        throw std::runtime_error("Invalid configuration: duplicate ports");
+    }
 }
 
 /* ************************************************************************** */

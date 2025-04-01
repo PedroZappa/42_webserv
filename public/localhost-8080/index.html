@@ -15,8 +15,8 @@
                                         shadow-lg border border-gray-200 rounded">
                 <legend class="text-2xl font-bold">Webserv</legend>
                 <p class="color-gray-200 my-2">Not an NGINX copy btw</p>
-                <div class="flex flex-col mt-4 space-y-2">
-                    <h2 class="font-semibold mb-4">Testing Utilities</h2>
+                <h2 class="font-semibold my-4">Testing Utilities</h2>
+                <div class="grid grid-cols-3 gap-4">
                     <a href="http://localhost:8080/public/">
                         <button class="bg-yellow-500 hover:bg-yellow-700 text-white
                                     font-bold py-2 px-4 rounded cursor-pointer
@@ -31,13 +31,20 @@
                             Upload files
                         </button>
                     </a>
+                    <a href="http://localhost:8080/public/localhost-8080/uploads/">
+                        <button class="bg-green-700 hover:bg-green-900 text-white
+                                    font-bold py-2 px-4 rounded cursor-pointer
+                                    focus:outline-none focus:shadow-outline">
+                            View uploaded files
+                        </button>
+                    </a>
                     <a href="http://localhost:8080/del.html">
                         <button class="bg-red-500 hover:bg-red-700 text-white
                                     font-bold py-2 px-4 rounded cursor-pointer
                                     focus:outline-none focus:shadow-outline">
                             Delete files
                         </button>
-                    </a> 
+                    </a>
                     <a href="http://localhost:8080/redirect">
                         <button class="bg-blue-500 hover:bg-blue-700 text-white
                                     font-bold py-2 px-4 rounded cursor-pointer
@@ -46,8 +53,8 @@
                         </button>
                     </a>
                 </div>
-                <div class="flex flex-col mt-4 space-y-2">
-                    <h2 class="font-semibold mb-4">CGI Testing Utilities</h2>
+                <h2 class="font-semibold my-4">CGI Testing Utilities</h2>
+                <div class="grid grid-cols-4 gap-4">
                     <a href="http://localhost:8080/cgi-bin/php/news.php">
                         <button class="bg-orange-500 hover:bg-orange-700 text-white
                                     font-bold py-2 px-4 rounded cursor-pointer
@@ -62,6 +69,13 @@
                             [PHP] Envs
                         </button>
                     </a>
+                    <form method="post" action="http://localhost:8080/cgi-bin/php/envs.php">
+                        <button class="bg-orange-500 hover:bg-orange-700 text-white
+                                    font-bold py-2 px-4 rounded cursor-pointer
+                                    focus:outline-none focus:shadow-outline">
+                            [PHP] Envs (POST) 
+                        </button>
+                    </form>
                     <a href="http://localhost:8080/cgi-bin/php/cookies.php">
                         <button class="bg-orange-500 hover:bg-orange-700 text-white
                                     font-bold py-2 px-4 rounded cursor-pointer

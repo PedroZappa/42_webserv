@@ -2,7 +2,6 @@
 
 import os, hashlib, time, shelve
 import http.cookies as Cookie
-import cgitb; cgitb.enable()
 
 SESSION_PATH = "./tmp/"
 

@@ -24,10 +24,12 @@ function print_cookies() {
 	if (empty($_SERVER['HTTP_COOKIE'])) return;
 
 	$cookies = $_SERVER['HTTP_COOKIE'];
-	parse_str($cookies, $params);
-	foreach ($params as $key => $values) {
-    	foreach ((array)$values as $value)
-        	echo "<li><strong>$key:</strong> $value</li>";
+	$params = explode('; ', $cookies);
+	foreach ($params as $value) {
+        $av = explode('=', $value);
+		$key = $av[0];
+		$value = $av[1];
+		echo "<li><strong>$key</strong>=$value</li>";
 	}
 }
 ?>

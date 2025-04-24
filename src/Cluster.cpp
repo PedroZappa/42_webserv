@@ -593,7 +593,7 @@ void Cluster::processRequest(int socket, const std::string &request) {
 	}
 
     ssize_t toSend = send(socket, response.c_str(), response.size(), 0);
-    if (toSend == -1) {
+    if (toSend == -1 || toSend == 0) {
         killConnection(socket, _epollFd);
     }
 

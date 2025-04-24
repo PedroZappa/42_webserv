@@ -194,7 +194,7 @@ bool PostResponse::send100continue() {
         return (false);
     }
     ssize_t sent = send(_clientFd, "HTTP/1.1 100 Continue\r\n\r\n", 28, 0);
-    if (sent < 0) {
+    if (sent <= 0) {
         _status = INTERNAL_SERVER_ERROR;
         return (false);
     }
@@ -496,7 +496,8 @@ short PostResponse::uploadFile() {
         return (PAYLOAD_TOO_LARGE);
     }
 
-    if (write(fd, _file2upload.content.c_str(), bytes2write) == -1) {
+	ssize_t retv = write(fd, _file2upload.content.c_str(), bytes2write);
+    if (retv == -1 || (retv == 0 && bytes2write > 0)) {
 		close(fd);
 		return (FORBIDDEN);
     }

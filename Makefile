@@ -43,7 +43,6 @@ SRC_PATH		:= src
 INC_PATH		:= inc
 BUILD_PATH	:= .build
 TEMP_PATH		:= .temp
-CONF_PATH		:= $(TEMP_PATH)/$(notdir $(ARG))
 
 FILES			= 000_main.cpp
 FILES			+= ConfParser.cpp
@@ -98,26 +97,20 @@ VGDB_ARGS	= --vgdb-error=0 $(VAL_LEAK) $(VAL_SUP) $(VAL_FD)
 
 all: $(NAME)	## Compile
 
-$(NAME): symlink_data $(BUILD_PATH) $(OBJS) $(TEMP_PATH) local_conf	## Compile
+$(NAME): $(BUILD_PATH) $(OBJS) $(TEMP_PATH)	## Compile
 	@echo "$(YEL)Compiling $(MAG)$(NAME)$(YEL)$(D)"
 	$(CXX) $(CXXFLAGS) -I $(INC_PATH) $(OBJS) -o $(NAME)
 	@echo "[$(_SUCCESS) compiling $(MAG)$(NAME)$(D) $(YEL)🖔$(D)]"
 
 exec: $(NAME)			## Run
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL)$(D)"
-	./$(NAME) $(CONF_PATH)
+	./$(NAME) $(ARG)
 
 debug: CXX = g++
 debug: CXXFLAGS += $(DEBUG_FLAGS) -D DEBUG
 debug: fclean $(NAME)			## Compile w/ debug symbols
 	@echo "$(YEL)Running $(MAG)$(NAME)$(YEL) in $(YEL)DEBUG$(D) mode$(D)"
-	./$(NAME) $(CONF_PATH)
-
-symlink_data:
-	@if [ ! -h ~/data ]; then \
-		ln -s $(CWD)/data ~/data; \
-		echo "* $(YEL)Creating $(CYA)$(NAME)$(YEL) symlink: $(_SUCCESS)"; \
-	fi
+	./$(NAME) $(ARG)
 
 -include $(BUILD_PATH)/%.d
 
@@ -132,11 +125,6 @@ $(BUILD_PATH):
 $(TEMP_PATH):
 	$(MKDIR_P) $(TEMP_PATH)
 	@echo "* $(YEL)Creating $(CYA)$(TEMP_PATH)$(YEL) folder:$(D) $(_SUCCESS)"
-
-local_conf: $(ARG)
-	echo "* $(YEL)Creating Local $(CYA)$(CONF_PATH)$(YEL) file:$(D) $(_SUCCESS)"
-	sed 's/\$$USER/$(USER)/g' $(ARG) > $(CONF_PATH)
-
 
 set_localhosts:
 	if ! grep -q "^127\.0\.0\.1[[:space:]]\+localghost$$" /etc/hosts; then \
@@ -193,6 +181,9 @@ station: ## Run Webserv w/ posting station
 	tmux resize-pane -U 25
 	tmux resize-pane -L 25
 
+curl_resolve:
+	curl --resolve example.com:8080:127.0.0.1 http://example.com:8080/
+
 ##@ Debug Rules 
 
 gdb: debug $(NAME) $(TEMP_PATH)			## Debug w/ gdb
@@ -238,7 +229,7 @@ vgdb_cmd: $(NAME) $(TEMP_PATH)
 	@printf "\n" >> $(TEMP_PATH)/gdb_commands.txt
 	@cat .vgdbinit >> $(TEMP_PATH)/gdb_commands.txt
 
-##@ Clean-up Rules 󰃢
+##@ Clean-up Rulecurl --resolve example.com:8080:127.0.0.1 http://example.com/s 󰃢
 
 clean: 				## Remove object files
 	@echo "*** $(YEL)Removing $(MAG)$(NAME)$(D) and deps $(YEL)object files$(D)"

@@ -123,7 +123,15 @@ std::pair<short, std::string> CGI::execute(const std::string &script) {
     close(pipeIn[0]);
     close(pipeOut[1]);
     if (!_request.body.empty())
-        write(pipeIn[1], _request.body.c_str(), _request.body.length());
+	{
+        ssize_t retv = write(pipeIn[1], _request.body.c_str(), _request.body.length());
+		if (retv == -1 || (retv == 0 && _request.body.length() > 0))
+		{
+			close(pipeIn[1]);
+			close(pipeOut[0]);
+			return (std::make_pair(INTERNAL_SERVER_ERROR, "Couldn't write request"));
+		}
+	}
     close(pipeIn[1]);
 
     std::pair<short, std::string> output = getOutput(pid, pipeOut);

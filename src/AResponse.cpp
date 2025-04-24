@@ -195,7 +195,8 @@ short AResponse::checkMethod() const {
  * status code indicating that the body size is acceptable.
  */
 short AResponse::checkBodySize() const {
-    std::size_t bodySize = _server.getClientMaxBodySize();
+    std::size_t bodySize = _server
+		.getClientMaxBodySize(_locationRoute);
 
     if (_request.body.size() > bodySize)
         return (PAYLOAD_TOO_LARGE);

@@ -184,6 +184,9 @@ station: ## Run Webserv w/ posting station
 curl_resolve:
 	curl --resolve example.com:8080:127.0.0.1 http://example.com:8080/
 
+curl_body_size:
+	curl -X POST -H "Content-Type: plain/text" --data "$(printf 'A%0.s' {1..1024})" http://localhost:8080/limited -v
+
 ##@ Debug Rules 
 
 gdb: debug $(NAME) $(TEMP_PATH)			## Debug w/ gdb

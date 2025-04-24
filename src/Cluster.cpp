@@ -497,7 +497,7 @@ void Cluster::handleRequest(int socket) {
         throw std::runtime_error("Failed to read request: " + reason);
     }
     
-    _requestBuff[socket].append(requestBuf, bytesRead);
+    _requestBuff[socket] += std::string(requestBuf, bytesRead);
     if (isRequestValid(_requestBuff[socket])) {
         processRequest(socket, _requestBuff[socket]);
         _requestBuff.erase(socket); // clear current connect's request buffer
